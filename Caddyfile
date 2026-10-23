@@ -1,0 +1,9 @@
+:{$PORT:80} {
+	root * /srv
+	encode gzip
+	header Cache-Control "no-cache"
+	@media path /media/*
+	header @media Cache-Control "public, max-age=604800"
+	try_files {path} {path}/index.html
+	file_server
+}
