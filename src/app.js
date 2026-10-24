@@ -10,6 +10,11 @@
     v.addEventListener("loadeddata", () => { if (v.paused && v.currentTime < 0.5) v.currentTime = 0.5; }, { once: true });
   });
 
+  // If the browser blocked autoplay, the first touch anywhere starts what's on screen.
+  addEventListener("touchstart", () => {
+    document.querySelectorAll("#reel, .screen video.is-on").forEach((v) => { if (v.paused) v.play().catch(() => {}); });
+  }, { once: true, passive: true });
+
   // Same-page anchors glide instead of jumping.
   document.addEventListener("click", (e) => {
     const a = e.target.closest('a[href^="#"]');
