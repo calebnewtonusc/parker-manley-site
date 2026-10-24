@@ -45,7 +45,9 @@
       ],
       "crew": [],
       "made_for": "",
-      "festivals": ["Indie Film LA"],
+      "festivals": [
+        "Indie Film LA"
+      ],
       "music": []
     },
     {
@@ -57,12 +59,24 @@
       "youtube": "Rd2oMY0oLxU",
       "featured": true,
       "synopsis": "A man discovers himself in an abandoned stairwell and doesn't like what he sees.",
-      "role": "Co-directed",
-      "cast": ["Sameer Whittle", "Barbara Valent"],
+      "role": "Co-directed & cinematography",
+      "cast": [
+        "Sameer Whittle",
+        "Barbara Valent"
+      ],
       "crew": [
-        ["Co-directed & edited", "Riley Munro"],
-        ["Written", "Christian Ayala & Arul Singh"],
-        ["Score", "Christian Ayala"]
+        [
+          "Co-directed & edited",
+          "Riley Munro"
+        ],
+        [
+          "Written",
+          "Christian Ayala & Arul Singh"
+        ],
+        [
+          "Score",
+          "Christian Ayala"
+        ]
       ],
       "made_for": "",
       "festivals": [],
@@ -77,13 +91,27 @@
       "youtube": "FJHIMW0pgIY",
       "featured": true,
       "synopsis": "Sammy is studying for the SAT and gets a visit from herself 20 years in the future, who encourages her that life will turn out good. But the older Samantha's life is not all that it seems.",
-      "role": "Co-directed",
-      "cast": ["Aurora Finetti"],
+      "role": "Co-directed & written",
+      "cast": [
+        "Aurora Finetti"
+      ],
       "crew": [
-        ["Co-directed", "Sean Kwok"],
-        ["Cinematography", "Minh Luu & Cat Morales-Escobar"],
-        ["Edited", "Dieva Mulet & Cecilia Li"],
-        ["Produced", "Jaci Kim & Ian Kim"]
+        [
+          "Co-directed",
+          "Sean Kwok"
+        ],
+        [
+          "Cinematography",
+          "Minh Luu & Cat Morales-Escobar"
+        ],
+        [
+          "Edited",
+          "Dieva Mulet & Cecilia Li"
+        ],
+        [
+          "Produced",
+          "Jaci Kim & Ian Kim"
+        ]
       ],
       "made_for": "USC CTPR 285",
       "festivals": [],
@@ -97,7 +125,7 @@
       "minutes": 3,
       "youtube": "zBRe3n3gfsk",
       "featured": true,
-      "synopsis": "Death has come to visit Jeremey Bliemans, sweeping him away from his office job to delight him with a macabre dance.",
+      "synopsis": "Death has come to visit Jeremy Bliemans, sweeping him away from his office job to delight him with a macabre dance.",
       "role": "",
       "cast": [
         "Louis Woodley",
@@ -121,8 +149,16 @@
       "featured": false,
       "synopsis": "Henry dreams of escaping into the comforting arms of Mother Nature like the transcendentalist adventurers of the past, but his true feelings are more complicated in an age where wilderness and civilization are inseparable.",
       "role": "Directed, shot & edited",
-      "cast": ["Ty Matthews", "Skye Abdallah"],
-      "crew": [["Screenplay", "Conor Meehan"]],
+      "cast": [
+        "Ty Matthews",
+        "Skye Abdallah"
+      ],
+      "crew": [
+        [
+          "Screenplay",
+          "Conor Meehan"
+        ]
+      ],
       "made_for": "",
       "festivals": [],
       "music": []
@@ -137,7 +173,10 @@
       "featured": false,
       "synopsis": "Two roommates vie over control of the thermostat in their dorm, going to extreme lengths to get what they want.",
       "role": "",
-      "cast": ["Dylan Mandel", "Shep Johnson"],
+      "cast": [
+        "Dylan Mandel",
+        "Shep Johnson"
+      ],
       "crew": [],
       "made_for": "USC CTPR 290",
       "festivals": [],
@@ -163,7 +202,11 @@
       "crew": [],
       "made_for": "",
       "festivals": [],
-      "music": ["John Denver", "The Beatles", "Trinley Olsen"]
+      "music": [
+        "John Denver",
+        "The Beatles",
+        "Trinley Olsen"
+      ]
     },
     {
       "slug": "wonderland",
@@ -179,7 +222,9 @@
       "crew": [],
       "made_for": "",
       "festivals": [],
-      "music": ["Jefferson Airplane"]
+      "music": [
+        "Jefferson Airplane"
+      ]
     },
     {
       "slug": "everybody",
@@ -191,7 +236,12 @@
       "featured": false,
       "synopsis": "A comedic music video to \"Everybody (Backstreet's Back)\" by the Backstreet Boys.",
       "role": "",
-      "cast": ["Miles Bell", "Alexander Henry", "Fritz Weber", "Bennett Ross"],
+      "cast": [
+        "Miles Bell",
+        "Alexander Henry",
+        "Fritz Weber",
+        "Bennett Ross"
+      ],
       "crew": [],
       "made_for": "",
       "festivals": [],
@@ -204,7 +254,7 @@
       "genre": "Comedy",
       "minutes": 12,
       "youtube": "lBGfNuR8bVU",
-      "featured": false,
+      "featured": true,
       "synopsis": "On a trip to a mountain town with his friends, Spencer unknowingly eats a horrendous amount of wasabi with his sushi, to disastrous effect.",
       "role": "",
       "cast": [
@@ -238,7 +288,10 @@
       "featured": false,
       "synopsis": "A murderer attempting to leave the scene of the crime is delayed by the daughter of the victim arriving to check up on her dad.",
       "role": "",
-      "cast": ["Nia Elizabeth", "Anand Lapping"],
+      "cast": [
+        "Nia Elizabeth",
+        "Anand Lapping"
+      ],
       "crew": [],
       "made_for": "USC CTPR 285",
       "festivals": [],
@@ -251,14 +304,24 @@
       "genre": "Comedy",
       "minutes": 5,
       "youtube": "pCs8YOoCBnY",
-      "featured": false,
+      "featured": true,
       "synopsis": "Emmett and Jeremy hunt day and night for the perfect hill for a special occasion.",
       "role": "Directed, shot & edited",
-      "cast": ["Ross Allen", "Miles Bell"],
-      "crew": [["Written", "Lily Andrews"]],
+      "cast": [
+        "Ross Allen",
+        "Miles Bell"
+      ],
+      "crew": [
+        [
+          "Written",
+          "Lily Andrews"
+        ]
+      ],
       "made_for": "",
       "festivals": [],
-      "music": ["Eduard Khil"]
+      "music": [
+        "Eduard Khil"
+      ]
     },
     {
       "slug": "the-runaround",
@@ -270,7 +333,10 @@
       "featured": false,
       "synopsis": "Two thieves attempt to heist an object from a house without knowing anything about the inhabitants nor the object itself.",
       "role": "Created with Christian Ayala",
-      "cast": ["Aidan Wilson", "Logan De Mesa"],
+      "cast": [
+        "Aidan Wilson",
+        "Logan De Mesa"
+      ],
       "crew": [],
       "made_for": "",
       "festivals": [],
@@ -317,7 +383,10 @@
         "Colorado High School Film Festival",
         "Rising Stars Colorado"
       ],
-      "music": ["Miracle Musical", "Tally Hall"]
+      "music": [
+        "Miracle Musical",
+        "Tally Hall"
+      ]
     },
     {
       "slug": "beneath-the-surface",
@@ -333,7 +402,10 @@
       "crew": [],
       "made_for": "Accepted to the USC School of Cinematic Arts",
       "festivals": [],
-      "music": ["Radiohead", "Cults"]
+      "music": [
+        "Radiohead",
+        "Cults"
+      ]
     },
     {
       "slug": "the-teeth-deal",
@@ -366,8 +438,16 @@
       "featured": false,
       "synopsis": "Kylie and Tammy, roommates, are late to a birthday party when they get stuck in a stairwell and are forced to deal with their college anxieties.",
       "role": "Directed, shot & edited",
-      "cast": ["Sara FitzRandolph", "Hope Songer"],
-      "crew": [["Written", "Christian Ayala"]],
+      "cast": [
+        "Sara FitzRandolph",
+        "Hope Songer"
+      ],
+      "crew": [
+        [
+          "Written",
+          "Christian Ayala"
+        ]
+      ],
       "made_for": "",
       "festivals": [],
       "music": []
@@ -382,7 +462,10 @@
       "featured": false,
       "synopsis": "A college student takes us through his memory of when he greatly let his roommate down. In the style of Wes Anderson.",
       "role": "",
-      "cast": ["Malakai Carey", "Langston Wilkinson"],
+      "cast": [
+        "Malakai Carey",
+        "Langston Wilkinson"
+      ],
       "crew": [],
       "made_for": "USC CTPR 285",
       "festivals": [],
@@ -398,11 +481,16 @@
       "featured": false,
       "synopsis": "Neo is about to learn that choosing between the blue and red pills isn't as straightforward as he expected. Based on The Matrix.",
       "role": "",
-      "cast": ["Conor Meehan", "Harry Weinberg"],
+      "cast": [
+        "Conor Meehan",
+        "Harry Weinberg"
+      ],
       "crew": [],
       "made_for": "",
       "festivals": [],
-      "music": ["Starship"]
+      "music": [
+        "Starship"
+      ]
     },
     {
       "slug": "bye-bye-bye",
@@ -414,7 +502,12 @@
       "featured": false,
       "synopsis": "A comedic music video to \"Bye Bye Bye\" by *NSYNC, with choreography from Deadpool & Wolverine.",
       "role": "",
-      "cast": ["Fritz Weber", "Miles Bell", "Bennett Ross", "Parker Manley"],
+      "cast": [
+        "Fritz Weber",
+        "Miles Bell",
+        "Bennett Ross",
+        "Parker Manley"
+      ],
       "crew": [],
       "made_for": "",
       "festivals": [],
@@ -430,11 +523,16 @@
       "featured": false,
       "synopsis": "As Teddy prepares a heartfelt surprise for the love of his life, an unexpected revelation turns a romantic evening into a quietly unraveling emotional storm.",
       "role": "",
-      "cast": ["Ty Matthews", "Lia Jules"],
+      "cast": [
+        "Ty Matthews",
+        "Lia Jules"
+      ],
       "crew": [],
       "made_for": "",
       "festivals": [],
-      "music": ["Cults"]
+      "music": [
+        "Cults"
+      ]
     },
     {
       "slug": "mad",
@@ -446,11 +544,18 @@
       "featured": false,
       "synopsis": "A high school senior, Alice, escapes to an imaginary wonderland, fleeing from teenage burnout.",
       "role": "",
-      "cast": ["Kenna Scherr", "Alexander Henry", "Skye Abdallah"],
+      "cast": [
+        "Kenna Scherr",
+        "Alexander Henry",
+        "Skye Abdallah"
+      ],
       "crew": [],
       "made_for": "Accepted to the Loyola Marymount University Film Production program",
       "festivals": [],
-      "music": ["Jefferson Airplane", "Gene Kelly"]
+      "music": [
+        "Jefferson Airplane",
+        "Gene Kelly"
+      ]
     },
     {
       "slug": "wither-and-bloom",
@@ -462,14 +567,41 @@
       "featured": false,
       "synopsis": "Five years after the Cataclysm, remnants of society survive to protect the last water. As the undead circle in, the Tenacious fighters must defend it at all costs.",
       "role": "Written & edited",
-      "cast": ["Hope Songer"],
+      "cast": [
+        "Hope Songer"
+      ],
       "crew": [
-        ["Directed & shot", "Kathy Chan"],
-        ["Game", "Rohan Jeyanandarajan"]
+        [
+          "Directed & shot",
+          "Kathy Chan"
+        ],
+        [
+          "Game",
+          "Rohan Jeyanandarajan"
+        ]
       ],
       "made_for": "USC CNTV 101",
       "festivals": [],
       "music": []
+    },
+    {
+      "slug": "austin-ringgold",
+      "title": "Austin Ringgold Presidency Video",
+      "year": 2025,
+      "genre": "Student Council Video",
+      "minutes": 3,
+      "youtube": "",
+      "drive": "1lQDbJo4SwuJ-0UjtA8ezk-kG33Vk3mir",
+      "featured": false,
+      "synopsis": "Made to help Austin Ringgold become President of the Peak to Peak Student Council, showing why he was the right choice.",
+      "role": "",
+      "cast": [],
+      "crew": [],
+      "made_for": "",
+      "festivals": [],
+      "music": [
+        "Kid Rock"
+      ]
     },
     {
       "slug": "falling",
@@ -504,7 +636,9 @@
       "cast": [],
       "crew": [],
       "made_for": "",
-      "festivals": ["First Time Filmmakers"],
+      "festivals": [
+        "First Time Filmmakers"
+      ],
       "music": []
     },
     {
@@ -517,11 +651,17 @@
       "featured": false,
       "synopsis": "Superhero Shawn the Brawn goes undercover in college to capture his nemesis Billy Disco before the Infinite Disco Bomb goes off.",
       "role": "Created with Aaliyah Roberson & Shepard Johnson",
-      "cast": ["Shepard Johnson", "Louis Woodley"],
+      "cast": [
+        "Shepard Johnson",
+        "Louis Woodley"
+      ],
       "crew": [],
       "made_for": "USC CNTV 101",
       "festivals": [],
-      "music": ["Bee Gees", "Earth, Wind & Fire"]
+      "music": [
+        "Bee Gees",
+        "Earth, Wind & Fire"
+      ]
     },
     {
       "slug": "moments-from-my-life",
@@ -553,7 +693,8 @@
       "crew": [],
       "made_for": "Trojan Vision",
       "festivals": [],
-      "music": []
+      "music": [],
+      "years": "2025 & 2026"
     },
     {
       "slug": "acting-reel",
@@ -566,7 +707,12 @@
       "synopsis": "My acting from 2023 to 2024.",
       "role": "Actor",
       "cast": [],
-      "crew": [["Compiled & edited", "Lily Andrews"]],
+      "crew": [
+        [
+          "Compiled & edited",
+          "Lily Andrews"
+        ]
+      ],
       "made_for": "",
       "festivals": [],
       "music": []

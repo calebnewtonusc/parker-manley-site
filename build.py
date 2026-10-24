@@ -28,8 +28,14 @@ LAUREL = (
 )
 
 
+def art_src(f):
+    if exists(f"media/art/{f['slug']}.jpg"):
+        return f"/media/art/{f['slug']}.jpg"
+    return f"/media/posters/{f['slug']}.jpg"
+
+
 def meta_line(f):
-    parts = [str(f["year"])] if f.get("year") else []
+    parts = [f.get("years") or str(f["year"])] if f.get("year") else []
     parts.append(f["genre"])
     if f.get("minutes"):
         parts.append(f"{f['minutes']} min")
@@ -63,7 +69,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="mast">
-  <nav class="mast__side mast__side--l" aria-label="Work">{nav("/#films", "Films", "films")}{nav("/photography/", "Photography", "photos")}</nav>
+  <nav class="mast__side mast__side--l" aria-label="Work">{nav("/#all-films", "Films", "films")}{nav("/photography/", "Photography", "photos")}</nav>
   <a class="mast__name" href="/">Parker Manley</a>
   <nav class="mast__side mast__side--r" aria-label="About">{nav("/#about", "About", "about")}{nav("/#contact", "Contact", "contact")}</nav>
 </header>
@@ -118,6 +124,13 @@ def home(films):
         for i, s in enumerate(showing)
     )
     ticks = "".join(f'<i{" class=\"is-on\"" if i == 0 else ""}></i>' for i in range(n))
+    wall = "\n".join(
+        f'<li><a class="frame" href="/films/{f["slug"]}/"><span class="frame__mat">'
+        f'<img src="{art_src(f)}" alt="{e(f["title"])} poster" loading="lazy"></span>'
+        f'<span class="frame__title">{e(f["title"])}</span>'
+        f'<span class="frame__meta">{e(meta_line(f))}</span></a></li>'
+        for f in films
+    )
     arch = "\n".join(
         f'<li><a href="/films/{f["slug"]}/"><span class="y">{f["year"] or ""}</span>'
         f'<span class="tt">{e(f["title"])}</span><span class="g">{e(f["genre"])}</span></a></li>'
@@ -133,7 +146,7 @@ def home(films):
     <div class="titlecard">
       <p class="titlecard__pre">A picture by</p>
       <h1 class="titlecard__name">Parker Manley</h1>
-      <p class="titlecard__role">Director &amp; Cinematographer</p>
+      <p class="titlecard__role">Director &middot; Cinematographer &middot; Editor</p>
     </div>
     <button class="sound" type="button" aria-pressed="false"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><span class="label">Sound off</span></button>
   </div>
@@ -155,12 +168,13 @@ def home(films):
       <div class="scene__ticks" aria-hidden="true">{ticks}</div>
     </div>
   </div>
-  <details class="archive">
-    <summary>Every other film ({len(archive)}) <span class="chev" aria-hidden="true">&#8964;</span></summary>
-    <ol>
-{arch}
+  <div class="lobby" id="all-films">
+    <div class="head"><h2>All Films</h2></div>
+    <p class="lobby__sub">Every film, in the order I'd show them.</p>
+    <ol class="lobby__wall">
+{wall}
     </ol>
-  </details>
+  </div>
 </section>
 
 <section class="about" id="about" aria-label="About Parker">
@@ -168,26 +182,26 @@ def home(films):
     <div class="scene__pin">
       <div class="scene__bg" aria-hidden="true">
         <img class="is-on" src="/media/portraits/set.jpg" alt="" data-pos="film">
-        <img src="/media/portraits/rock.jpg" alt="" data-pos="outdoors" loading="lazy">
-        <img src="/media/portraits/p3.jpg" alt="" data-pos="faith" loading="lazy">
+        <img src="/media/portraits/bigbear.jpg" alt="" data-pos="outdoors" loading="lazy">
+        <img src="/media/portraits/faith.jpg" alt="" data-pos="faith" loading="lazy">
       </div>
       <nav class="scene__nav" aria-label="About chapters">
-        <a href="#about" data-step="0" aria-current="true">Film</a>
+        <a href="#about" data-step="0" aria-current="true">Storytelling</a>
         <a href="#about" data-step="1" aria-current="false">Outdoors</a>
         <a href="#about" data-step="2" aria-current="false">Faith</a>
       </nav>
       <div class="scene__copy">
         <div class="line is-on">
-          <p class="line__big">I'm a filmmaker from Boulder, Colorado, studying Film and Television Production at USC.</p>
-          <p class="line__small">More than 25 shorts since 2023. On most of them I wrote, directed, shot and edited.</p>
+          <p class="line__big">I'm a storyteller from Boulder, Colorado, studying Film and Television Production at USC.</p>
+          <p class="line__small">On set or at the Dungeons &amp; Dragons table. More than 25 shorts since 2023, most of them written, directed, shot and edited by me.</p>
         </div>
         <div class="line" aria-hidden="true">
-          <p class="line__big">I grew up at the foot of the Rockies, and I'm happiest outside.</p>
-          <p class="line__small">SC Outfitters, fencing, the Trojan Stunt Team, EscapeSC, and Dungeons &amp; Dragons.</p>
+          <p class="line__big">I'm a big hiker and camper.</p>
+          <p class="line__small">I grew up at the foot of the Rockies. At USC: SC Outfitters, fencing, the Trojan Stunt Team and EscapeSC.</p>
         </div>
         <div class="line" aria-hidden="true">
-          <blockquote class="line__big">So, whether you eat or drink, or whatever you do, do all to the glory of God.</blockquote>
-          <p class="line__small">1 Corinthians 10:31 &middot; I follow Jesus, and at USC I'm part of Christian Challenge.</p>
+          <p class="line__big">I lay all my work before Jesus.</p>
+          <p class="line__small">&ldquo;So, whether you eat or drink, or whatever you do, do all to the glory of God.&rdquo; 1 Corinthians 10:31</p>
         </div>
       </div>
       <div class="scene__ticks" aria-hidden="true"><i class="is-on"></i><i></i><i></i></div>
@@ -197,8 +211,8 @@ def home(films):
 
 <section class="contact" id="contact" aria-labelledby="contact-h">
   <div class="head"><h2 id="contact-h">Contact</h2></div>
-  <figure class="contact__photo"><img src="/media/portraits/set.jpg" alt="Parker behind a Sony cinema camera on set" loading="lazy"></figure>
-  <p class="contact__lede">Looking for a director or a DP? I'd love to hear about it.</p>
+  <figure class="contact__photo"><img src="/media/portraits/rock.jpg" alt="Parker framing a shot on a granite outcrop above a pine forest" loading="lazy"></figure>
+  <p class="contact__lede">Looking for a director, a DP or an editor? I'd love to hear about it.</p>
   <a class="contact__mail" href="mailto:{EMAIL}">{EMAIL}</a>
   <form class="form" action="https://formsubmit.co/ajax/{EMAIL}" method="POST">
     <input type="hidden" name="_subject" value="New message from parkermanley.com">
@@ -215,7 +229,7 @@ def home(films):
   <div class="elsewhere"><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></div>
 </section>
 """
-    return page("Parker Manley, Director & Cinematographer", body, current="", path="/", image="/media/reel/reel-poster.jpg")
+    return page("Parker Manley, Director, Cinematographer, Editor", body, current="", path="/", image="/media/reel/reel-poster.jpg")
 
 
 def film_page(films, i):
@@ -241,6 +255,9 @@ def film_page(films, i):
     made = f'<p class="made-for">{e(f["made_for"])}</p>' if f["made_for"] else ""
     sub = f'<p class="film__sub">{e(f["subtitle"])}</p>' if f.get("subtitle") else ""
     stills = [f"/media/stills/{f['slug']}-{n}.jpg" for n in (1, 2) if exists(f"media/stills/{f['slug']}-{n}.jpg")]
+    poster_html = ""
+    if exists(f"media/art/{f['slug']}.jpg"):
+        poster_html = f'<figure class="film__poster"><img src="/media/art/{f["slug"]}.jpg" alt="{e(f["title"])} poster" loading="lazy"></figure>'
     stills_html = ""
     if len(stills) == 2:
         stills_html = '<div class="stills">' + "".join(
@@ -254,7 +271,7 @@ def film_page(films, i):
 
     body = f"""
 <article class="film">
-  <div class="player" data-yt="{f['youtube']}">
+  <div class="player" {'data-yt="' + f['youtube'] + '"' if f.get('youtube') else 'data-drive="' + f.get('drive', '') + '"'}>
     <img src="{poster}" alt="">
     <button type="button" aria-label="Play {e(f['title'])}"><span>&#9654;&nbsp; Play the film</span></button>
   </div>
@@ -269,6 +286,7 @@ def film_page(films, i):
   <div class="credits"><dl>
 {dl}
   </dl></div>
+  {poster_html}
   {stills_html}
   <nav class="pager" aria-label="More films">
     {pager_link(prev_f, "prev", "Previous")}

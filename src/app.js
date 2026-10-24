@@ -210,12 +210,14 @@
   onScroll();
 
   // Film page: the YouTube player loads only when asked for.
-  const player = document.querySelector(".player[data-yt]");
+  const player = document.querySelector(".player[data-yt], .player[data-drive]");
   if (player) {
     const btn = player.querySelector("button");
     btn.addEventListener("click", () => {
       const f = document.createElement("iframe");
-      f.src = `https://www.youtube-nocookie.com/embed/${player.dataset.yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+      f.src = player.dataset.yt
+        ? `https://www.youtube-nocookie.com/embed/${player.dataset.yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`
+        : `https://drive.google.com/file/d/${player.dataset.drive}/preview`;
       f.title = btn.getAttribute("aria-label");
       f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
       f.allowFullscreen = true;
