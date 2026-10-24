@@ -1504,3 +1504,7 @@ body::after { opacity: 0.08; mix-blend-mode: overlay; }
 .frame__mat { aspect-ratio: 1 / 1; padding: 10px; }
 .scene__bg img[data-pos="outdoors"] { object-position: 68% 62%; }
 .scene__bg img[data-pos="faith"] { object-position: 30% 40%; }
+/* Safari sizes a ratio box by its content when the child uses a % max-height,
+   so the poster sits absolutely inside a box that only the ratio sizes. */
+.frame__mat { position: relative; display: block; }
+.frame__mat img { position: absolute; inset: 10px; width: calc(100% - 20px); height: calc(100% - 20px); max-width: none; max-height: none; object-fit: contain; }
