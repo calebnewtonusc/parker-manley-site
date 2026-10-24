@@ -132,7 +132,7 @@ def home(films):
         for f in films
     )
     arch = "\n".join(
-        f'<li><a href="/films/{f["slug"]}/"><span class="y">{f["year"] or ""}</span>'
+        f'<li><a href="/films/{f["slug"]}/"><span class="y">{f.get("years") or f["year"] or ""}</span>'
         f'<span class="tt">{e(f["title"])}</span><span class="g">{e(f["genre"])}</span></a></li>'
         for f in archive
     )
