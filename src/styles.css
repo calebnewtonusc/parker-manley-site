@@ -1371,3 +1371,106 @@ body::after { opacity: 0.08; mix-blend-mode: overlay; }
 @media (min-width: 561px) and (max-width: 979px) { .theater .screen { top: 64px; } }
 .line__big { font-size: clamp(1.35rem, 2.8vw, 2.05rem); }
 .scene__bg img[data-pos="film"] { object-position: 50% 22%; }
+
+/* ============================================================
+   v3: walking into the theater.
+   ============================================================ */
+
+/* Opening: the reel fills the screen, then shrinks into a framed screen in the
+   dark cabin as you scroll. --p runs 0 to 1, set from scroll in app.js. */
+.opening { height: 175vh; position: relative; --p: 0; }
+.opening__pin { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; display: grid; place-items: center; }
+.opening__frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  transform: scale(calc(1 - var(--p) * 0.2));
+  border-radius: calc(var(--p) * 6px);
+  outline: 1px solid rgba(232, 220, 194, calc(var(--p) * 0.35));
+  outline-offset: calc(var(--p) * 14px);
+}
+.opening__frame video { width: 100%; height: 100%; object-fit: cover; }
+.opening__frame::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(17, 22, 15, 0) 40%, rgba(17, 22, 15, 0.55) 100%);
+}
+
+/* The title card: Grand Budapest, a parchment plate with a double rule. */
+.titlecard {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  background: rgba(232, 220, 194, 0.94);
+  color: var(--paper-ink);
+  padding: clamp(18px, 3vw, 30px) clamp(26px, 5vw, 56px);
+  border: 1.5px solid var(--paper-ink);
+  outline: 1.5px solid rgba(232, 220, 194, 0.94);
+  outline-offset: 5px;
+  box-shadow: inset 0 0 0 5px rgba(232, 220, 194, 0.94), inset 0 0 0 6.5px var(--paper-ink);
+  opacity: calc(1 - var(--p) * 1.6);
+  transform: translateY(calc(var(--p) * -24px));
+  max-width: calc(100% - 32px);
+}
+.titlecard__pre { margin: 0; font-family: var(--font); font-size: 0.75rem; letter-spacing: 0.32em; text-transform: uppercase; }
+.titlecard__name { margin: 6px 0 4px; font-family: var(--title); font-weight: 600; font-size: clamp(2rem, 6vw, 4.2rem); line-height: 1.05; letter-spacing: 0.1em; text-transform: uppercase; }
+.titlecard__role { margin: 0; font-family: var(--font); font-size: 0.8rem; letter-spacing: 0.28em; text-transform: uppercase; color: #7a4a22; }
+.opening .sound {
+  position: absolute; z-index: 3; bottom: clamp(20px, 5vh, 44px); left: 50%; transform: translateX(-50%);
+  margin: 0; background: rgba(17, 22, 15, 0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.opening .sound:active { transform: translateX(-50%) scale(0.97); }
+
+/* Featured films: one full-screen chapter each. */
+.reels { padding: 0; border-top: 0; }
+.scene--films { height: 700vh; }
+.scene--films .scene__bg video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transform: scale(1.04); transition: opacity 600ms ease-out, transform 7s linear;
+}
+.scene--films .scene__bg video.is-on { opacity: 1; transform: scale(1); }
+.scene--films .scene__pin::after {
+  background: linear-gradient(to top, rgba(17, 22, 15, 0.92) 0%, rgba(17, 22, 15, 0.45) 38%, rgba(17, 22, 15, 0) 62%),
+              linear-gradient(to bottom, rgba(17, 22, 15, 0.6), rgba(17, 22, 15, 0) 26%);
+}
+.reels__label {
+  position: absolute; z-index: 2; top: clamp(80px, 12vh, 120px); left: 0; right: 0; margin: 0; text-align: center;
+  font-family: var(--title); font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.85rem; color: var(--paper);
+}
+.reels__label::before, .reels__label::after { content: ""; display: inline-block; width: 40px; height: 1px; background: var(--ember); vertical-align: middle; margin: 0 14px; }
+.scene--films .scene__copy { width: min(44rem, 100%); }
+.card__no { margin: 0 0 8px; font-family: var(--font); font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ember); }
+.card__title { margin: 0; font-family: var(--title); font-weight: 600; font-size: clamp(2.2rem, 6.4vw, 4.6rem); line-height: 1.02; letter-spacing: 0.04em; color: var(--ink); }
+.card__meta { margin: 12px 0 0; font-size: 0.75rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); }
+.card__syn { margin: 14px auto 0; max-width: 34rem; color: var(--ink); opacity: 0.86; }
+.card__fest { margin: 10px 0 0; font-size: 0.8125rem; color: var(--muted); letter-spacing: 0.03em; }
+.scene--films .line .btn { margin-top: 20px; }
+
+/* Ticket stubs ride along the right edge on desktop. */
+.tickets { display: none; }
+@media (min-width: 1100px) {
+  .tickets {
+    display: block; position: absolute; z-index: 3; right: clamp(20px, 3vw, 48px); top: 50%; left: auto;
+    transform: translateY(-50%); padding: 0; border: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  .tickets ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .tickets a {
+    position: relative; display: grid; grid-template-columns: 2rem 1fr; align-items: baseline;
+    min-width: 230px; padding: 9px 16px 9px 10px; border-radius: 3px;
+    background: rgba(232, 220, 194, 0.9); color: var(--paper-ink);
+    font-family: var(--title); font-weight: 600; font-size: 0.875rem; letter-spacing: 0.04em;
+    transition: transform 160ms ease-out, background-color 160ms ease-out;
+  }
+  .tickets a::before { content: ""; position: absolute; left: 2.3rem; top: 6px; bottom: 6px; border-left: 1.5px dashed rgba(42, 32, 23, 0.35); }
+  .tickets .n { color: rgba(42, 32, 23, 0.6); font-size: 0.75rem; }
+  .tickets .t { padding-left: 8px; }
+  .tickets a[aria-current="true"] { background: var(--ember); transform: rotate(-2deg) translateX(-10px); color: var(--paper-ink); }
+  .tickets li:nth-child(even) a[aria-current="true"] { transform: rotate(2deg) translateX(-10px); }
+  @media (hover: hover) and (pointer: fine) { .tickets a:not([aria-current="true"]):hover { transform: translateX(-4px); background: var(--paper); color: var(--paper-ink); } }
+}
+.reels .archive { padding: clamp(48px, 7vw, 80px) var(--gutter) clamp(56px, 9vw, 96px); margin: 0 auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .opening__frame, .titlecard { transform: none; }
+  .scene--films .scene__bg video { transition: opacity 200ms linear; transform: none; }
+}

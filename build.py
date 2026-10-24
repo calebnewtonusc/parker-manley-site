@@ -95,55 +95,64 @@ def home(films):
         }
         for f in featured
     ]
-    videos = "\n".join(
+    layers = "\n".join(
         f'<video muted loop playsinline preload="{"auto" if i == 0 else "none"}" poster="/media/posters/{f["slug"]}.jpg" '
         f'data-src="/media/loops/{f["slug"]}.mp4" data-src-small="/media/loops/{f["slug"]}-720.mp4"'
         + (' class="is-on"' if i == 0 else "") + "></video>"
         for i, f in enumerate(featured)
     )
-    # Every panel is rendered into one grid cell, so the block is always as tall
-    # as the longest synopsis and switching films never moves the page.
-    panels = "\n".join(
-        f'<div class="panel{" is-on" if i == 0 else ""}"{"" if i == 0 else " aria-hidden=\"true\""}>'
-        f'<p class="now__meta">{e(s["meta"])}</p><h3 class="now__title">{e(s["title"])}</h3>'
-        f'<p class="now__syn">{e(s["synopsis"])}</p><p class="now__fest">{e(s["festivals"])}</p>'
-        f'<div class="now__cta"><a class="btn btn--ember" href="{s["href"]}"{"" if i == 0 else " tabindex=\"-1\""}>Watch the film</a></div></div>'
+    n = len(featured)
+    cards = "\n".join(
+        f'<div class="line{" is-on" if i == 0 else ""}"{"" if i == 0 else " aria-hidden=\"true\""}>'
+        f'<p class="card__no">No. {i + 1} of {n}</p>'
+        f'<h3 class="card__title">{e(s["title"])}</h3>'
+        f'<p class="card__meta">{e(s["meta"])}</p>'
+        f'<p class="card__syn">{e(s["synopsis"])}</p>'
+        + (f'<p class="card__fest">{e(s["festivals"])}</p>' if s["festivals"] else "")
+        + f'<a class="btn btn--ember" href="{s["href"]}"{"" if i == 0 else " tabindex=\"-1\""}>Watch the film</a></div>'
         for i, s in enumerate(showing)
     )
-    programme = "\n".join(
-        f'<li><a href="/films/{f["slug"]}/" aria-current="{"true" if i == 0 else "false"}">'
-        f'<span class="n">{i + 1:02d}</span><span class="t">{e(f["title"])}</span><span class="y">{f["year"] or ""}</span></a></li>'
-        for i, f in enumerate(featured)
+    tickets = "\n".join(
+        f'<li><a href="{s["href"]}" data-step="{i}" aria-current="{"true" if i == 0 else "false"}">'
+        f'<span class="n">{i + 1:02d}</span><span class="t">{e(s["title"])}</span></a></li>'
+        for i, s in enumerate(showing)
     )
+    ticks = "".join(f'<i{" class=\"is-on\"" if i == 0 else ""}></i>' for i in range(n))
     arch = "\n".join(
         f'<li><a href="/films/{f["slug"]}/"><span class="y">{f["year"] or ""}</span>'
         f'<span class="tt">{e(f["title"])}</span><span class="g">{e(f["genre"])}</span></a></li>'
         for f in archive
     )
-    first = featured[0]
     body = f"""
-<div class="hero">
-  <div class="gate">
-    <video id="reel" autoplay muted loop playsinline preload="auto" poster="/media/reel/reel-poster.jpg"
-      data-src="/media/reel/reel.mp4" data-src-small="/media/reel/reel-720.mp4" aria-label="Parker Manley reel"></video>
+<div class="opening">
+  <div class="opening__pin">
+    <div class="opening__frame">
+      <video id="reel" autoplay muted loop playsinline preload="auto" poster="/media/reel/reel-poster.jpg"
+        data-src="/media/reel/reel.mp4" data-src-small="/media/reel/reel-720.mp4" aria-label="Parker Manley reel"></video>
+    </div>
+    <div class="titlecard">
+      <p class="titlecard__pre">A picture by</p>
+      <h1 class="titlecard__name">Parker Manley</h1>
+      <p class="titlecard__role">Director &amp; Cinematographer</p>
+    </div>
+    <button class="sound" type="button" aria-pressed="false"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><span class="label">Sound off</span></button>
   </div>
-  <p class="hero__role">Director &amp; Cinematographer</p>
-  <h1 class="hero__name">Parker Manley</h1>
-  <button class="sound" type="button" aria-pressed="false"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><span class="label">Sound off</span></button>
 </div>
 
-<section class="showing" id="films" aria-labelledby="films-h">
-  <div class="head"><h2 id="films-h">Now Showing</h2></div>
-  <div class="theater">
-    <a class="screen" href="/films/{first['slug']}/" aria-label="Watch {e(first['title'])}">
-      {videos}
-      <span class="screen__play" aria-hidden="true">Watch the film</span>
-    </a>
-    <ol class="programme" aria-label="Featured films">
-{programme}
-    </ol>
-    <div class="now">
-{panels}
+<section class="reels" id="films" aria-label="Featured films">
+  <div class="scene scene--films">
+    <div class="scene__pin">
+      <div class="scene__bg" aria-hidden="true">
+{layers}
+      </div>
+      <p class="reels__label">Now Showing</p>
+      <div class="scene__copy">
+{cards}
+      </div>
+      <nav class="scene__nav tickets" aria-label="Featured films"><ol>
+{tickets}
+      </ol></nav>
+      <div class="scene__ticks" aria-hidden="true">{ticks}</div>
     </div>
   </div>
   <details class="archive">
@@ -152,7 +161,6 @@ def home(films):
 {arch}
     </ol>
   </details>
-  <script type="application/json" id="showing-data">{json.dumps(showing)}</script>
 </section>
 
 <section class="about" id="about" aria-label="About Parker">

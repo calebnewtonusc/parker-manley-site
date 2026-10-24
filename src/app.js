@@ -21,7 +21,7 @@
   addEventListener(
     "touchstart",
     () => {
-      document.querySelectorAll("#reel, .screen video.is-on").forEach((v) => {
+      document.querySelectorAll("#reel, .scene__bg video.is-on").forEach((v) => {
         if (v.paused) v.play().catch(() => {});
       });
     },
@@ -137,53 +137,77 @@
     }
   }
 
-  // About: scroll position inside the pinned scene picks the chapter.
-  const scene = document.querySelector(".scene");
-  if (scene) {
-    const imgs = [...scene.querySelectorAll(".scene__bg img")];
+  // Opening: the reel shrinks into a framed screen over the first scroll.
+  const opening = document.querySelector(".opening");
+  // Pinned scenes (featured films, About): scroll position picks the chapter.
+  const scenes = [...document.querySelectorAll(".scene")].map((scene) => {
+    const layers = [...scene.querySelectorAll(".scene__bg > *")];
     const lines = [...scene.querySelectorAll(".line")];
     const ticks = [...scene.querySelectorAll(".scene__ticks i")];
     const tabs = [...scene.querySelectorAll(".scene__nav a")];
     const steps = lines.length;
-    let at = 0;
-
+    const isVideo = layers[0] && layers[0].tagName === "VIDEO";
+    const st = { at: 0, live: false };
+    const span = () => scene.offsetHeight - innerHeight;
+    const top = () => scene.getBoundingClientRect().top + scrollY;
+    const playCurrent = () => {
+      if (!isVideo) return;
+      layers.forEach((v, k) => {
+        if (st.live && k === st.at) {
+          if (v.preload !== "auto") v.preload = "auto";
+          v.play().catch(() => {});
+        } else v.pause();
+      });
+    };
     const set = (i) => {
-      if (i === at) return;
-      at = i;
-      imgs.forEach((x, k) => x.classList.toggle("is-on", k === i));
+      if (i === st.at) return;
+      st.at = i;
+      layers.forEach((x, k) => x.classList.toggle("is-on", k === i));
       lines.forEach((x, k) => {
         x.classList.toggle("is-on", k === i);
         x.setAttribute("aria-hidden", String(k !== i));
+        const link = x.querySelector("a");
+        if (link) link.tabIndex = k === i ? 0 : -1;
       });
       ticks.forEach((x, k) => x.classList.toggle("is-on", k === i));
       tabs.forEach((x, k) => x.setAttribute("aria-current", String(k === i)));
+      // Warm the next loop so it is ready when the reader gets there.
+      if (isVideo && layers[i + 1]) layers[i + 1].preload = "auto";
+      playCurrent();
     };
-    const span = () => scene.offsetHeight - innerHeight;
-    const top = () => scene.getBoundingClientRect().top + scrollY;
+    new IntersectionObserver(([entry]) => {
+      st.live = entry.isIntersecting;
+      playCurrent();
+    }).observe(scene);
+    if (isVideo) layers.forEach((v, k) => v.addEventListener("canplay", () => {
+      if (st.live && k === st.at && v.paused) v.play().catch(() => {});
+    }));
+    tabs.forEach((t) => t.addEventListener("click", (e) => {
+      e.preventDefault();
+      glide(top() + span() * ((Number(t.dataset.step) + 0.5) / steps));
+    }));
+    return () => {
+      const p = (scrollY - top()) / span();
+      set(Math.max(0, Math.min(steps - 1, Math.floor(p * steps))));
+    };
+  });
 
-    let queued = false;
-    addEventListener(
-      "scroll",
-      () => {
-        if (queued) return;
-        queued = true;
-        requestAnimationFrame(() => {
-          queued = false;
-          const p = (scrollY - top()) / span();
-          set(Math.max(0, Math.min(steps - 1, Math.floor(p * steps))));
-        });
-      },
-      { passive: true },
-    );
-
-    tabs.forEach((t) =>
-      t.addEventListener("click", (e) => {
-        e.preventDefault();
-        const i = Number(t.dataset.step);
-        glide(top() + span() * ((i + 0.5) / steps));
-      }),
-    );
-  }
+  let queued = false;
+  const onScroll = () => {
+    queued = false;
+    if (opening) {
+      const p = Math.max(0, Math.min(1, scrollY / (opening.offsetHeight - innerHeight)));
+      opening.style.setProperty("--p", reduced ? 0 : p.toFixed(3));
+    }
+    scenes.forEach((update) => update());
+  };
+  addEventListener("scroll", () => {
+    if (!queued) {
+      queued = true;
+      requestAnimationFrame(onScroll);
+    }
+  }, { passive: true });
+  onScroll();
 
   // Film page: the YouTube player loads only when asked for.
   const player = document.querySelector(".player[data-yt]");
