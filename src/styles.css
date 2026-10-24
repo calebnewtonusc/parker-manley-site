@@ -1135,3 +1135,239 @@ section {
 /* Low Power Mode blocks autoplay; keep Safari's own button off our frames. A tap plays them. */
 video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
 video::-webkit-media-controls { display: none !important; }
+
+/* Now Showing, v2: the screen sits beside the programme so a hover always lands
+   in view, and the info block never changes height. */
+.theater {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-areas: "screen" "list" "now";
+  gap: 24px;
+}
+.theater .screen { grid-area: screen; }
+.theater .programme { grid-area: list; margin: 0; max-width: none; }
+.theater .now { grid-area: now; }
+@media (min-width: 980px) {
+  .theater {
+    grid-template-columns: minmax(0, 1.75fr) minmax(250px, 1fr);
+    grid-template-areas: "screen list" "now list";
+    column-gap: clamp(28px, 4vw, 56px);
+    row-gap: 0;
+    align-items: start;
+  }
+  .theater .programme { align-self: center; }
+  .theater .programme .t { text-align: left; }
+  .theater .programme a { grid-template-columns: 2.4rem 1fr auto; }
+}
+@media (max-width: 979px) {
+  /* The screen rides along while the list scrolls, so a tap is always seen. */
+  .theater .screen { position: sticky; top: 92px; z-index: 5; }
+}
+@media (max-width: 560px) { .theater .screen { top: 84px; } }
+.now { display: grid; text-align: center; padding: 24px 0 0; }
+@media (min-width: 980px) { .now { text-align: left; } .now .now__cta { justify-content: flex-start; } .now .now__syn { margin: 0; } }
+.now .panel { grid-area: 1 / 1; visibility: hidden; opacity: 0; transition: opacity 160ms ease-out, visibility 0s linear 160ms; }
+.now .panel.is-on { visibility: visible; opacity: 1; transition: opacity 160ms ease-out; }
+.now .now__syn { min-height: 0; }
+
+/* About: one pinned frame, three chapters. The photo changes, the words swap in place. */
+.about { padding: 0; border-top: 1px solid var(--line); }
+.scene { height: 300vh; position: relative; }
+.scene__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  place-items: end center;
+}
+.scene__bg { position: absolute; inset: 0; margin: 0; background: var(--ground); }
+.scene__bg img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transform: scale(1.06);
+  transition: opacity 700ms ease-out, transform 9s linear;
+}
+.scene__bg img.is-on { opacity: 1; transform: scale(1); }
+.scene__bg img[data-pos="film"] { object-position: 50% 30%; }
+.scene__bg img[data-pos="outdoors"] { object-position: 52% 45%; }
+.scene__bg img[data-pos="faith"] { object-position: 50% 60%; }
+.scene__pin::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(18, 17, 14, 0.94) 0%, rgba(18, 17, 14, 0.6) 34%, rgba(18, 17, 14, 0) 62%),
+              linear-gradient(to bottom, rgba(18, 17, 14, 0.55), rgba(18, 17, 14, 0) 22%);
+}
+.scene__nav {
+  position: absolute; top: clamp(96px, 14vh, 140px); left: 50%; transform: translateX(-50%); z-index: 2;
+  display: flex; gap: 6px; padding: 4px; border: 1px solid var(--line-strong); border-radius: 999px;
+  background: rgba(18, 17, 14, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.scene__nav a { padding: 8px 16px; min-height: 36px; border-radius: 999px; font-size: 0.875rem; letter-spacing: 0.04em; color: var(--muted); transition: background-color 120ms ease-out, color 120ms ease-out; }
+.scene__nav a[aria-current="true"] { background: var(--ink); color: var(--ground); }
+@media (hover: hover) and (pointer: fine) { .scene__nav a:not([aria-current="true"]):hover { color: var(--ink); } }
+.scene__copy { position: relative; z-index: 2; display: grid; width: min(46rem, 100%); padding: 0 var(--gutter) clamp(64px, 12vh, 120px); text-align: center; }
+.line { grid-area: 1 / 1; align-self: end; visibility: hidden; opacity: 0; transition: opacity 300ms ease-out, visibility 0s linear 300ms; }
+.line.is-on { visibility: visible; opacity: 1; transition: opacity 300ms ease-out 120ms; }
+.line__big { margin: 0; font-size: clamp(1.5rem, 3.6vw, 2.5rem); line-height: 1.25; font-weight: 400; color: var(--ink); }
+blockquote.line__big { quotes: none; }
+.line__small { margin: 16px auto 0; max-width: 32rem; color: var(--muted); font-size: 1rem; }
+.scene__ticks { position: absolute; z-index: 2; bottom: clamp(28px, 5vh, 48px); left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.scene__ticks i { width: 22px; height: 2px; background: var(--line-strong); transition: background-color 200ms ease-out; }
+.scene__ticks i.is-on { background: var(--ember); }
+@media (prefers-reduced-motion: reduce) {
+  .scene__bg img { transition: opacity 200ms linear; transform: none; }
+  .scene__bg img.is-on { transform: none; }
+}
+
+/* ============================================================
+   v2 THEME: a cabin cinema in the Colorado woods at night.
+   From Parker's own words (research/VIBE-SPEC.md): rustic, cozy,
+   nature-y, a little silly, Lord of the Rings, Grand Budapest's
+   symmetry, Mad Max's whimsy, Sowing the Seeds of Love.
+   ============================================================ */
+:root {
+  --ground: #11160f;          /* pine forest at night */
+  --s1: #1a1f16;
+  --s2: #252a1e;
+  --s3: #2f3326;
+  --bark: #2b2118;
+  --paper: #e8dcc2;           /* parchment */
+  --paper-ink: #2a2017;
+  --ink: #efe5cf;
+  --muted: #b5a88c;
+  --faint: #857a63;
+  --moss: #7d8c5a;
+  --ember: #e08a43;           /* sunset, means "this plays" */
+  --ember-ink: #20150b;
+  --line: rgba(232, 220, 194, 0.14);
+  --line-strong: rgba(232, 220, 194, 0.3);
+  --title: "Cinzel", "Trajan Pro", serif;
+}
+
+/* The map under everything: contour lines of the Front Range, faint. */
+body { background: var(--ground); }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url("/topo.svg") center / cover no-repeat;
+  opacity: 0.09;
+  pointer-events: none;
+}
+body::after { opacity: 0.08; mix-blend-mode: overlay; }
+
+.mast { background: rgba(17, 22, 15, 0.88); }
+.mast__name { font-family: var(--title); font-weight: 600; letter-spacing: 0.22em; }
+
+/* Hero: the reel framed like a Grand Budapest title card. */
+.gate { outline: 1px solid var(--line-strong); outline-offset: 10px; }
+.hero__role { font-family: var(--font); text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.8rem; color: var(--moss); }
+.hero__name { font-family: var(--title); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.hero__name::after {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin: 18px auto 0;
+  background: var(--ember);
+}
+
+/* The sound toggle is a little sun: it turns while the song plays. */
+.sun { width: 20px; height: 20px; color: var(--ember); transition: transform 300ms var(--ease); }
+.sound[aria-pressed="true"] .sun { animation: turn 12s linear infinite; }
+@keyframes turn { to { transform: rotate(360deg); } }
+.sound { border-color: var(--line-strong); }
+.sound[aria-pressed="true"] { border-color: var(--ember); color: var(--ink); }
+
+.head h2 { font-family: var(--title); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; font-size: clamp(1.3rem, 2.6vw, 1.7rem); }
+.head::before, .head::after { background: linear-gradient(to var(--dir, right), transparent, var(--line-strong)); }
+.head::after { --dir: left; }
+
+/* The screen gets a carved frame. */
+.theater .screen { outline: 1px solid var(--line-strong); outline-offset: 8px; }
+
+/* Programme: each featured film is a ticket stub. */
+.theater .programme { display: grid; gap: 10px; }
+.theater .programme li { border: 0; }
+.theater .programme a {
+  position: relative;
+  background: var(--paper);
+  color: var(--paper-ink);
+  padding: 12px 18px 12px 14px;
+  border-radius: 3px;
+  grid-template-columns: 2.4rem 1fr auto;
+  transform: rotate(0deg);
+  transition: transform 160ms ease-out, background-color 160ms ease-out, box-shadow 160ms ease-out;
+  /* perforated edge between stub and ticket */
+  background-image: radial-gradient(circle at 2.9rem 0, var(--ground) 5px, transparent 5.5px),
+                    radial-gradient(circle at 2.9rem 100%, var(--ground) 5px, transparent 5.5px);
+}
+.theater .programme a::before {
+  content: "";
+  position: absolute;
+  left: 2.9rem;
+  top: 8px;
+  bottom: 8px;
+  border-left: 1.5px dashed rgba(42, 32, 23, 0.35);
+}
+.theater .programme .n { color: rgba(42, 32, 23, 0.6); font-family: var(--title); font-weight: 600; }
+.theater .programme .t { font-family: var(--title); font-weight: 600; font-size: clamp(1rem, 1.6vw, 1.15rem); letter-spacing: 0.04em; padding-left: 10px; color: var(--paper-ink); }
+.theater .programme .y { color: rgba(42, 32, 23, 0.6); }
+.theater .programme a[aria-current="true"] { background-color: var(--ember); transform: rotate(-1.5deg) translateX(-6px); }
+.theater .programme a[aria-current="true"] .n { color: var(--ember-ink); }
+.theater .programme li:nth-child(even) a[aria-current="true"] { transform: rotate(1.5deg) translateX(-6px); }
+@media (hover: hover) and (pointer: fine) {
+  .theater .programme a:hover { color: var(--paper-ink); }
+}
+
+.now__meta { text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.75rem; color: var(--moss); }
+.now__title { font-family: var(--title); font-weight: 600; letter-spacing: 0.04em; }
+
+.archive summary { font-family: var(--title); font-weight: 600; letter-spacing: 0.08em; }
+.archive .tt { font-family: var(--title); font-weight: 600; letter-spacing: 0.03em; }
+
+/* About chapters */
+.scene__nav a { font-family: var(--title); font-weight: 600; letter-spacing: 0.08em; }
+.scene__nav a[aria-current="true"] { background: var(--paper); color: var(--paper-ink); }
+.line__big { font-family: var(--title); font-weight: 400; letter-spacing: 0.02em; }
+.scene__pin::after {
+  background: linear-gradient(to top, rgba(17, 22, 15, 0.95) 0%, rgba(17, 22, 15, 0.6) 36%, rgba(17, 22, 15, 0) 64%),
+              linear-gradient(to bottom, rgba(17, 22, 15, 0.6), rgba(17, 22, 15, 0) 24%);
+}
+
+/* Contact: a parchment card pinned to the cabin wall. */
+.contact__lede { font-size: 1.1rem; }
+.contact__mail { font-family: var(--title); font-weight: 600; }
+.contact__photo { outline: 1px solid var(--line-strong); outline-offset: 8px; transform: rotate(-1.2deg); }
+.form { background: var(--paper); color: var(--paper-ink); padding: clamp(20px, 4vw, 32px); border-radius: 4px; }
+.form label { color: rgba(42, 32, 23, 0.75); }
+.form input, .form textarea { background: #f4ecda; color: var(--paper-ink); border-color: rgba(42, 32, 23, 0.25); }
+.form input:focus-visible, .form textarea:focus-visible { background: #fffaf0; border-color: var(--ember); }
+.form__status { color: rgba(42, 32, 23, 0.75); }
+.form__status[data-state="ok"] { color: var(--paper-ink); }
+.form__status[data-state="err"] { color: #9b3d1d; }
+
+/* Film page */
+.film__head h1 { font-family: var(--title); font-weight: 600; letter-spacing: 0.04em; }
+.player { outline: 1px solid var(--line-strong); outline-offset: 8px; }
+.credits { position: relative; padding-top: 40px; padding-bottom: 40px; }
+.credits::before { content: ""; position: absolute; left: 50%; top: 0; width: 64px; height: 1px; margin-left: -32px; background: var(--ember); }
+.credits dd { font-family: var(--title); font-weight: 600; letter-spacing: 0.04em; }
+.sheet-head h1 { font-family: var(--title); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+.foot { font-family: var(--title); letter-spacing: 0.12em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sound[aria-pressed="true"] .sun { animation: none; }
+}
+.theater .programme a { background-image: none; }
+@media (min-width: 980px) {
+  .showing { padding-top: clamp(40px, 5vw, 64px); }
+  .theater { grid-template-columns: minmax(0, 1.45fr) minmax(260px, 1fr); }
+  .now { padding-top: 18px; }
+  .now .now__cta { margin-top: 14px; }
+}
+@media (min-width: 561px) and (max-width: 979px) { .theater .screen { top: 64px; } }
+.line__big { font-size: clamp(1.35rem, 2.8vw, 2.05rem); }
+.scene__bg img[data-pos="film"] { object-position: 50% 22%; }

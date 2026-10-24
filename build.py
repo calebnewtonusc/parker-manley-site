@@ -57,7 +57,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -101,6 +101,15 @@ def home(films):
         + (' class="is-on"' if i == 0 else "") + "></video>"
         for i, f in enumerate(featured)
     )
+    # Every panel is rendered into one grid cell, so the block is always as tall
+    # as the longest synopsis and switching films never moves the page.
+    panels = "\n".join(
+        f'<div class="panel{" is-on" if i == 0 else ""}"{"" if i == 0 else " aria-hidden=\"true\""}>'
+        f'<p class="now__meta">{e(s["meta"])}</p><h3 class="now__title">{e(s["title"])}</h3>'
+        f'<p class="now__syn">{e(s["synopsis"])}</p><p class="now__fest">{e(s["festivals"])}</p>'
+        f'<div class="now__cta"><a class="btn btn--ember" href="{s["href"]}"{"" if i == 0 else " tabindex=\"-1\""}>Watch the film</a></div></div>'
+        for i, s in enumerate(showing)
+    )
     programme = "\n".join(
         f'<li><a href="/films/{f["slug"]}/" aria-current="{"true" if i == 0 else "false"}">'
         f'<span class="n">{i + 1:02d}</span><span class="t">{e(f["title"])}</span><span class="y">{f["year"] or ""}</span></a></li>'
@@ -120,27 +129,23 @@ def home(films):
   </div>
   <p class="hero__role">Director &amp; Cinematographer</p>
   <h1 class="hero__name">Parker Manley</h1>
-  <button class="sound" type="button" aria-pressed="false"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="label">Sound off</span></button>
+  <button class="sound" type="button" aria-pressed="false"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><span class="label">Sound off</span></button>
 </div>
 
 <section class="showing" id="films" aria-labelledby="films-h">
   <div class="head"><h2 id="films-h">Now Showing</h2></div>
-  <div class="screen-wrap">
+  <div class="theater">
     <a class="screen" href="/films/{first['slug']}/" aria-label="Watch {e(first['title'])}">
       {videos}
       <span class="screen__play" aria-hidden="true">Watch the film</span>
     </a>
-    <div class="now" aria-live="polite">
-      <p class="now__meta">{e(showing[0]['meta'])}</p>
-      <h3 class="now__title">{e(first['title'])}</h3>
-      <p class="now__syn">{e(first['synopsis'])}</p>
-      <p class="now__fest">{e(showing[0]['festivals'])}</p>
-      <div class="now__cta"><a class="btn btn--ember now__watch" href="/films/{first['slug']}/">Watch the film</a></div>
+    <ol class="programme" aria-label="Featured films">
+{programme}
+    </ol>
+    <div class="now">
+{panels}
     </div>
   </div>
-  <ol class="programme" aria-label="Featured films">
-{programme}
-  </ol>
   <details class="archive">
     <summary>Every other film ({len(archive)}) <span class="chev" aria-hidden="true">&#8964;</span></summary>
     <ol>
@@ -150,20 +155,36 @@ def home(films):
   <script type="application/json" id="showing-data">{json.dumps(showing)}</script>
 </section>
 
-<section class="about" id="about" aria-labelledby="about-h">
-  <div class="head"><h2 id="about-h">About</h2></div>
-  <figure class="about__photo"><img src="/media/portraits/rock.jpg" alt="Parker framing a shot on a granite outcrop above a pine forest" loading="lazy"></figure>
-  <p class="about__lede">I'm a filmmaker from Boulder, Colorado, studying Film and Television Production at USC.</p>
-  <ul class="beats">
-    <li><h3>Film</h3><p>Since 2023 I've made more than 25 shorts, from horror to a silent film to a Wes Anderson homage. On most of them I wrote, directed, shot and edited.</p></li>
-    <li><h3>Faith</h3><p>I follow Jesus, and it shapes the stories I want to tell. At USC I'm part of Christian Challenge.</p></li>
-    <li><h3>Outdoors</h3><p>I grew up at the foot of the Rockies and I'm happiest outside. At USC that means SC Outfitters.</p></li>
-  </ul>
-  <p class="also">Also fencing, the Trojan Stunt Team, EscapeSC, and Dungeons &amp; Dragons.</p>
-  <blockquote class="verse">
-    <p>So, whether you eat or drink, or whatever you do, do all to the glory of God.</p>
-    <cite>1 Corinthians 10:31</cite>
-  </blockquote>
+<section class="about" id="about" aria-label="About Parker">
+  <div class="scene">
+    <div class="scene__pin">
+      <div class="scene__bg" aria-hidden="true">
+        <img class="is-on" src="/media/portraits/set.jpg" alt="" data-pos="film">
+        <img src="/media/portraits/rock.jpg" alt="" data-pos="outdoors" loading="lazy">
+        <img src="/media/portraits/p3.jpg" alt="" data-pos="faith" loading="lazy">
+      </div>
+      <nav class="scene__nav" aria-label="About chapters">
+        <a href="#about" data-step="0" aria-current="true">Film</a>
+        <a href="#about" data-step="1" aria-current="false">Outdoors</a>
+        <a href="#about" data-step="2" aria-current="false">Faith</a>
+      </nav>
+      <div class="scene__copy">
+        <div class="line is-on">
+          <p class="line__big">I'm a filmmaker from Boulder, Colorado, studying Film and Television Production at USC.</p>
+          <p class="line__small">More than 25 shorts since 2023. On most of them I wrote, directed, shot and edited.</p>
+        </div>
+        <div class="line" aria-hidden="true">
+          <p class="line__big">I grew up at the foot of the Rockies, and I'm happiest outside.</p>
+          <p class="line__small">SC Outfitters, fencing, the Trojan Stunt Team, EscapeSC, and Dungeons &amp; Dragons.</p>
+        </div>
+        <div class="line" aria-hidden="true">
+          <blockquote class="line__big">So, whether you eat or drink, or whatever you do, do all to the glory of God.</blockquote>
+          <p class="line__small">1 Corinthians 10:31 &middot; I follow Jesus, and at USC I'm part of Christian Challenge.</p>
+        </div>
+      </div>
+      <div class="scene__ticks" aria-hidden="true"><i class="is-on"></i><i></i><i></i></div>
+    </div>
+  </div>
 </section>
 
 <section class="contact" id="contact" aria-labelledby="contact-h">
@@ -302,7 +323,7 @@ def main():
         (out / "index.html").write_text(film_page(films, i))
     (DIST / "photography").mkdir()
     (DIST / "photography/index.html").write_text(photography())
-    for name in ("styles.css", "app.js"):
+    for name in ("styles.css", "app.js", "topo.svg"):
         shutil.copy(ROOT / "src" / name, DIST / name)
     (DIST / "favicon.svg").write_text(FAVICON)
     if (ROOT / "media").exists():

@@ -4,26 +4,41 @@
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const small = matchMedia("(max-width: 700px)").matches;
 
-  // Phones get the lighter encode.
+  // Phones get the lighter encode. Each loop opens on a fade from black, so a
+  // paused one is parked just past it instead of showing a black frame.
   document.querySelectorAll("video[data-src]").forEach((v) => {
     v.src = small && v.dataset.srcSmall ? v.dataset.srcSmall : v.dataset.src;
-    v.addEventListener("loadeddata", () => { if (v.paused && v.currentTime < 0.5) v.currentTime = 0.5; }, { once: true });
+    v.addEventListener(
+      "loadeddata",
+      () => {
+        if (v.paused && v.currentTime < 0.5) v.currentTime = 0.5;
+      },
+      { once: true },
+    );
   });
 
-  // If the browser blocked autoplay, the first touch anywhere starts what's on screen.
-  addEventListener("touchstart", () => {
-    document.querySelectorAll("#reel, .screen video.is-on").forEach((v) => { if (v.paused) v.play().catch(() => {}); });
-  }, { once: true, passive: true });
+  // If the browser blocked autoplay, the first touch starts what's on screen.
+  addEventListener(
+    "touchstart",
+    () => {
+      document.querySelectorAll("#reel, .screen video.is-on").forEach((v) => {
+        if (v.paused) v.play().catch(() => {});
+      });
+    },
+    { once: true, passive: true },
+  );
+
+  const glide = (top) =>
+    scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
 
   // Same-page anchors glide instead of jumping.
   document.addEventListener("click", (e) => {
     const a = e.target.closest('a[href^="#"]');
-    if (!a) return;
+    if (!a || a.dataset.step !== undefined) return;
     const target = document.querySelector(a.getAttribute("href"));
     if (!target) return;
     e.preventDefault();
-    const top = target.getBoundingClientRect().top + scrollY - 64;
-    scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
+    glide(target.getBoundingClientRect().top + scrollY - 56);
     history.replaceState(null, "", a.getAttribute("href"));
   });
 
@@ -51,37 +66,32 @@
     ).observe(reel);
   }
 
-  // Now Showing: the programme picks which loop the screen plays.
+  // Now Showing: the programme picks which loop and which panel are on.
   const screen = document.querySelector(".screen");
   if (screen) {
-    const films = JSON.parse(
-      document.querySelector("#showing-data").textContent,
-    );
     const videos = [...screen.querySelectorAll("video")];
+    const panels = [...document.querySelectorAll(".now .panel")];
     const items = [...document.querySelectorAll(".programme a")];
-    const meta = document.querySelector(".now__meta");
-    const title = document.querySelector(".now__title");
-    const syn = document.querySelector(".now__syn");
-    const fest = document.querySelector(".now__fest");
-    const watch = document.querySelector(".now__watch");
     let current = 0;
     let visible = false;
 
     const select = (i) => {
-      if (i === current && videos[i].classList.contains("is-on")) return;
-      const f = films[i];
+      if (i === current) return;
       videos[current].pause();
       videos.forEach((v, k) => v.classList.toggle("is-on", k === i));
+      panels.forEach((p, k) => {
+        p.classList.toggle("is-on", k === i);
+        p.setAttribute("aria-hidden", String(k !== i));
+        p.querySelector("a").tabIndex = k === i ? 0 : -1;
+      });
       items.forEach((a, k) => a.setAttribute("aria-current", String(k === i)));
       current = i;
       if (visible) videos[i].play().catch(() => {});
-      meta.textContent = f.meta;
-      title.textContent = f.title;
-      syn.textContent = f.synopsis;
-      fest.textContent = f.festivals;
-      watch.href = f.href;
-      screen.href = f.href;
-      screen.setAttribute("aria-label", `Watch ${f.title}`);
+      screen.href = items[i].getAttribute("href");
+      screen.setAttribute(
+        "aria-label",
+        `Watch ${items[i].querySelector(".t").textContent}`,
+      );
     };
 
     items.forEach((a, i) => {
@@ -104,10 +114,11 @@
       },
       { threshold: 0.25 },
     ).observe(screen);
-    // A loop that finishes loading after the screen came into view starts then.
-    videos.forEach((v, k) => v.addEventListener("canplay", () => {
-      if (visible && k === current && v.paused) v.play().catch(() => {});
-    }));
+    videos.forEach((v, k) =>
+      v.addEventListener("canplay", () => {
+        if (visible && k === current && v.paused) v.play().catch(() => {});
+      }),
+    );
 
     // The cursor becomes the play button over the screen.
     if (fine) {
@@ -124,7 +135,54 @@
         pill.style.top = `${e.clientY - r.top}px`;
       });
     }
-    select(0);
+  }
+
+  // About: scroll position inside the pinned scene picks the chapter.
+  const scene = document.querySelector(".scene");
+  if (scene) {
+    const imgs = [...scene.querySelectorAll(".scene__bg img")];
+    const lines = [...scene.querySelectorAll(".line")];
+    const ticks = [...scene.querySelectorAll(".scene__ticks i")];
+    const tabs = [...scene.querySelectorAll(".scene__nav a")];
+    const steps = lines.length;
+    let at = 0;
+
+    const set = (i) => {
+      if (i === at) return;
+      at = i;
+      imgs.forEach((x, k) => x.classList.toggle("is-on", k === i));
+      lines.forEach((x, k) => {
+        x.classList.toggle("is-on", k === i);
+        x.setAttribute("aria-hidden", String(k !== i));
+      });
+      ticks.forEach((x, k) => x.classList.toggle("is-on", k === i));
+      tabs.forEach((x, k) => x.setAttribute("aria-current", String(k === i)));
+    };
+    const span = () => scene.offsetHeight - innerHeight;
+    const top = () => scene.getBoundingClientRect().top + scrollY;
+
+    let queued = false;
+    addEventListener(
+      "scroll",
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          const p = (scrollY - top()) / span();
+          set(Math.max(0, Math.min(steps - 1, Math.floor(p * steps))));
+        });
+      },
+      { passive: true },
+    );
+
+    tabs.forEach((t) =>
+      t.addEventListener("click", (e) => {
+        e.preventDefault();
+        const i = Number(t.dataset.step);
+        glide(top() + span() * ((i + 0.5) / steps));
+      }),
+    );
   }
 
   // Film page: the YouTube player loads only when asked for.
