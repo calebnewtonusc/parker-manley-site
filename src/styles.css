@@ -2285,3 +2285,172 @@ main { overflow-x: clip; }
 @media (min-width: 900px) {
   .irisout__card { left: 54%; right: 4%; }
 }
+
+/* ============================================================
+   v11: one continuous take. The theaters, the light table,
+   the slider move.
+   ============================================================ */
+
+/* Now Showing: theaters one behind the other, curtains round each screen. */
+.scene--films .scene__bg { perspective: 900px; perspective-origin: 50% 46%; transform-style: preserve-3d; background: #070605; overflow: hidden; }
+.scene--films .scene__bg video {
+  opacity: 1; transform: none; transition: none; box-sizing: border-box;
+  border: clamp(18px, 3vw, 44px) solid #4a0f12;
+  border-image: repeating-linear-gradient(90deg, #3c0b0e 0 14px, #6a171b 14px 22px, #4a0f12 22px 34px) 30;
+  will-change: transform, opacity;
+}
+.scene--films .scene__bg video:not(.is-on) { opacity: 1; }
+.scene--films .scene__pin::after { background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%) !important; }
+@media (prefers-reduced-motion: reduce) { .scene--films .scene__bg video:not(.is-on) { visibility: hidden; } }
+
+/* The ticket at the door: ADMIT ONE, torn to roll the film. */
+.leader__gate { bottom: auto; top: 50%; transform: translateY(-50%); }
+.leader:not(.is-rolling) .leader__dial, .leader:not(.is-rolling) .leader__sweep, .leader:not(.is-rolling) .leader__n { opacity: 0.18; }
+.admit {
+  position: relative; display: flex; width: min(560px, 88vw); aspect-ratio: 2.05; padding: 0; border: 0; cursor: pointer;
+  background: none; color: #3a2416; font: inherit; transform: rotate(-2deg);
+  transition: transform 140ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) { .admit:hover { transform: rotate(-1deg) scale(1.02); } }
+.admit:active { transform: rotate(-2deg) scale(0.98); }
+.admit__main, .admit__stub {
+  position: relative; display: flex; height: 100%;
+  background: radial-gradient(ellipse at 30% 30%, #f3dfc4, #e3c7a4 70%, #d4b48e);
+  box-shadow: inset 0 0 0 clamp(8px, 1.6vw, 12px) transparent;
+}
+.admit__main { flex: 1; border-radius: 6px 0 0 6px; padding: clamp(10px, 2vw, 16px); }
+.admit__stub { width: 22%; border-radius: 0 6px 6px 0; padding: clamp(10px, 2vw, 16px) clamp(10px, 2vw, 16px) clamp(10px, 2vw, 16px) 0; border-left: 2px dashed rgba(58, 36, 22, 0.45); flex-direction: column; justify-content: space-between; align-items: center; }
+.admit__main::before, .admit__stub::before { content: ""; position: absolute; inset: clamp(8px, 1.6vw, 12px); border: 2px solid #c8344a; border-radius: 10px / 14px; pointer-events: none; }
+.admit__stub::before { left: 0; border-left: 0; border-radius: 0 10px 10px 0 / 0 14px 14px 0; }
+.admit__main::before { border-right: 0; border-radius: 10px 0 0 10px / 14px 0 0 14px; }
+.admit__serial { writing-mode: vertical-rl; font-family: ui-monospace, "Courier New", monospace; font-size: clamp(1rem, 3vw, 1.6rem); letter-spacing: 0.08em; align-self: center; }
+.admit__serial--l { transform: rotate(180deg); margin-left: clamp(8px, 2vw, 16px); }
+.admit__body { flex: 1; display: grid; place-content: center; text-align: center; border-left: 2px solid #c8344a; margin-left: clamp(8px, 2vw, 14px); }
+.admit__big { font-family: "Oswald", var(--font); font-weight: 600; font-size: clamp(2.4rem, 9vw, 4.6rem); line-height: 0.9; letter-spacing: 0.02em; text-transform: uppercase; color: #3a2416; }
+.admit__line { margin-top: 10px; font-family: "Oswald", var(--font); font-weight: 600; font-size: clamp(0.75rem, 2vw, 1rem); letter-spacing: 0.14em; text-transform: uppercase; }
+.admit__fine { margin-top: 4px; font-size: clamp(0.55rem, 1.4vw, 0.7rem); letter-spacing: 0.18em; text-transform: uppercase; color: #6a4a32; }
+.admit__tear { writing-mode: vertical-rl; font-size: 0.55rem; letter-spacing: 0.24em; text-transform: uppercase; color: #c8344a; }
+/* The tear: the stub drops away, the ticket flies up and off. */
+.admit.is-torn { pointer-events: none; }
+.admit.is-torn .admit__stub { animation: stub-fall 700ms cubic-bezier(0.4, 0, 0.8, 0.6) forwards; }
+.admit.is-torn .admit__main { animation: ticket-off 560ms cubic-bezier(0.5, 0, 0.75, 0) 80ms forwards; }
+.leader__gate:has(.admit.is-torn) .leader__sound { opacity: 0; transition: opacity 200ms; }
+@keyframes stub-fall { 0% { transform: none; } 20% { transform: translate(8px, -4px) rotate(4deg); } 100% { transform: translate(60px, 70vh) rotate(38deg); opacity: 0; } }
+@keyframes ticket-off { 0% { transform: none; } 100% { transform: translate(-30px, -80vh) rotate(-14deg); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .admit.is-torn .admit__stub, .admit.is-torn .admit__main { animation: none; opacity: 0; } }
+
+/* Photography: the light table and the loupe. */
+.photos[data-view="table"] .room { display: none; }
+.photos[data-view="projector"] .lighttable { display: none; }
+.lighttable { position: relative; height: 420vh; }
+.lighttable__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; background: #0b0b09; }
+.lighttable__head { position: absolute; z-index: 3; top: 84px; left: 0; right: 0; text-align: center; pointer-events: none; padding: 0 var(--gutter); }
+.lighttable__h { margin: 0; font-family: var(--title); font-weight: 600; font-size: clamp(2rem, 6vw, 4rem); letter-spacing: 0.12em; text-transform: uppercase; color: #f6ecd4; text-shadow: 0 0 24px rgba(0, 0, 0, 0.9); }
+.lighttable__sub { margin: 10px auto 0; max-width: 34rem; color: var(--ink); text-shadow: 0 1px 12px rgba(0, 0, 0, 0.9); }
+.lighttable__surface {
+  position: absolute; left: 0; top: 230px; display: grid; grid-template-columns: repeat(9, 210px); gap: 26px; padding: 60px;
+  width: max-content; background-color: #eef3f2;
+  background-image: linear-gradient(rgba(120, 150, 160, 0.16) 1px, transparent 1px), linear-gradient(90deg, rgba(120, 150, 160, 0.16) 1px, transparent 1px);
+  background-size: 40px 40px; border-radius: 6px; will-change: transform;
+}
+.lighttable__surface button {
+  position: relative; display: block; aspect-ratio: 1; padding: 22px; margin: 0; border: 0; border-radius: 6px; cursor: zoom-in;
+  background: #fbfbf7; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.lighttable__surface button:nth-child(3n) { transform: rotate(1.4deg); }
+.lighttable__surface button:nth-child(4n+1) { transform: rotate(-1.2deg); }
+.lighttable__surface img { width: 100%; height: 100%; object-fit: cover; border-radius: 3px; aspect-ratio: auto; }
+.lighttable__surface .edge { left: 10px; bottom: 3px; color: #c8344a; font-family: ui-monospace, "Courier New", monospace; opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .lighttable__surface button:hover { box-shadow: inset 0 0 0 2px var(--ember); } }
+.loupe { position: absolute; z-index: 2; left: 0; top: 0; width: clamp(160px, 22vw, 280px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; pointer-events: none;
+  border: 10px solid #1a1a16; outline: 2px solid #3a3a32; }
+.loupe__view { position: absolute; inset: 0; }
+.loupe__view .lighttable__surface { top: 0 !important; transform-origin: 0 0; }
+@media (max-width: 700px) {
+  .lighttable__surface { grid-template-columns: repeat(9, 150px); gap: 18px; padding: 40px; top: 210px; }
+  .lighttable__surface button { padding: 14px; }
+}
+
+/* Part I: the back of a director's chair. */
+.intertitle--chair { display: grid; justify-items: center; align-content: center; gap: 22px; }
+.chair { position: relative; width: min(440px, 80vw); aspect-ratio: 1.15; }
+.chair__post { position: absolute; top: 0; width: 7%; height: 62%; background: linear-gradient(90deg, #6a4526, #8c5e36 50%, #5a3a20); border-radius: 3px; }
+.chair__post--l { left: 4%; } .chair__post--r { right: 4%; }
+.chair__canvas { position: absolute; left: 6%; right: 6%; top: 6%; height: 32%; display: grid; place-content: center; text-align: center; background: #12110d; border-top: 3px solid #26241d; border-bottom: 3px solid #26241d; }
+.chair__part { font-size: 0.6rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ember); }
+.chair__h { font-family: "Oswald", var(--font); font-weight: 600; font-size: clamp(1.8rem, 6vw, 3rem); line-height: 1; letter-spacing: 0.18em; text-transform: uppercase; color: #f4ecd8; }
+.chair__name { margin-top: 4px; font-family: var(--title); font-size: clamp(0.8rem, 2vw, 1rem); letter-spacing: 0.16em; color: var(--paper); }
+.chair__seat { position: absolute; left: 4%; right: 4%; top: 58%; height: 8%; background: #12110d; border-radius: 2px; box-shadow: inset 0 3px 0 #26241d; }
+.chair__leg { position: absolute; top: 64%; bottom: 0; width: 6%; background: linear-gradient(90deg, #6a4526, #8c5e36 50%, #5a3a20); border-radius: 2px; }
+.chair__leg--a { left: 22%; transform: rotate(22deg); transform-origin: top; }
+.chair__leg--b { right: 22%; transform: rotate(-22deg); transform-origin: top; }
+
+/* Premiere night: searchlights sweeping behind the laurels. */
+.searchlights { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.searchlights i { position: absolute; bottom: -10%; width: 9vw; height: 130%; transform-origin: 50% 100%;
+  background: linear-gradient(to top, rgba(255, 236, 190, 0.22), rgba(255, 236, 190, 0.04) 70%, transparent);
+  clip-path: polygon(42% 100%, 58% 100%, 100% 0, 0 0); animation: sweep-light 7s ease-in-out infinite alternate; }
+.searchlights i:nth-child(1) { left: 12%; animation-delay: -1s; }
+.searchlights i:nth-child(2) { left: 34%; animation-delay: -4s; animation-duration: 8s; }
+.searchlights i:nth-child(3) { right: 34%; animation-delay: -2.5s; animation-duration: 6.5s; }
+.searchlights i:nth-child(4) { right: 12%; animation-delay: -5.5s; }
+@keyframes sweep-light { from { transform: rotate(-24deg); } to { transform: rotate(24deg); } }
+.circuit__count, .circuit__wall { position: relative; z-index: 1; }
+
+/* The footer: a star on the Walk of Fame, then the tail of the film. */
+.walk { display: grid; place-items: center; padding: clamp(40px, 7vw, 72px) var(--gutter);
+  background-color: #6f5c58; background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1.5px), radial-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1.5px);
+  background-size: 7px 7px, 11px 11px; }
+.walk__star {
+  position: relative; display: grid; justify-items: center; align-content: center; gap: 6px; width: min(300px, 74vw); aspect-ratio: 1;
+  background: #d78a90; clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  box-shadow: inset 0 0 0 4px #c9a25a;
+}
+.walk__star::before { content: ""; position: absolute; inset: 0; background: #c9a25a; clip-path: inherit; z-index: -1; transform: scale(1.04); }
+.walk__name { margin-top: 18%; font-family: var(--title); font-weight: 600; font-size: clamp(0.85rem, 2.6vw, 1.15rem); letter-spacing: 0.08em; text-transform: uppercase; color: #8a6a2e; text-align: center; max-width: 9ch; line-height: 1.1; }
+.walk__emblem { width: 22%; color: #8a6a2e; }
+@media (prefers-reduced-motion: reduce) { .searchlights i { animation: none; } }
+
+/* Cinematographer, one take: the push into his camera, then the slider. */
+.cam { height: 760vh; }
+.cam__pov { position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%; object-fit: cover; object-position: 30% 18%; transform-origin: 30% 17%; pointer-events: none; will-change: transform, opacity; }
+@media (min-aspect-ratio: 1/1) { .cam__pov { object-fit: contain; background: #0b0b09; } }
+.cam__body { will-change: transform, opacity; }
+.cam__strip { position: absolute; inset: 0; display: flex; will-change: transform; }
+.cam__strip img { flex: none; width: 100%; height: 100%; object-fit: cover; }
+
+/* Masthead sound: a little projector, struck through when off. */
+.mast { position: relative; }
+.mast__sound { position: absolute; right: var(--gutter); top: 50%; transform: translateY(-50%); width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line-strong); border-radius: 50%; background: transparent; color: var(--paper); cursor: pointer; transition: border-color 120ms ease-out, color 120ms ease-out; }
+.mast__sound svg { width: 20px; height: 20px; }
+.mast__sound[aria-pressed="true"] { color: var(--ember); border-color: rgba(224, 138, 67, 0.6); }
+.mast__sound-off { position: absolute; width: 26px; height: 1.5px; background: currentColor; transform: rotate(-40deg); opacity: 0; }
+.mast__sound[aria-pressed="false"] .mast__sound-off { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .mast__sound:hover { border-color: var(--ember); } }
+.mast__sound:active { transform: translateY(-50%) scale(0.95); }
+@media (max-width: 700px) { .mast__sound { top: 22px; transform: none; width: 32px; height: 32px; } .mast__sound:active { transform: scale(0.95); } }
+
+/* One end card: the iris closes on him, the slate sits beside him. */
+.irisout__card .slate { width: 100%; max-width: 520px; margin: 22px 0 0; }
+.irisout__card .slate__clap { height: 44px; }
+.irisout__card .form.slate__board { padding: 16px 18px; }
+.irisout__card .slate__board textarea { min-height: 76px; }
+.irisout__card .nextup__title { font-size: clamp(2.2rem, 5vw, 3.8rem); margin: 4px 0 8px; }
+.irisout__card .contact__lede { margin: 0 0 4px; }
+@media (min-width: 900px) {
+  .irisout__card { top: 50%; bottom: auto; max-height: calc(100svh - 120px); overflow: visible; }
+}
+@media (max-width: 899px) {
+  .irisout { height: auto; }
+  .irisout__pin { position: relative; height: auto; min-height: 100svh; padding-bottom: 32px; }
+  .irisout__img, .irisout__mask { height: 72svh; }
+  .irisout__mask { background: radial-gradient(circle at 52% 40%, transparent calc(30vmax - 1px), #0b0b09 30vmax); }
+  .irisout__card { position: relative; inset: auto; margin-top: 62svh; opacity: 1; transform: none; }
+}
+@media (max-width: 700px) {
+  .circuit__wall { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+  .laurel svg { width: 12px; }
+  .laurel__t { font-size: 0.66rem; }
+  .circuit__pin { padding-top: 96px; }
+}
+.irisout__card .slate { margin-top: clamp(52px, 7vh, 72px); }

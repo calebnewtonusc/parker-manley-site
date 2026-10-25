@@ -72,11 +72,14 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
   <nav class="mast__side mast__side--l" aria-label="Work">{nav("/#all-films", "Films", "films")}{nav("/photography/", "Photography", "photos")}</nav>
   <a class="mast__name" href="/">Parker Manley</a>
   <nav class="mast__side mast__side--r" aria-label="About">{nav("/#about", "About", "about")}{nav("/#contact", "Contact", "contact")}</nav>
+  <button class="mast__sound" type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="8" r="4"/><circle cx="16" cy="8" r="4"/><rect x="4" y="13" width="12" height="7" rx="1"/><path d="M16 15l5-2.5v8L16 18"/></g></svg><span class="mast__sound-off" aria-hidden="true"></span></button>
 </header>
 <main id="main">
 {body}
 </main>
-<footer class="foot"><span class="foot__edge">Parker Manley &nbsp;&#9656;&nbsp; Boulder, Colorado to Los Angeles &nbsp;&#9656;&nbsp; Tail</span></footer>
+<footer class="foot"><div class="walk" aria-label="A Hollywood Walk of Fame star for Parker Manley">
+  <div class="walk__star"><span class="walk__name">Parker Manley</span><svg class="walk__emblem" viewBox="0 0 40 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="7" r="5.5"/><circle cx="21" cy="7" r="5.5"/><rect x="4" y="13" width="22" height="11" rx="1.5"/><path d="M26 16l9-4v14l-9-4z"/></g></svg></div>
+</div><span class="foot__edge">Parker Manley &nbsp;&#9656;&nbsp; Boulder, Colorado to Los Angeles &nbsp;&#9656;&nbsp; Tail</span></footer>
 <script src="/app.js" defer></script>
 </body>
 </html>
@@ -115,10 +118,11 @@ def lens_scene(films):
   </ol>
   <div class="cam">
     <div class="cam__pin">
+      <img class="cam__pov" src="/media/portraits/set.jpg" alt="Parker on set behind a Sony cinema camera, hand on the rig" loading="lazy">
       <div class="cam__body">
         <span class="cam__tally" aria-hidden="true"></span>
         <div class="cam__screen">
-          <div class="cam__frame"><img class="cam__img" src="/media/stills/{first['slug']}-1.jpg" alt=""><span class="cam__tint"></span></div>
+          <div class="cam__frame"><div class="cam__strip">{"".join(f'<img src="/media/stills/{f["slug"]}-{n}.jpg" alt="">' for f, n, *_ in shots)}</div><span class="cam__tint"></span></div>
           <div class="vf" aria-hidden="true"><span class="vf__grid"></span><span class="vf__focus"></span></div>
           <div class="cam__hud" aria-hidden="true">
             <span class="cam__rec">Rec</span><span class="vf__tc">00:00:00:00</span>
@@ -161,6 +165,7 @@ def circuit(films):
     )
     return f"""<section class="circuit" aria-label="Festival selections">
   <div class="circuit__pin">
+    <div class="searchlights" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <p class="circuit__count"><b class="circuit__n" data-to="{fests}">{fests}</b> festival selections &middot; <b>{schools}</b> films that got me into film school</p>
     <ul class="circuit__wall">
 {items}
@@ -173,6 +178,16 @@ def splice(reel, label):
     """A splice between reels: a strip of film whose edge print names the next one."""
     return (f'<div class="splice" aria-hidden="true"><span>Reel {reel} &nbsp;&#9656;&nbsp; {label}</span>'
             f'<span>Reel {reel} &nbsp;&#9656;&nbsp; {label}</span><span>Reel {reel} &nbsp;&#9656;&nbsp; {label}</span></div>')
+
+
+def chair(line):
+    """Part I's intertitle is the back of a director's chair."""
+    return f"""<div class="intertitle intertitle--chair"><div class="chair" role="img" aria-label="A director's chair, the canvas back printed Director, P. Manley">
+  <span class="chair__post chair__post--l"></span><span class="chair__post chair__post--r"></span>
+  <span class="chair__canvas"><span class="chair__part">Part I</span><span class="chair__h">Director</span><span class="chair__name">P. Manley</span></span>
+  <span class="chair__seat"></span>
+  <span class="chair__leg chair__leg--a"></span><span class="chair__leg chair__leg--b"></span>
+</div><p class="intertitle__line">{line}</p></div>"""
 
 
 def intertitle(part, title, line):
@@ -342,7 +357,17 @@ def home(films):
   <span class="leader__sweep"></span>
   <span class="leader__n">3</span>
   <div class="leader__gate">
-    <button class="btn btn--ticket leader__roll" type="button">&#9654;&nbsp; Roll film</button>
+    <button class="admit leader__roll" type="button" aria-label="Admit one: tear the ticket to roll the film, with sound">
+      <span class="admit__main">
+        <span class="admit__serial admit__serial--l">000000</span>
+        <span class="admit__body">
+          <span class="admit__big">Admit<br>One</span>
+          <span class="admit__line">A Parker Manley picture</span>
+          <span class="admit__fine">Director &middot; Cinematographer &middot; Editor</span>
+        </span>
+      </span>
+      <span class="admit__stub"><span class="admit__serial">000000</span><span class="admit__tear">Tear to roll</span></span>
+    </button>
     <p class="leader__sound">Sound on &middot; scroll to skip</p>
   </div>
 </div>
@@ -363,7 +388,7 @@ def home(films):
 </div>
 
 {splice(2, "Part I, The Director")}
-{intertitle("Part I", "The Director", "On the festival circuit, then now showing")}
+{chair("On the festival circuit, then now showing")}
 {circuit(films)}
 <section class="reels" id="films" aria-label="Featured films">
   <div class="scene scene--films">
@@ -440,24 +465,24 @@ def home(films):
         <h2 id="contact-h" class="nextup__title">Your film</h2>
         <p class="contact__lede">Looking for a director, a DP or an editor? I'd love to hear about it.</p>
         <a class="contact__mail" href="mailto:{EMAIL}">{EMAIL}</a>
+  <div class="slate">
+          <div class="slate__clap" aria-hidden="true"><span class="slate__stick slate__stick--top"></span><span class="slate__stick"></span></div>
+          <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST">
+            <input type="hidden" name="_subject" value="New message from parkermanley.com">
+            <input type="hidden" name="_template" value="table">
+            <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
+            <div class="slate__info" aria-hidden="true"><span><small>Prod.</small>Your next film</span><span><small>Director</small>P. Manley</span><span><small>Take</small>1</span></div>
+            <div class="row">
+              <label>Name<input name="name" autocomplete="name" required></label>
+              <label>Email<input name="email" type="email" autocomplete="email" required></label>
+            </div>
+            <label>Message<textarea name="message" required></textarea></label>
+            <button class="btn btn--ember" type="submit">Action</button>
+            <p class="form__status" role="status"></p>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="slate">
-    <div class="slate__clap" aria-hidden="true"><span class="slate__stick slate__stick--top"></span><span class="slate__stick"></span></div>
-    <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST">
-      <input type="hidden" name="_subject" value="New message from parkermanley.com">
-      <input type="hidden" name="_template" value="table">
-      <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
-      <div class="slate__info" aria-hidden="true"><span><small>Prod.</small>Your next film</span><span><small>Director</small>P. Manley</span><span><small>Take</small>1</span></div>
-      <div class="row">
-        <label>Name<input name="name" autocomplete="name" required></label>
-        <label>Email<input name="email" type="email" autocomplete="email" required></label>
-      </div>
-      <label>Message<textarea name="message" required></textarea></label>
-      <button class="btn btn--ember" type="submit">Action</button>
-      <p class="form__status" role="status"></p>
-    </form>
   </div>
   <div class="elsewhere"><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></div>
 </section>
@@ -572,7 +597,20 @@ def photography():
     )
     n = len(photos)
     body = f"""
-<div class="photos" data-view="projector">
+<div class="photos" data-view="table">
+  <section class="lighttable" aria-label="Photographs on a light table">
+    <div class="lighttable__pin">
+      <div class="lighttable__head">
+        <p class="card__no">{n} slides on the light table</p>
+        <h1 class="lighttable__h">Photography</h1>
+        <p class="lighttable__sub">Light painting, ice, mountains and the people in front of my camera. Tap a slide to project it.</p>
+      </div>
+      <div class="lighttable__surface sheet">
+{shots}
+      </div>
+      <div class="loupe" aria-hidden="true"><div class="loupe__view"></div></div>
+    </div>
+  </section>
   <section class="room" aria-roledescription="carousel" aria-label="Photographs by Parker Manley, one slide at a time">
     <div class="room__beam" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="wall">
@@ -596,18 +634,8 @@ def photography():
       <button class="machine__btn" type="button" data-step="1" aria-label="Next slide">&#9654;</button>
       <span class="machine__body" aria-hidden="true"><span class="machine__lens"></span></span>
     </div>
-    <button class="room__sheet" type="button" data-view="sheet">Contact sheet</button>
+    <button class="room__sheet" type="button" data-view="table">Back to the light table</button>
   </section>
-  <div class="sheet-wrap">
-    <div class="sheet-head">
-      <h1>Contact sheet</h1>
-      <p>All {n} frames. Tap one to put it on the projector.</p>
-      <button class="btn btn--ticket" type="button" data-view="projector">Back to the projector</button>
-    </div>
-    <div class="sheet" data-size="s">
-{shots}
-    </div>
-  </div>
 </div>
 """
     return page("Photography, Parker Manley", body, current="photos", path="/photography/")

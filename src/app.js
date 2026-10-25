@@ -134,6 +134,12 @@
         tone(t, 110, 0.09, 0.12);
         burst(t, 0.05, 600, 0.8, 0.25);
       },
+      // A ticket torn along its perforation: a short dry rip.
+      rip() {
+        if (!on) return;
+        const t = now();
+        for (let i = 0; i < 9; i++) burst(t + i * 0.022, 0.03, 2200 + i * 260, 0.7, 0.22 * (1 - i / 12));
+      },
       // The clapper: one hard wooden crack.
       clack() {
         if (!on) return;
@@ -199,7 +205,17 @@
           tick();
         }, 800);
       };
-      leader.querySelector(".leader__roll").addEventListener("click", roll, { once: true });
+      // The ticket: a new serial each visit; a click tears the stub off and
+      // the countdown starts once the halves have cleared.
+      const ticket = leader.querySelector(".admit");
+      const serial = String(Math.floor(100000 + Math.random() * 899999));
+      ticket.querySelectorAll(".admit__serial").forEach((x) => { x.textContent = serial; });
+      ticket.addEventListener("click", () => {
+        sfx.wake();
+        sfx.rip();
+        ticket.classList.add("is-torn");
+        setTimeout(roll, reduced ? 0 : 650);
+      }, { once: true });
       leader.querySelector(".leader__roll").focus({ preventScroll: true });
       addEventListener("wheel", skip, { once: true, passive: true });
       addEventListener("touchmove", skip, { once: true, passive: true });
@@ -207,6 +223,19 @@
         if (e.key === "Escape" || e.key === "ArrowDown" || e.key === "PageDown") skip();
       }, { once: true });
     }
+  }
+  // The masthead's projector button: sound on or off from anywhere.
+  const mastSound = document.querySelector(".mast__sound");
+  if (mastSound) {
+    const show = () => mastSound.setAttribute("aria-pressed", String(sfx.on));
+    show();
+    mastSound.addEventListener("click", () => {
+      sfx.set(!sfx.on);
+      sfx.wake();
+      setReelSound(sfx.on);
+      if (sfx.on) sfx.tick();
+      show();
+    });
   }
   // Sound on by default: the first click or key anywhere turns the reel up,
   // unless the visitor switched sound off.
@@ -410,6 +439,52 @@
     scene.addEventListener("chapter", (e) => { spell(e.detail, true); sfx.flap(titles[e.detail].length); });
   }
 
+  // Photography: the light table. Scrolling pans across every slide; the
+  // loupe magnifies whatever's under it (the cursor on desktop, the center
+  // on a phone).
+  const table = document.querySelector(".lighttable");
+  let tableUpdate = null;
+  if (table) {
+    const pin = table.querySelector(".lighttable__pin");
+    const surface = table.querySelector(".lighttable__surface");
+    const loupe = table.querySelector(".loupe");
+    const view = loupe.querySelector(".loupe__view");
+    view.appendChild(surface.cloneNode(true));
+    const copy = view.firstElementChild;
+    copy.querySelectorAll("button").forEach((b) => b.setAttribute("tabindex", "-1"));
+    copy.querySelectorAll("img").forEach((im) => { im.loading = "eager"; im.src = im.getAttribute("src"); });
+    const head = table.querySelector(".lighttable__head");
+    let tx = 0;
+    let ty = 0;
+    let lx = innerWidth / 2;
+    let ly = innerHeight * 0.58;
+    // 2x is a real loupe's working magnification for 35mm slides on a table.
+    const MAG = 2;
+    const place = () => {
+      const R = loupe.clientWidth / 2;
+      loupe.style.transform = `translate(${lx - R}px, ${ly - R}px)`;
+      const sx = lx - tx;
+      const sy = ly - ty - surface.offsetTop;
+      copy.style.transform = `translate(${R - sx * MAG}px, ${R - sy * MAG}px) scale(${MAG})`;
+    };
+    tableUpdate = () => {
+      const top = table.getBoundingClientRect().top + scrollY;
+      const p = Math.max(0, Math.min(1, (scrollY - top) / (table.offsetHeight - innerHeight)));
+      const W = surface.scrollWidth - pin.clientWidth;
+      const H = surface.scrollHeight - (pin.clientHeight - surface.offsetTop);
+      // An S across the table, the way you'd slide a loupe over it.
+      tx = -Math.max(0, W) * (0.5 - 0.5 * Math.cos(p * Math.PI * 2)) * 0.9 - Math.max(0, W) * 0.05;
+      ty = -Math.max(0, H) * p;
+      surface.style.transform = `translate(${tx}px, ${ty}px)`;
+      head.style.opacity = String(Math.max(0, 1 - p * 7));
+      place();
+    };
+    if (fine) pin.addEventListener("mousemove", (e) => { lx = e.clientX; ly = e.clientY; place(); });
+    addEventListener("resize", () => tableUpdate());
+    addEventListener("scroll", () => requestAnimationFrame(tableUpdate), { passive: true });
+    tableUpdate();
+  }
+
   // All Films: a Premiere-style edit. Scrolling drags the timeline under a
   // fixed playhead. Every cut carries a transition that renders live in the
   // Program monitor as the playhead crosses it, and Effect Controls follow.
@@ -557,14 +632,18 @@
     addEventListener("resize", () => { layout(); scrub(); });
   }
 
-  // Cinematographer: the camera's monitor. Each shot whips in, then one
-  // setting moves live with the scroll while the HUD reads it out.
+  // Cinematographer: one take. It opens on Parker at the camera and pushes
+  // past his shoulder into its monitor; then the camera slides along a strip
+  // of his frames, stopping on each while one setting moves live.
   const cam = document.querySelector(".cam");
   let camUpdate = null;
   if (cam) {
     const shots = [...document.querySelectorAll(".cam__shots li")].map((li) => ({ ...li.dataset }));
+    const pov = cam.querySelector(".cam__pov");
+    const body = cam.querySelector(".cam__body");
     const frame = cam.querySelector(".cam__frame");
-    const img = cam.querySelector(".cam__img");
+    const strip = cam.querySelector(".cam__strip");
+    const imgs = [...strip.querySelectorAll("img")];
     const tint = cam.querySelector(".cam__tint");
     const what = cam.querySelector(".cam__what");
     const val = cam.querySelector(".cam__val");
@@ -576,21 +655,33 @@
     const capMeta = document.querySelector(".lens .lens__meta");
     const NAMES = { focus: "Pulling focus", nd: "Adding ND", iris: "Stopping down", wb: "White balance", zoom: "Zooming out" };
     const STOPS = [1.4, 2, 2.8, 4, 5.6, 8];
+    // The first 16% of the scroll is the push into the monitor.
+    const POV = 0.16;
     let cur = -1;
     let lastE = 0;
     let lastServo = 0;
     let rolled = false;
-    shots.forEach((sh) => { const im = new Image(); im.src = sh.src; });
     const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
+    const clamp = (x) => Math.max(0, Math.min(1, x));
     camUpdate = () => {
       const top = cam.getBoundingClientRect().top + scrollY;
       const p = Math.max(0, Math.min(0.9999, (scrollY - top) / (cam.offsetHeight - innerHeight)));
-      const i = Math.floor(p * shots.length);
-      const u = p * shots.length - i;
+      // The push: the photo scales in on the camera's top monitor and gives
+      // way to the monitor itself.
+      const k = reduced ? 1 : ease(clamp(p / POV));
+      pov.style.transform = `scale(${(1 + k * 7).toFixed(3)})`;
+      pov.style.opacity = String(clamp(1 - (k - 0.72) / 0.28));
+      body.style.transform = `scale(${(0.35 + 0.65 * clamp((k - 0.55) / 0.45)).toFixed(3)})`;
+      body.style.opacity = String(clamp((k - 0.6) / 0.3));
+      const q = clamp((p - POV) / (1 - POV));
+      const i = Math.min(shots.length - 1, Math.floor(q * shots.length));
+      const u = q * shots.length - i;
+      // Hold on the frame for the first 75% of its stretch, then slide on.
+      const slide = i < shots.length - 1 ? ease(clamp((u - 0.75) / 0.25)) : 0;
+      strip.style.transform = `translateX(${(-(i + slide) * 100).toFixed(2)}%)`;
       const sh = shots[i];
       if (i !== cur) {
         cur = i;
-        img.src = sh.src;
         what.textContent = NAMES[sh.kind];
         why.textContent = sh.why;
         cap.textContent = sh.title;
@@ -598,13 +689,13 @@
         capMeta.textContent = `${sh.year} \u00b7 Cinematography by Parker Manley`;
         cam.dataset.kind = sh.kind;
         hud("wb").textContent = "5600K"; hud("iris").textContent = "T2.8"; hud("nd").textContent = "ND Clear"; hud("zoom").textContent = "35 mm";
+        imgs.forEach((im) => { im.style.filter = ""; im.style.transform = ""; });
       }
-      // 0 to 0.14 of each shot is the whip pan in, 0.2 to 0.8 the adjustment.
-      const whip = reduced ? 1 : Math.min(1, u / 0.14);
-      const e = reduced ? 1 : ease(Math.max(0, Math.min(1, (u - 0.2) / 0.6)));
+      const e = reduced ? 1 : ease(clamp((u - 0.08) / 0.6));
       const from = Number(sh.from);
       const to = Number(sh.to);
       const v = from + (to - from) * e;
+      const img = imgs[i];
       let filter = "";
       let scale = 1;
       tint.style.opacity = "0";
@@ -618,12 +709,12 @@
         val.textContent = `ND ${v.toFixed(1)}`;
         hud("nd").textContent = v < 0.15 ? "ND Clear" : `ND ${v.toFixed(1)}`;
       } else if (sh.kind === "iris") {
-        const stop = STOPS.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a));
+        const stop = STOPS.reduce((a2, b2) => (Math.abs(b2 - v) < Math.abs(a2 - v) ? b2 : a2));
         filter = `brightness(${(1.75 - 0.75 * e).toFixed(2)}) contrast(${(0.75 + 0.25 * e).toFixed(2)})`;
         val.textContent = `T${stop}`;
         hud("iris").textContent = `T${stop}`;
       } else if (sh.kind === "wb") {
-        tint.style.opacity = (0.55 * (1 - e)).toFixed(2);
+        tint.style.opacity = (0.55 * (1 - e) * (1 - slide)).toFixed(2);
         filter = `saturate(${(0.7 + 0.4 * e).toFixed(2)})`;
         val.textContent = `${Math.round(v / 50) * 50}K`;
         hud("wb").textContent = `${Math.round(v / 50) * 50}K`;
@@ -632,13 +723,12 @@
         val.textContent = `${Math.round(v)} mm`;
         hud("zoom").textContent = `${Math.round(v)} mm`;
       }
-      // The whip: in from the right, smeared, settling.
-      const tx = (1 - whip) * 60;
-      img.style.filter = `${filter} ${whip < 1 ? `blur(${(14 * (1 - whip)).toFixed(1)}px)` : ""}`;
-      img.style.transform = `translateX(${tx}%) scale(${scale.toFixed(3)})`;
+      img.style.filter = filter;
+      img.style.transform = `scale(${scale.toFixed(3)})`;
       frame.classList.toggle("is-adjusting", e > 0 && e < 1);
-      const inView = cam.getBoundingClientRect().top <= 0 && cam.getBoundingClientRect().bottom >= innerHeight;
-      if (inView && !rolled) { rolled = true; sfx.rec(); }
+      const r = cam.getBoundingClientRect();
+      const inView = r.top <= 0 && r.bottom >= innerHeight;
+      if (inView && k >= 1 && !rolled) { rolled = true; sfx.rec(); }
       if (!inView) rolled = false;
       if (inView && /focus|iris|zoom/.test(sh.kind) && Math.abs(e - lastE) > 0.01 && performance.now() - lastServo > 70) {
         lastServo = performance.now();
@@ -646,7 +736,21 @@
       }
       lastE = e;
     };
-    addEventListener("resize", () => camUpdate());
+    // Aim the push at the camera's top monitor, wherever object-fit put it.
+    // It sits at 31% across and 16.5% down the 1350x1800 photo.
+    const aim = () => {
+      const W = pov.clientWidth;
+      const H = pov.clientHeight;
+      const cover = getComputedStyle(pov).objectFit === "cover";
+      const sc = cover ? Math.max(W / 1350, H / 1800) : Math.min(W / 1350, H / 1800);
+      const dw = 1350 * sc;
+      const dh = 1800 * sc;
+      const x0 = (W - dw) * 0.3;
+      const y0 = (H - dh) * 0.18;
+      pov.style.transformOrigin = `${(x0 + 0.31 * dw).toFixed(1)}px ${(y0 + 0.165 * dh).toFixed(1)}px`;
+    };
+    aim();
+    addEventListener("resize", () => { aim(); camUpdate(); });
   }
 
   // Director: the festival circuit. Laurels stamp onto the poster as you
@@ -703,6 +807,29 @@
     }).observe(vfTc.closest(".cam") || vfTc.closest(".scene"));
   }
 
+  // Now Showing: one continuous dolly through nine theaters. Each screen sits
+  // deeper than the last; the camera pushes through one into the next.
+  const filmsScene = document.querySelector(".scene--films");
+  let hall = null;
+  if (filmsScene) {
+    const screens = [...filmsScene.querySelectorAll(".scene__bg video")];
+    // 1600px between theaters: at 900px perspective the next screen sits at
+    // a third of the frame, small enough to read as the next room.
+    const GAP = 1600;
+    hall = () => {
+      const top = filmsScene.getBoundingClientRect().top + scrollY;
+      const p = Math.max(0, Math.min(1, (scrollY - top) / (filmsScene.offsetHeight - innerHeight)));
+      const cam = p * (screens.length - 0.5) * GAP;
+      screens.forEach((v, i) => {
+        const z = cam - i * GAP;
+        if (z > 400 || z < -GAP * 2.2) { v.style.visibility = "hidden"; return; }
+        v.style.visibility = "visible";
+        v.style.transform = `translateZ(${z.toFixed(1)}px)`;
+        v.style.opacity = z > 0 ? Math.max(0, 1 - z / 300).toFixed(3) : "1";
+      });
+    };
+  }
+
   let queued = false;
   const onScroll = () => {
     queued = false;
@@ -713,6 +840,7 @@
       if (!reduced && cue) cue.classList.toggle("is-on", p > 0.82 && p < 0.97 && Math.floor(p * 60) % 3 !== 0);
     }
     scenes.forEach((update) => update());
+    if (hall) hall();
     if (scrub) scrub();
     if (camUpdate) camUpdate();
     if (circUpdate) circUpdate();
@@ -779,7 +907,7 @@
   const room = document.querySelector(".room");
   if (room) {
     const wrap = document.querySelector(".photos");
-    const shots = [...document.querySelectorAll(".sheet button")];
+    const shots = [...document.querySelectorAll(".lighttable__surface button")];
     const wall = room.querySelector(".wall");
     const img = wall.querySelector(".wall__img");
     const no = wall.querySelector(".wall__no");
