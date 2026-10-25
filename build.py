@@ -87,6 +87,84 @@ def exists(rel):
     return (ROOT / rel).exists()
 
 
+def festival_program(films):
+    """All Films as a festival program: one chapter per year, newest first,
+    Parker's own order kept inside each year."""
+    by_year = {}
+    for f in films:
+        by_year.setdefault(f["year"] or 0, []).append(f)
+    out = []
+    for y in sorted(by_year, reverse=True):
+        group = by_year[y]
+        rows = []
+        for f in group:
+            still = f"/media/stills/{f['slug']}-1.jpg"
+            if not exists(still[1:]):
+                still = f"/media/posters/{f['slug']}.jpg"
+            loop = f"media/loops/{f['slug']}-720.mp4"
+            loop_attr = f' data-loop="/{loop}"' if f["featured"] and exists(loop) else ""
+            role = f["role"] or "Written, directed, shot &amp; edited"
+            rows.append(
+                f'<li><a class="bill" href="/films/{f["slug"]}/" data-still="{still}"{loop_attr} data-title="{e(f["title"])}">'
+                f'<span class="bill__mat"><img src="{art_src(f)}" alt="" loading="lazy"></span>'
+                f'<span class="bill__text"><span class="bill__title">{e(f["title"])}</span>'
+                f'<span class="bill__meta">{e(meta_line(f))}</span>'
+                f'<span class="bill__role">{role if not f["role"] else e(role)}</span></span></a></li>'
+            )
+        first = group[0]
+        first_still = f"/media/stills/{first['slug']}-1.jpg"
+        if not exists(first_still[1:]):
+            first_still = f"/media/posters/{first['slug']}.jpg"
+        count = f"{len(group)} film{'s' if len(group) != 1 else ''}"
+        # The Grand Budapest move: each era gets its own aspect ratio, the
+        # older years boxier, so the screen changes shape as you go back.
+        ratio = {2026: "2.39", 2025: "1.85", 2024: "1.66"}.get(y, "1.37")
+        out.append(f"""    <section class="yr" aria-label="{y}">
+      <div class="yr__side"><div class="yr__stick">
+        <p class="yr__n">{y}</p>
+        <p class="yr__count">{count} &middot; {ratio} : 1</p>
+        <div class="yr__screen" data-ar="{ratio}" aria-hidden="true"><img src="{first_still}" alt="" loading="lazy"><span class="yr__now">{e(first["title"])}</span></div>
+      </div></div>
+      <ol class="yr__list">
+{chr(10).join(rows)}
+      </ol>
+    </section>""")
+    return "\n".join(out)
+
+
+def end_credits(films):
+    """End credits built from films.json, so every name on it is real."""
+    seen, names = set(), []
+    for f in films:
+        for n in list(f["cast"]) + [n for _, n in f["crew"]]:
+            for part in n.split(" & "):
+                part = part.strip()
+                if part and part != "Parker Manley" and part not in seen:
+                    seen.add(part)
+                    names.append(part)
+    names.sort(key=lambda n: n.split()[-1])
+    titles = "".join(f"<li>{e(f['title'])}</li>" for f in films)
+    people = "".join(f"<li>{e(n)}</li>" for n in names)
+    pair = lambda r, n: f'<div class="roll__pair"><dt>{r}</dt><dd>{n}</dd></div>'
+    return f"""  <div class="roll">
+    <p class="roll__pre">A Parker Manley picture</p>
+    <dl class="roll__pairs">
+      {pair("Directed by", "Parker Manley")}
+      {pair("Director of Photography", "Parker Manley")}
+      {pair("Edited by", "Parker Manley")}
+    </dl>
+    <h3 class="roll__h">The films</h3>
+    <ul class="roll__cols">{titles}</ul>
+    <h3 class="roll__h">With</h3>
+    <ul class="roll__cols roll__cols--names">{people}</ul>
+    <dl class="roll__pairs">
+      {pair("Reel music", "&ldquo;I Am Chemistry&rdquo; by Yeasayer")}
+      {pair("Filmed in", "Boulder, Colorado<br>Los Angeles, California")}
+    </dl>
+  </div>
+"""
+
+
 def home(films):
     featured = [f for f in films if f["featured"]]
     archive = [f for f in films if not f["featured"]]
@@ -124,20 +202,23 @@ def home(films):
         for i, s in enumerate(showing)
     )
     ticks = "".join(f'<i{" class=\"is-on\"" if i == 0 else ""}></i>' for i in range(n))
-    wall = "\n".join(
-        f'<li><a class="frame" href="/films/{f["slug"]}/"><span class="frame__mat">'
-        f'<img src="{art_src(f)}" alt="{e(f["title"])} poster" loading="lazy"></span>'
-        f'<span class="frame__title">{e(f["title"])}</span>'
-        f'<span class="frame__meta">{e(meta_line(f))}</span></a></li>'
-        for f in films
-    )
+    program = festival_program(films)
     arch = "\n".join(
         f'<li><a href="/films/{f["slug"]}/"><span class="y">{f.get("years") or f["year"] or ""}</span>'
         f'<span class="tt">{e(f["title"])}</span><span class="g">{e(f["genre"])}</span></a></li>'
         for f in archive
     )
     body = f"""
+<div class="leader" aria-hidden="true">
+  <svg class="leader__dial" viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="92"/><circle cx="100" cy="100" r="74"/>
+    <path d="M100 0V200M0 100H200"/>
+  </svg>
+  <span class="leader__sweep"></span>
+  <span class="leader__n">3</span>
+</div>
 <div class="opening">
+  <span class="cue" aria-hidden="true"></span>
   <div class="opening__pin">
     <div class="opening__frame">
       <video id="reel" autoplay muted loop playsinline preload="auto" poster="/media/reel/reel-poster.jpg"
@@ -170,10 +251,8 @@ def home(films):
   </div>
   <div class="lobby" id="all-films">
     <div class="head"><h2>All Films</h2></div>
-    <p class="lobby__sub">Every film, in the order I'd show them.</p>
-    <ol class="lobby__wall">
-{wall}
-    </ol>
+    <p class="lobby__sub">The full program, year by year.</p>
+{program}
   </div>
 </section>
 
@@ -185,21 +264,19 @@ def home(films):
         <img src="/media/portraits/bigbear.jpg" alt="" data-pos="outdoors" loading="lazy">
         <img src="/media/portraits/faith.jpg" alt="" data-pos="faith" loading="lazy">
       </div>
-      <nav class="scene__nav" aria-label="About chapters">
-        <a href="#about" data-step="0" aria-current="true">Storytelling</a>
-        <a href="#about" data-step="1" aria-current="false">Outdoors</a>
-        <a href="#about" data-step="2" aria-current="false">Faith</a>
-      </nav>
       <div class="scene__copy">
         <div class="line is-on">
+          <p class="card__no">Chapter I &middot; Storytelling</p>
           <p class="line__big">I'm a storyteller from Boulder, Colorado, studying Film and Television Production at USC.</p>
           <p class="line__small">On set or at the Dungeons &amp; Dragons table. More than 25 shorts since 2023, most of them written, directed, shot and edited by me.</p>
         </div>
         <div class="line" aria-hidden="true">
+          <p class="card__no">Chapter II &middot; Outdoors</p>
           <p class="line__big">I'm a big hiker and camper.</p>
           <p class="line__small">I grew up at the foot of the Rockies. At USC: SC Outfitters, fencing, the Trojan Stunt Team and EscapeSC.</p>
         </div>
         <div class="line" aria-hidden="true">
+          <p class="card__no">Chapter III &middot; Faith</p>
           <p class="line__big">I lay all my work before Jesus.</p>
           <p class="line__small">&ldquo;So, whether you eat or drink, or whatever you do, do all to the glory of God.&rdquo; 1 Corinthians 10:31</p>
         </div>
@@ -210,22 +287,32 @@ def home(films):
 </section>
 
 <section class="contact" id="contact" aria-labelledby="contact-h">
-  <div class="head"><h2 id="contact-h">Contact</h2></div>
-  <figure class="contact__photo"><img src="/media/portraits/rock.jpg" alt="Parker framing a shot on a granite outcrop above a pine forest" loading="lazy"></figure>
-  <p class="contact__lede">Looking for a director, a DP or an editor? I'd love to hear about it.</p>
-  <a class="contact__mail" href="mailto:{EMAIL}">{EMAIL}</a>
-  <form class="form" action="https://formsubmit.co/ajax/{EMAIL}" method="POST">
-    <input type="hidden" name="_subject" value="New message from parkermanley.com">
-    <input type="hidden" name="_template" value="table">
-    <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
-    <div class="row">
-      <label>Name<input name="name" autocomplete="name" required></label>
-      <label>Email<input name="email" type="email" autocomplete="email" required></label>
+{end_credits(films)}
+  <div class="nextup">
+    <div class="nextup__iris">
+      <p class="card__no">Coming soon</p>
+      <h2 id="contact-h" class="nextup__title">Your film</h2>
+      <p class="contact__lede">Looking for a director, a DP or an editor? I'd love to hear about it.</p>
+      <a class="contact__mail" href="mailto:{EMAIL}">{EMAIL}</a>
     </div>
-    <label>Message<textarea name="message" required></textarea></label>
-    <button class="btn btn--ember" type="submit">Send</button>
-    <p class="form__status" role="status"></p>
-  </form>
+    <figure class="contact__photo"><img src="/media/portraits/rock.jpg" alt="Parker framing a shot on a granite outcrop above a pine forest" loading="lazy"></figure>
+  </div>
+  <div class="slate">
+    <div class="slate__clap" aria-hidden="true"><span class="slate__stick slate__stick--top"></span><span class="slate__stick"></span></div>
+    <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST">
+      <input type="hidden" name="_subject" value="New message from parkermanley.com">
+      <input type="hidden" name="_template" value="table">
+      <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
+      <div class="slate__info" aria-hidden="true"><span><small>Prod.</small>Your next film</span><span><small>Director</small>P. Manley</span><span><small>Take</small>1</span></div>
+      <div class="row">
+        <label>Name<input name="name" autocomplete="name" required></label>
+        <label>Email<input name="email" type="email" autocomplete="email" required></label>
+      </div>
+      <label>Message<textarea name="message" required></textarea></label>
+      <button class="btn btn--ember" type="submit">Action</button>
+      <p class="form__status" role="status"></p>
+    </form>
+  </div>
   <div class="elsewhere"><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></div>
 </section>
 """
@@ -313,23 +400,33 @@ def photography():
         f'<img src="/media/photos/thumb/{p["file"]}" width="{p["w"]}" height="{p["h"]}" alt="Photograph by Parker Manley" loading="lazy"></button>'
         for i, p in enumerate(photos)
     )
+    n = len(photos)
     body = f"""
 <div class="sheet-head">
   <h1>Photography</h1>
   <p>Light painting, ice, mountains and the people in front of my camera.</p>
-  <div class="sizes" role="group" aria-label="Photo size">
-    <button type="button" data-size="s" aria-pressed="true">Contact sheet</button>
-    <button type="button" data-size="l" aria-pressed="false">Large</button>
+  <div class="sizes" role="group" aria-label="View">
+    <button type="button" data-view="projector" aria-pressed="true">Projector</button>
+    <button type="button" data-view="sheet" aria-pressed="false">Contact sheet</button>
   </div>
 </div>
-<div class="sheet" data-size="s">
+<div class="photos" data-view="projector">
+  <section class="projector" aria-roledescription="carousel" aria-label="Photographs, one at a time">
+    <div class="projector__beam" aria-hidden="true"></div>
+    <figure class="slide">
+      <div class="slide__mount"><img alt="Photograph by Parker Manley"></div>
+      <figcaption class="slide__no"></figcaption>
+    </figure>
+    <button class="projector__pv" type="button" aria-label="Previous slide">&#8592;</button>
+    <button class="projector__nx" type="button" aria-label="Next slide">&#8594;</button>
+    <div class="tray" role="slider" tabindex="0" aria-label="Carousel tray" aria-valuemin="1" aria-valuemax="{n}" aria-valuenow="1">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="tray__rim" cx="60" cy="60" r="56"/><circle class="tray__hub" cx="60" cy="60" r="16"/><g class="tray__slots"></g></svg>
+      <span class="tray__count">01 / {n:02d}</span>
+    </div>
+  </section>
+  <div class="sheet" data-size="s">
 {shots}
-</div>
-<div class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
-  <img alt="">
-  <button class="x" type="button" aria-label="Close">&#10005;</button>
-  <button class="pv" type="button" aria-label="Previous photo">&#8592;</button>
-  <button class="nx" type="button" aria-label="Next photo">&#8594;</button>
+  </div>
 </div>
 """
     return page("Photography, Parker Manley", body, current="photos", path="/photography/")

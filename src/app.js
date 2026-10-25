@@ -31,6 +31,42 @@
   const glide = (top) =>
     scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
 
+  // Academy leader: 3, 2, 1 with the sweeping hand, once per visit.
+  // Any click, key or scroll skips it.
+  const leader = document.querySelector(".leader");
+  if (leader) {
+    let seen = false;
+    try { seen = sessionStorage.getItem("leader") === "1"; } catch (err) { seen = false; }
+    if (seen || reduced || location.hash) leader.remove();
+    else {
+      try { sessionStorage.setItem("leader", "1"); } catch (err) { /* private mode */ }
+      const num = leader.querySelector(".leader__n");
+      let k = 3;
+      leader.classList.add("is-on");
+      const done = () => {
+        clearInterval(timer);
+        leader.classList.add("is-done");
+        setTimeout(() => leader.remove(), 500);
+        removeEventListener("wheel", done);
+        removeEventListener("keydown", done);
+      };
+      // 800 ms a number: the real leader runs a second per number at 24 fps,
+      // trimmed so the reel isn't kept waiting more than 2.4 s.
+      const timer = setInterval(() => {
+        k -= 1;
+        if (k === 0) return done();
+        num.textContent = String(k);
+        leader.classList.remove("is-tick");
+        void leader.offsetWidth;
+        leader.classList.add("is-tick");
+      }, 800);
+      leader.classList.add("is-tick");
+      leader.addEventListener("click", done);
+      addEventListener("wheel", done, { once: true, passive: true });
+      addEventListener("keydown", done, { once: true });
+    }
+  }
+
   // Same-page anchors glide instead of jumping.
   document.addEventListener("click", (e) => {
     const a = e.target.closest('a[href^="#"]');
@@ -139,6 +175,7 @@
 
   // Opening: the reel shrinks into a framed screen over the first scroll.
   const opening = document.querySelector(".opening");
+  const cue = document.querySelector(".cue");
   // Pinned scenes (featured films, About): scroll position picks the chapter.
   const scenes = [...document.querySelectorAll(".scene")].map((scene) => {
     const layers = [...scene.querySelectorAll(".scene__bg > *")];
@@ -198,6 +235,8 @@
     if (opening) {
       const p = Math.max(0, Math.min(1, scrollY / (opening.offsetHeight - innerHeight)));
       opening.style.setProperty("--p", reduced ? 0 : p.toFixed(3));
+      // Cue marks: the projectionist's dots, top right, near the reel change.
+      if (!reduced && cue) cue.classList.toggle("is-on", p > 0.82 && p < 0.97 && Math.floor(p * 60) % 3 !== 0);
     }
     scenes.forEach((update) => update());
   };
@@ -257,52 +296,138 @@
     });
   }
 
-  // Photography: size toggle and a keyboard-friendly lightbox.
-  const sheet = document.querySelector(".sheet");
-  if (sheet) {
-    document.querySelectorAll(".sizes button").forEach((b) => {
-      b.addEventListener("click", () => {
-        sheet.dataset.size = b.dataset.size;
-        document
-          .querySelectorAll(".sizes button")
-          .forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      });
-    });
-    const shots = [...sheet.querySelectorAll("button")];
-    const box = document.querySelector(".lightbox");
-    const img = box.querySelector("img");
-    let at = 0;
-    let opener = null;
-    const show = (i) => {
-      at = (i + shots.length) % shots.length;
+  // Photography: a slide projector, one photo at a time, with a carousel
+  // tray. The contact sheet is the other view; a tap there loads that slide.
+  const projector = document.querySelector(".projector");
+  if (projector) {
+    const wrap = document.querySelector(".photos");
+    const shots = [...document.querySelectorAll(".sheet button")];
+    const slide = projector.querySelector(".slide");
+    const img = slide.querySelector("img");
+    const no = slide.querySelector(".slide__no");
+    const tray = projector.querySelector(".tray");
+    const count = tray.querySelector(".tray__count");
+    const slots = tray.querySelector(".tray__slots");
+    const n = shots.length;
+    const pad = (x) => String(x).padStart(2, "0");
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+      const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      r.setAttribute("x", String(60 + Math.cos(a) * 44 - 1.6));
+      r.setAttribute("y", String(60 + Math.sin(a) * 44 - 4));
+      r.setAttribute("width", "3.2");
+      r.setAttribute("height", "8");
+      r.setAttribute("transform", `rotate(${(a * 180) / Math.PI + 90} ${60 + Math.cos(a) * 44} ${60 + Math.sin(a) * 44})`);
+      slots.appendChild(r);
+    }
+    const rects = [...slots.children];
+    let at = -1;
+    let busy = false;
+    const preload = (i) => { const im = new Image(); im.src = shots[(i + n) % n].dataset.full; };
+    const load = (i) => {
+      at = (i + n) % n;
       img.src = shots[at].dataset.full;
-      img.alt = shots[at].querySelector("img").alt;
+      no.textContent = `No. ${pad(at + 1)}`;
+      count.textContent = `${pad(at + 1)} / ${pad(n)}`;
+      tray.setAttribute("aria-valuenow", String(at + 1));
+      rects.forEach((r, k) => r.classList.toggle("is-on", k === at));
+      preload(at + 1);
     };
-    const close = () => {
-      box.classList.remove("is-open");
-      document.body.style.overflow = "";
-      if (opener) opener.focus();
+    // The old slide drops into the tray, the next one lifts in and develops.
+    const show = (i) => {
+      if (busy || (i + n) % n === at) return;
+      if (reduced || at < 0) { load(i); return; }
+      busy = true;
+      slide.classList.add("is-out");
+      setTimeout(() => {
+        load(i);
+        const go = () => {
+          slide.classList.remove("is-out");
+          slide.classList.add("is-in");
+          requestAnimationFrame(() => requestAnimationFrame(() => slide.classList.remove("is-in")));
+          projector.classList.remove("is-flick");
+          void projector.offsetWidth;
+          projector.classList.add("is-flick");
+          busy = false;
+        };
+        if (img.complete) go(); else img.addEventListener("load", go, { once: true });
+        img.addEventListener("error", go, { once: true });
+      }, 170);
     };
-    shots.forEach((s, i) =>
-      s.addEventListener("click", () => {
-        opener = s;
-        show(i);
-        box.classList.add("is-open");
-        document.body.style.overflow = "hidden";
-        box.querySelector(".x").focus();
-      }),
-    );
-    box.querySelector(".x").addEventListener("click", close);
-    box.querySelector(".pv").addEventListener("click", () => show(at - 1));
-    box.querySelector(".nx").addEventListener("click", () => show(at + 1));
-    box.addEventListener("click", (e) => {
-      if (e.target === box) close();
+    load(0);
+    projector.querySelector(".projector__pv").addEventListener("click", () => show(at - 1));
+    projector.querySelector(".projector__nx").addEventListener("click", () => show(at + 1));
+    slide.addEventListener("click", () => show(at + 1));
+    const fromAngle = (e) => {
+      const r = tray.querySelector("svg").getBoundingClientRect();
+      const a = Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) + Math.PI / 2;
+      return Math.round((((a / (Math.PI * 2)) % 1) + 1) % 1 * n) % n;
+    };
+    tray.addEventListener("click", (e) => show(fromAngle(e)));
+    let x0 = null;
+    projector.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    projector.addEventListener("touchend", (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1));
     });
+    const views = [...document.querySelectorAll(".sizes button")];
+    const setView = (v) => {
+      wrap.dataset.view = v;
+      views.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+    };
+    views.forEach((b) => b.addEventListener("click", () => setView(b.dataset.view)));
+    shots.forEach((b, i) => b.addEventListener("click", () => {
+      setView("projector");
+      load(i);
+      glide(0);
+    }));
     addEventListener("keydown", (e) => {
-      if (!box.classList.contains("is-open")) return;
-      if (e.key === "Escape") close();
+      if (wrap.dataset.view !== "projector" || e.target.closest("input, textarea")) return;
       if (e.key === "ArrowLeft") show(at - 1);
-      if (e.key === "ArrowRight") show(at + 1);
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); show(at + 1); }
+    });
+  }
+
+  // All Films: the year's screen shows whichever film the pointer is on.
+  if (fine) {
+    document.querySelectorAll(".yr").forEach((yr) => {
+      const screen = yr.querySelector(".yr__screen");
+      const still = screen.querySelector("img");
+      const now = screen.querySelector(".yr__now");
+      let video = null;
+      yr.querySelectorAll(".bill").forEach((b) => b.addEventListener("mouseenter", () => {
+        still.src = b.dataset.still;
+        now.textContent = b.dataset.title;
+        if (video) { video.remove(); video = null; }
+        if (b.dataset.loop) {
+          video = document.createElement("video");
+          Object.assign(video, { muted: true, loop: true, playsInline: true, src: b.dataset.loop });
+          video.addEventListener("loadeddata", () => { video && (video.currentTime = 0.5); });
+          screen.insertBefore(video, now);
+          video.play().catch(() => {});
+        }
+      }));
+    });
+  }
+
+  // End card: an iris opens on "Your film" as it scrolls into view.
+  const iris = document.querySelector(".nextup");
+  if (iris) {
+    if (reduced) iris.classList.add("is-open");
+    else new IntersectionObserver(([entry], ob) => {
+      if (entry.isIntersecting) { iris.classList.add("is-open"); ob.disconnect(); }
+    }, { threshold: 0.35 }).observe(iris);
+  }
+
+  // Slate: the sticks clap when the message goes.
+  const slate = document.querySelector(".slate");
+  if (slate) {
+    slate.querySelector("form").addEventListener("submit", () => {
+      slate.classList.remove("is-clap");
+      void slate.offsetWidth;
+      slate.classList.add("is-clap");
     });
   }
 })();
