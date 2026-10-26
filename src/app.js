@@ -964,6 +964,11 @@
       // view of the hall screen, then the first take comes up over it.
       const live = cam.querySelector(".cam__live");
       if (live) live.style.opacity = String(1 - clamp((p0 - 0.015) / 0.05));
+      // While the monitor still shows the roll-in's picture, the hall screen
+      // keeps the film the roll-in left on it, so the cut doesn't swap it.
+      const rl = document.querySelector(".rollin");
+      const want = p0 < 0.065 && rl ? rl.dataset.screen : (imgs[Math.min(shots.length - 1, Math.floor(clamp(Math.min(0.9999, p0 / 0.86)) * shots.length))] || {}).src;
+      if (want && hallImg.getAttribute("src") !== want) hallImg.src = want;
       const k = 1;
       const q = clamp((p - POV) / (1 - POV));
       const i = Math.min(shots.length - 1, Math.floor(q * shots.length));
@@ -984,7 +989,6 @@
         cam.dataset.kind = sh.kind;
         hud("wb").textContent = "5600K"; hud("iris").textContent = "T2.8"; hud("nd").textContent = "ND Clear"; hud("zoom").textContent = "35 mm";
         imgs.forEach((im) => { im.style.filter = ""; im.style.transform = ""; });
-        if (imgs[i]) hallImg.src = imgs[i].src;
       }
       const e = reduced ? 1 : ease(clamp((u - 0.08) / 0.6));
       const from = Number(sh.from);
@@ -2016,7 +2020,7 @@ if (rollin) {
   // Work in progress, marked for Parker: a red frame on each part that's
   // still being built or needs his input, saying what it will become.
   const WIP = [
-    [".flight-todo", "Draft render coming", "Your story is in. Next: the low poly drive, a red Subaru through the Rockies, the flight over LA, the blue Kia to SCA, with these lines above it."],
+    [".journey__pin", "Draft render", "Low poly draft of your journey as a miniature on your table. The final renders once you like the path."],
     [".sky__pin", "Draft render", "Low poly preview of the move. Once you like it, the street renders as the real Hollywood Blvd: lit storefronts, neon and streetlights."],
   ];
   WIP.forEach(([sel, kind, text]) => {
@@ -2337,4 +2341,61 @@ if (knoll && openingEl) {
   addEventListener("resize", place);
   setInterval(place, 1000);
   place();
+})();
+
+// My Journey: Parker's drive and flight as a miniature on his own table,
+// scrubbed by scroll, with his five lines above it (his notes, 2026-10-26).
+// Beat frame ranges come from the render's beats_hint.
+(() => {
+  const jy = document.querySelector(".journey");
+  if (!jy || innerWidth < 900) return;
+  const N = Number(jy.dataset.frames) || 48;
+  const cv = jy.querySelector(".journey__c"), cx = cv.getContext("2d");
+  const pin = jy.querySelector(".journey__pin");
+  const beats = [...jy.querySelectorAll(".jy__beat")];
+  // frame where each line takes over: start, Colorado, mid-Colorado, airport and LA, USC
+  const AT = [1, 7, 13, 19, 33];
+  const fr = [];
+  let on = false;
+  const load = () => {
+    if (on) return; on = true;
+    for (let i = 1; i <= N; i++) { const im = new Image(); im.src = `/media/journey/frames/${String(i).padStart(3, "0")}.webp`; fr.push(im); }
+  };
+  new IntersectionObserver(([en]) => { if (en.isIntersecting) load(); }, { rootMargin: "150% 0px" }).observe(jy);
+  // Cut from the whole table straight into the miniature: the journey slides
+  // under the table's last screenful and shows itself once pinned.
+  const kn = document.querySelector(".knoll");
+  const lay = () => {
+    jy.style.marginTop = "0px";
+    if (!kn) return;
+    const end = kn.getBoundingClientRect().bottom + scrollY;
+    const natural = jy.getBoundingClientRect().top + scrollY;
+    jy.style.marginTop = `${(end - innerHeight - natural).toFixed(0)}px`;
+  };
+  requestAnimationFrame(() => requestAnimationFrame(lay));
+  setTimeout(lay, 800);
+  addEventListener("resize", lay);
+  let drawn = -1;
+  const draw = () => {
+    if (!on) return;
+    const r = jy.getBoundingClientRect();
+    pin.style.visibility = r.top > 0.5 ? "hidden" : "";
+    const p = Math.max(0, Math.min(1, -r.top / Math.max(1, jy.offsetHeight - innerHeight)));
+    const i = Math.min(N - 1, Math.floor(p * N));
+    const f = fr[i];
+    const beat = AT.reduce((b, at, k) => (i + 1 >= at ? k : b), 0);
+    beats.forEach((b, k) => b.classList.toggle("is-on", k === beat && i < N - 3));
+    if (!f || !f.complete || !f.naturalWidth) return;
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const W = Math.round(innerWidth * dpr), H = Math.round(innerHeight * dpr);
+    const resized = cv.width !== W || cv.height !== H;
+    if (resized) { cv.width = W; cv.height = H; }
+    if (!resized && i === drawn) return;
+    drawn = i;
+    const s = Math.max(W / f.naturalWidth, H / f.naturalHeight);
+    cx.drawImage(f, (W - f.naturalWidth * s) / 2, (H - f.naturalHeight * s) / 2, f.naturalWidth * s, f.naturalHeight * s);
+  };
+  addEventListener("scroll", draw, { passive: true });
+  addEventListener("resize", draw);
+  setInterval(draw, 400);
 })();

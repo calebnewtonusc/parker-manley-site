@@ -8,7 +8,7 @@ import sys
 from playwright.sync_api import sync_playwright
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "https://parker-manley.up.railway.app/"
-PINS = [".knoll__pin", ".rollin", ".cam__pin", ".edit", ".desk-run", ".irisout", ".sky", ".opening__pin"]
+PINS = [".journey__pin", ".knoll__pin", ".rollin", ".cam__pin", ".edit", ".desk-run", ".irisout", ".sky", ".opening__pin"]
 
 with sync_playwright() as p:
     b = p.chromium.launch()
@@ -25,7 +25,7 @@ with sync_playwright() as p:
         # A pinned scene's pin must sit at the top of its section, or the
         # section's own padding shows the scene before it for that many px
         # (the knoll's 90px top padding doubled the reel, 2026-10-25).
-        for sec, pin in [(".knoll", ".knoll__pin"), (".irisout", ".irisout__pin"), (".rollin", ".rollin__pin"), (".cam", ".cam__pin")]:
+        for sec, pin in [(".journey", ".journey__pin"), (".knoll", ".knoll__pin"), (".irisout", ".irisout__pin"), (".rollin", ".rollin__pin"), (".cam", ".cam__pin")]:
             d = pg.evaluate(f"()=>{{const s=document.querySelector('{sec}'),p=document.querySelector('{pin}');if(!s||!p)return null;return p.getBoundingClientRect().top-s.getBoundingClientRect().top}}")
             if d is not None and abs(d) > 0.5:
                 bad.append(f"{w}x{h} {pin} starts {d:.0f}px into {sec}")

@@ -3371,7 +3371,7 @@ html.has-leader body { overflow: hidden; }
 @media (min-width: 900px) { .cam .lens__meta { max-width: 220px; } }
 /* The camera stays in the theater: the roll-in's last frame is the room
    behind the rig, so the cut lands on the same monitor in the same place. */
-@media (min-width: 900px) { .cam__pin { background: #000 url("/media/hall/rollin/060.webp") center / cover no-repeat !important; } }
+@media (min-width: 900px) { .cam__pin { background: #000 url("/media/hall/rollin/060-screenless.webp") center / cover no-repeat !important; } }
 
 /* The credits roll over the night sky above Hollywood Blvd; when they end
    the camera tilts down onto the star, which is the footer's frame. */
@@ -3561,3 +3561,23 @@ html.has-leader body { overflow: hidden; }
 .ft__photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 22px; }
 .ft__photos img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 3px; }
 @media (max-width: 700px) { .ft__photos { grid-template-columns: repeat(2, 1fr); } }
+
+/* My Journey (computer): a pinned frame sequence with his lines up top. */
+.journey { display: none; }
+@media (min-width: 900px) {
+  .journey { display: block; position: relative; height: 520vh; background: #0b0b0a; }
+  .journey__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+  .journey__c { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .jy__h { position: absolute; top: 5vh; left: 0; right: 0; margin: 0; text-align: center; font: 600 clamp(26px, 2.6vw, 40px)/1 "Caveat", cursive; color: #f4efe4; text-shadow: 0 2px 14px rgba(0,0,0,0.6); z-index: 2; }
+  .jy__beats { list-style: none; margin: 0; padding: 0; position: absolute; top: 12vh; left: 50%; transform: translateX(-50%); width: min(760px, 80vw); z-index: 2; }
+  .jy__beat { position: absolute; inset: 0 auto auto 0; width: 100%; display: flex; gap: 18px; align-items: flex-start; opacity: 0; transform: translateY(14px); transition: opacity 360ms ease-out, transform 360ms ease-out; }
+  .jy__beat.is-on { opacity: 1; transform: none; }
+  .jy__beat p { margin: 0; flex: 1; font: 500 clamp(16px, 1.35vw, 21px)/1.5 var(--font); color: #f4efe4; text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 22px rgba(0,0,0,0.6); }
+  .jy__beat img { width: 108px; height: 140px; object-fit: cover; border: 5px solid #f4f1ea; box-shadow: 0 10px 24px rgba(0,0,0,0.45); transform: rotate(3deg); flex: none; }
+  .flight-todo { display: none; }
+}
+@media (min-width: 900px) {
+  .journey { padding: 0 !important; }
+  .journey__pin .wip__tag { top: auto !important; bottom: 14px; }
+}
+@media (min-width: 900px) { .journey { z-index: 2; } }
