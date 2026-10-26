@@ -928,6 +928,10 @@
       const zoomOut = reduced ? 0 : ease(clamp((p0 - 0.88) / 0.12));
       const zoomIn = 0;
       handoff(Math.max(zoomOut, zoomIn));
+      // The monitor opens on what the roll-in left on it, the camera's live
+      // view of the hall screen, then the first take comes up over it.
+      const live = cam.querySelector(".cam__live");
+      if (live) live.style.opacity = String(1 - clamp((p0 - 0.015) / 0.05));
       const k = 1;
       const q = clamp((p - POV) / (1 - POV));
       const i = Math.min(shots.length - 1, Math.floor(q * shots.length));

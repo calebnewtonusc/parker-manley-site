@@ -124,7 +124,7 @@ def lens_scene(films):
       <div class="cam__body">
         <span class="cam__tally" aria-hidden="true"></span>
         <div class="cam__screen">
-          <div class="cam__frame"><div class="cam__strip">{"".join(f'<img src="/media/stills/{f["slug"]}-{n}.jpg" alt="">' for f, n, *_ in shots)}</div><span class="cam__tint"></span></div>
+          <div class="cam__frame"><div class="cam__strip">{"".join(f'<img src="/media/stills/{f["slug"]}-{n}.jpg" alt="">' for f, n, *_ in shots)}</div><img class="cam__live" src="/media/rig/monitor_live.webp" alt=""><span class="cam__tint"></span></div>
           <div class="vf" aria-hidden="true"><span class="vf__grid"></span><span class="vf__focus"></span></div>
           <div class="cam__hud" aria-hidden="true">
             <span class="cam__rec">Rec</span><span class="vf__tc">00:00:00:00</span>
