@@ -3416,3 +3416,12 @@ html.has-leader body { overflow: hidden; }
 @media (max-width: 899px) { .cam__live { display: none; } }
 /* The credits roll down the middle of the sky, so its draft tag sits low. */
 .sky__pin .wip__tag { top: auto !important; bottom: 14px; }
+
+/* The edit bay's section stays laid over the Mac for two screens after its
+   window has slid away; transparent, but it ate every click on the Chrome
+   tabs for the first third of the Mac (2026-10-25). Only the window itself
+   takes the pointer. */
+@media (min-width: 900px) {
+  .edit { pointer-events: none; }
+  .edit .fc, .edit a, .edit button { pointer-events: auto; }
+}
