@@ -1260,7 +1260,7 @@ if (house) {
         bad.forEach((f) => f.classList.add("is-invalid"));
         const email = bad.find((f) => f.type === "email" && f.value);
         status.dataset.state = "err";
-        status.textContent = email ? "That email doesn't look right." : `Add your ${bad.map((f) => f.name).join(" and ")} so I can write back.`;
+        status.textContent = email ? "Check that email" : "Fill in every line first";
         bad[0].focus();
         return;
       }

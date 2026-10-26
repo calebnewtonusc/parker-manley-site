@@ -3433,7 +3433,7 @@ html.has-leader body { overflow: hidden; }
   .cpm.cpm--end .cpm__shot { display: none; }
   .cpm--end .irisout__img, .cpm--end .end__green, .cpm--end .end__parker { position: absolute; inset: 0; width: 100% !important; height: 100% !important; object-fit: cover; object-position: 30% 30% !important; }
   .cpm--end .irisout__mask { display: none; }
-  .cpm--end .irisout__card { position: absolute; top: 52% !important; right: 5% !important; }
+  .cpm--end .irisout__card { position: absolute; top: 45% !important; right: 5% !important; }
   .cpm--end .irisout__card .draft-slate { width: min(440px, 36cqw, 66cqh * 5 / 6) !important; }
   /* The Mac dissolves into the credits rolling up beneath it. */
   .desk-run { z-index: 5 !important; }
@@ -3461,3 +3461,12 @@ html.has-leader body { overflow: hidden; }
 }
 .roll__pre { white-space: nowrap; }
 @media (max-width: 700px) { .roll__pre { white-space: normal; } }
+/* A note from the slate takes the place of "Clap it to send", in the same
+   hand, so the two never stack and nothing runs off the bottom of the tab. */
+.draft-slate .form__status { bottom: -46px !important; margin: 0; font: 500 28px/1 "Caveat", cursive !important; color: #f2c9b6 !important; white-space: nowrap; }
+.draft-slate .form__status[data-state="ok"] { display: none; }
+.draft-slate:has(.form__status[data-state="err"]:not(:empty))::after { opacity: 0; }
+/* In the tab the slate sits near the right edge, so its notes hang right. */
+@media (min-width: 900px) {
+  .cpm--end .draft-slate::after, .cpm--end .draft-slate .form__status { left: auto !important; right: 0 !important; text-align: right !important; font-size: clamp(18px, 2.2cqw, 28px) !important; }
+}
