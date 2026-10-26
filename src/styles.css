@@ -3470,3 +3470,26 @@ html.has-leader body { overflow: hidden; }
 @media (min-width: 900px) {
   .cpm--end .draft-slate::after, .cpm--end .draft-slate .form__status { left: auto !important; right: 0 !important; text-align: right !important; font-size: clamp(18px, 2.2cqw, 28px) !important; }
 }
+
+/* Credits on pure black, then the palm-tree night comes up from under them:
+   its dark sky melts into the black, it pins, and tilts down to the star. */
+@media (min-width: 900px) {
+  .sky[data-frames]:not([data-frames="0"]) { background: #0b0b0a; }
+  /* A full window of black after the last credit: the scene only starts
+     to come up once every credit has left (Caleb, 2026-10-26). */
+  .sky[data-frames]:not([data-frames="0"]) .sky__roll { padding-bottom: 100svh !important; }
+  /* Sticky only travels inside its parent's content box, and a last child's
+     margin collapses out of it, so the room to hold the scene while it
+     tilts is a spacer after it. */
+  .sky[data-frames]:not([data-frames="0"])::after { content: ""; display: block; height: 220svh; }
+  .sky[data-frames]:not([data-frames="0"]) .sky__pin { margin-bottom: 0; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30%); mask-image: linear-gradient(to bottom, transparent 0, #000 30%); }
+  .sky[data-frames]:not([data-frames="0"]) .sky__pin .wip__tag { bottom: 14px; }
+}
+@media (min-width: 900px) { .sky[data-frames]:not([data-frames="0"]) .sky__pin.is-pinned { -webkit-mask-image: none; mask-image: none; } }
+
+/* The tilt lands on the star, so the separate star footer would be a second
+   star under the first. On the home page it ends on the render's last frame. */
+@media (min-width: 900px) { body.is-home:has(.sky[data-frames]:not([data-frames="0"])) .foot { display: none !important; } }
+
+/* Phone: same order, credits on black, then the scene. */
+@media (max-width: 899px) { .sky[data-frames]:not([data-frames="0"]) .sky__pin { margin-bottom: 0; } .sky[data-frames]:not([data-frames="0"])::after { content: ""; display: block; height: 120svh; } .sky[data-frames]:not([data-frames="0"]) .sky__roll { padding-bottom: 20svh; } }

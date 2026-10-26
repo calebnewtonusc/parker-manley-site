@@ -733,7 +733,7 @@ def home(films):
       </div>
     </div>
   </div>
-<div class="sky" data-frames="{sky_frames()}"><div class="sky__pin" aria-hidden="true"><canvas class="sky__c"></canvas></div><div class="sky__roll">{end_credits(films)}</div></div>
+<div class="sky" data-frames="{sky_frames()}"><div class="sky__roll">{end_credits(films)}</div><div class="sky__pin" aria-hidden="true"><canvas class="sky__c"></canvas></div></div>
 </section>
 """
     body += screenings(films)

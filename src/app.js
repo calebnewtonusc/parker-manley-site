@@ -1071,8 +1071,9 @@
       if (Math.abs(goal - lvl) < 0.001) { raf = 0; t0 = 0; return; }
       raf = requestAnimationFrame(tick);
     };
+    let forced = false;
     const set = (on) => {
-      goal = on && sfx.on ? 1 : 0;
+      goal = on && (sfx.on || forced) ? 1 : 0;
       if (window.score) window.score.duck(goal === 1);
       if (goal === 1 && song.paused) {
         if (song.currentTime < 14.9) song.currentTime = 14.9;
@@ -1085,8 +1086,11 @@
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => (en.isIntersecting ? seen.add(en.target) : seen.delete(en.target)));
       set(seen.size > 0);
-    }, { threshold: 0.15 });
+    }, { threshold: 0 });
     end.forEach((el) => io.observe(el));
+    // Opening End Credits from the Dock is a click, so the song can come up
+    // with it even before the sound button has been touched.
+    window.outroIn = () => { forced = true; set(true); };
   }
 
   // The last frame: after the credits, the star fades up out of black.
@@ -1675,15 +1679,6 @@ if (
     const out = creditsOpen ? Math.max(0, Math.min(1, (p - 0.88) / 0.12)) : 0;
     deskRun.style.setProperty("--out", out.toFixed(3));
     deskRun.style.pointerEvents = out > 0.5 ? "none" : "";
-    const skyPin = skyEl.querySelector(".sky__pin");
-    if (skyPin) {
-      // While the Mac dissolves, hold the night sky at the top of the window
-      // (it would otherwise ride up with its section) so the credits roll up
-      // over it the way they will once it's pinned.
-      const st = skyEl.getBoundingClientRect().top;
-      skyPin.style.visibility = out > 0 || st <= 0.5 ? "" : "hidden";
-      skyPin.style.transform = st > 0.5 ? `translateY(${(-st).toFixed(1)}px)` : "";
-    }
   };
   // End Credits in the Dock: the way on, said the way macOS says it. One
   // bounce once the viewer has stopped on the Mac (sooner on the Contact
@@ -1699,8 +1694,14 @@ if (
         document.documentElement.classList.remove("credits-locked");
         lay();
       }
-      const top = deskRun.getBoundingClientRect().top + scrollY;
-      scrollTo({ top: top + deskRun.offsetHeight - innerHeight * 0.4, behavior: reduced ? "auto" : "smooth" });
+      if (window.outroIn) window.outroIn();
+      // Land with the title in the middle of the window.
+      requestAnimationFrame(() => {
+        const t = skyEl.querySelector(".roll__pre");
+        const r = t ? t.getBoundingClientRect() : null;
+        const y = r ? scrollY + r.top + r.height / 2 - innerHeight / 2 : scrollY;
+        scrollTo({ top: y, behavior: reduced ? "auto" : "smooth" });
+      });
     };
     reel.addEventListener("click", rollCredits);
     // Premiere Pro in the Dock brings the edit bay back on screen.
@@ -2085,10 +2086,16 @@ if (knoll && openingEl) {
     const lastCredit = () => { const r = sky.querySelector(".roll"); return r && r.lastElementChild; };
     const drawSky = () => {
       if (!started2) return;
-      const end = sky.getBoundingClientRect().top + scrollY + sky.offsetHeight - innerHeight;
-      const lc = lastCredit();
-      const go = lc ? lc.getBoundingClientRect().bottom + scrollY : end - innerHeight;
-      const t = Math.max(0, Math.min(1, (scrollY - go) / Math.max(1, end - go)));
+      // The scene sits under the credits and rides up into view; once it's
+      // pinned it holds a beat, then tilts down to the star.
+      const end = sky.getBoundingClientRect().bottom + scrollY - innerHeight;
+      const pin = sky.querySelector(".sky__pin");
+      const pinned = pin ? pin.getBoundingClientRect().top <= 0.5 : true;
+      // The soft top edge is only for the ride up; pinned, the frame is whole.
+      if (pin) pin.classList.toggle("is-pinned", pinned);
+      const hold = innerHeight * 0.35;
+      const go = end - (innerWidth >= 900 ? innerHeight * 2.2 : innerHeight) + hold;
+      const t = pinned ? Math.max(0, Math.min(1, (scrollY - go) / Math.max(1, end - go))) : 0;
       const i = Math.min(SKYN - 1, Math.floor(t * (SKYN - 1) + 0.0001));
       const f = fr[i];
       if (!f || !f.complete || !f.naturalWidth) return;
