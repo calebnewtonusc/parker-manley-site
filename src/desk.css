@@ -1617,3 +1617,18 @@
 .ig-grid { grid-template-columns: repeat(5, 1fr) !important; gap: 3px !important; }
 @container vp (max-width: 700px) { .ig-grid { grid-template-columns: repeat(3, 1fr) !important; } }
 
+
+/* Three open tabs, no bookmarks bar. */
+.cw__tabs { display: flex; align-items: flex-end; gap: 2px; min-width: 0; flex: 1 1 auto; height: 100%; }
+.cw__tabs .cw__tab { flex: 0 1 220px; min-width: 0; width: auto; max-width: 220px; border: 0; cursor: default; font: inherit; font-size: 12px; text-align: left; background: transparent; }
+.cw__tabs .cw__tab::before, .cw__tabs .cw__tab::after { display: none; }
+.cw__tabs .cw__tab.is-on { background: var(--tool); z-index: 1; }
+.cw__tabs .cw__tab.is-on::before, .cw__tabs .cw__tab.is-on::after { display: block; }
+.cw__tabs .cw__tab:not(.is-on) + .cw__tab:not(.is-on) { box-shadow: -1px 0 0 0 rgba(0,0,0,0.18); }
+@media (hover: hover) and (pointer: fine) { .cw__tabs .cw__tab:not(.is-on):hover { background: rgba(255,255,255,0.45); } }
+.cw__title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.cw__fav { display: grid; place-items: center; }
+.cw__fav svg { width: 16px; height: 16px; }
+.cw__fav--pm { width: 16px; height: 16px; border-radius: 4px; background: #111; color: #f3e6c4; font: 700 10px/16px Georgia, serif; text-align: center; }
+.cpm { background: #0a0a0a; }
+.cpm__shot { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 30% 30%; }

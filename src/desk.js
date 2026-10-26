@@ -37,27 +37,25 @@
 
   // Chrome.
   const cw = desk.querySelector(".cw");
-  const title = cw.querySelector(".cw__title");
-  const fav = cw.querySelector(".cw__fav");
   const url = cw.querySelector(".cw__url");
   const back = cw.querySelector(".cw__back");
   const fwd = cw.querySelector(".cw__fwd");
   const pages = Object.fromEntries(
     [...cw.querySelectorAll(".cw__page")].map((p) => [p.dataset.page, p]),
   );
-  const favs = cw.querySelector(".cw__favs").content;
-  const marks = [...cw.querySelectorAll(".cw__mark")];
+  const tabs = [...cw.querySelectorAll(".cw__tab")];
   const flix = pages.flix;
   const billV = flix.querySelector(".mfx__bill-v");
   const META = {
     ntp: { title: "New Tab", url: "" },
     flix: { title: "ManleyFlix", url: "manleyflix.com/browse" },
+    contact: { title: "Contact Parker Manley", url: "contactparkermanley.com" },
     gram: {
       title: "Parker Manley (@parkermanley) • ManleyGram photos and videos",
       url: "manleygram.com/parkermanley/",
     },
   };
-  const stack = ["ntp"];
+  const stack = ["flix"];
   let at = 0;
 
   const show = (name) => {
@@ -67,13 +65,8 @@
       p.hidden = k !== name;
     });
     pages[name].scrollTop = 0;
-    title.textContent = META[name].title;
-    fav.replaceChildren(
-      ...(favs.querySelector(`[data-for="${name}"]`)?.cloneNode(true)
-        .childNodes || []),
-    );
     url.value = META[name].url;
-    marks.forEach((m) => m.classList.toggle("is-at", m.dataset.go === name));
+    tabs.forEach((t) => t.classList.toggle("is-on", t.dataset.go === name));
     back.disabled = at === 0;
     fwd.disabled = at === stack.length - 1;
     if (name === "flix") {
@@ -108,7 +101,7 @@
   // Typing in the omnibox or the Manleygle box goes to whichever of the two
   // sites the words point at.
   const route = (q) =>
-    /gram|photo|insta|pic|parkermanley/i.test(q) ? "gram" : "flix";
+    /contact|hire|email/i.test(q) ? "contact" : /gram|photo|insta|pic|parkermanley/i.test(q) ? "gram" : "flix";
   cw.querySelector(".cw__omni").addEventListener("submit", (ev) => {
     ev.preventDefault();
     const q = url.value.trim();
@@ -119,14 +112,6 @@
   url.addEventListener("focus", () => url.select());
   url.addEventListener("blur", () => {
     url.value = META[stack[at]].url;
-  });
-  const ntpQ = pages.ntp.querySelector(".ntp__q");
-  pages.ntp.querySelector(".ntp__box").addEventListener("submit", (ev) => {
-    ev.preventDefault();
-    const q = ntpQ.value.trim();
-    ntpQ.value = "";
-    ntpQ.blur();
-    go(route(q || "flix"));
   });
 
   // Netflix darkens its header once the billboard scrolls under it.
@@ -248,12 +233,13 @@
     if (Math.abs(dx) > 40) paint(cur + (dx < 0 ? 1 : -1));
   });
 
-  show("ntp");
+  show("flix");
 
   window.desk = {
     el: desk,
     open: go,
     page: () => stack[at],
+    contactRect: () => pages.contact.querySelector(".cpm__shot").getBoundingClientRect(),
     // Opens ManleyGram at the top and hands the pinned post to whoever is
     // listening for desk:pinned. Returns the tile so its box can be measured.
     openPinned() {

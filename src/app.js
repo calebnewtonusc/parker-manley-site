@@ -1568,13 +1568,15 @@ if (
     const top = deskRun.getBoundingClientRect().top + scrollY;
     const span = deskRun.offsetHeight - innerHeight;
     const p = Math.max(0, Math.min(1, (scrollY - top) / span));
-    const onGram = window.desk && window.desk.page && window.desk.page() === "gram";
-    const g = onGram ? Math.max(0, Math.min(1, (p - 0.86) / 0.14)) : 0;
+        // Near the end of the Mac, the third tab comes forward: the contact page
+    // is Parker on the green screen, and it grows into the end card.
+    if (window.desk && p > 0.7 && window.desk.page() !== "contact") window.desk.open("contact");
+    const g = window.desk && window.desk.page() === "contact" ? Math.max(0, Math.min(1, (p - 0.8) / 0.2)) : 0;
     if (g <= 0 || !window.desk) {
       grow.style.opacity = "0";
       return;
     }
-    const r = window.desk.pinnedRect();
+    const r = window.desk.contactRect();
     const e = 1 - (1 - g) ** 3;
     // Cover the screen with the same 4:3 frame the end card opens on.
     const ar = 4 / 3;

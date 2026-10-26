@@ -278,10 +278,14 @@ def desk_section(films, photos):
       <span class="mb__l">{APPLE}<b>Chrome</b><span class="mb__menus">{menus}</span></span>
       <span class="mb__r">{BATTERY}{WIFI}{CONTROL}<time class="mb__clock"></time></span>
     </div>
-    <div class="cw" data-at="ntp">
+    <div class="cw" data-at="flix">
       <div class="cw__strip">
         <span class="cw__lights" aria-hidden="true"><i></i><i></i><i></i></span>
-        <div class="cw__tab"><span class="cw__fav"></span><span class="cw__title">New Tab</span>{_svg(I_CLOSE, "cw__tabx")}</div>
+        <div class="cw__tabs" role="tablist">
+          <button type="button" role="tab" class="cw__tab" data-go="gram"><span class="cw__fav">{GRAM_FAV}</span><span class="cw__title">Parker Manley (@parkermanley)</span>{_svg(I_CLOSE, "cw__tabx")}</button>
+          <button type="button" role="tab" class="cw__tab is-on" data-go="flix"><span class="cw__fav">{M_ICON}</span><span class="cw__title">ManleyFlix</span>{_svg(I_CLOSE, "cw__tabx")}</button>
+          <button type="button" role="tab" class="cw__tab" data-go="contact"><span class="cw__fav cw__fav--pm">P</span><span class="cw__title">Contact Parker Manley</span>{_svg(I_CLOSE, "cw__tabx")}</button>
+        </div>
         <span class="cw__newtab" aria-hidden="true">{_svg(I_ADD)}</span>
         <span class="cw__tsearch" aria-hidden="true">{_svg(I_DOWN)}</span>
       </div>
@@ -296,14 +300,10 @@ def desk_section(films, photos):
         <span class="cw__me ig-av ig-av--xs" aria-hidden="true"><img src="/media/desk/avatar.jpg" alt=""></span>
         <span class="cw__menu" aria-hidden="true">{_svg(I_MORE)}</span>
       </div>
-      <nav class="cw__marks" aria-label="Bookmarks">
-        <button type="button" class="cw__mark" data-go="flix"><span class="cw__mark-i">{M_ICON}</span>ManleyFlix</button>
-        <button type="button" class="cw__mark" data-go="gram"><span class="cw__mark-i">{GRAM_FAV}</span>ManleyGram</button>
-      </nav>
       <div class="cw__vp">
-      {_ntp()}
       {_mfx(films)}
       {_gram(photos)}
+      <div class="cpm cw__page" data-page="contact" aria-label="Contact Parker Manley" hidden><img class="cpm__shot" src="/media/desk/pinned.jpg" alt="Parker Manley filming on a green screen"></div>
       </div>
       <template class="cw__favs"><span data-for="flix">{M_ICON}</span><span data-for="gram">{GRAM_FAV}</span></template>
     </div>
