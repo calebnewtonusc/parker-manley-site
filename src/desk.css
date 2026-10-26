@@ -1689,3 +1689,9 @@
 /* The row being hovered sits over the row below, so its card isn't covered. */
 .desk .mfx-row { position: relative; z-index: 0; }
 .desk .mfx-row:hover { z-index: 5; }
+
+/* Parker, 2026-10-26: "The scrolling seems just a little off" on ManleyFlix.
+   Measured: four wheel turns reached the bottom of the page, then the scroll
+   leaked out and moved the Mac scene behind it, which changes nothing you can
+   see. A page in Chrome keeps its own scroll, like a real browser. */
+.desk .cw__page { overscroll-behavior: contain; scroll-behavior: auto; }
