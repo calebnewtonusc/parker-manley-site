@@ -220,51 +220,61 @@ def festival_program(films):
             )
     first = by_year[sorted(by_year)[0]][0]
     return f"""    <div class="edit">
-      <div class="edit__pin">
-        <div class="ws">
-          <div class="fxc" aria-hidden="true">
-            <p class="panel__tab">Effect Controls</p>
-            <p class="fxc__clip">{e(first['title'])}</p>
-            <div class="fxc__row fxc__group">Motion</div>
-            <div class="fxc__row"><span>Position</span><b class="fxc__pos">960.0 &nbsp;540.0</b></div>
-            <div class="fxc__row"><span>Scale</span><b class="fxc__scale">100.0</b></div>
-            <div class="fxc__row fxc__group">Opacity</div>
-            <div class="fxc__row"><span>Opacity</span><b class="fxc__op">100.0 %</b></div>
-            <div class="fxc__row fxc__group fxc__tr">Transition <em class="fxc__trname">None</em></div>
-            <div class="fxc__bar"><i class="fxc__fill"></i><span class="fxc__key"></span><span class="fxc__key fxc__key--end"></span></div>
-            <div class="fxc__row fxc__group">Lumetri Color</div>
-            <div class="fxc__row"><span>Temperature</span><b class="fxc__temp">0.0</b></div>
-            <div class="fxc__row"><span>Exposure</span><b class="fxc__exp">0.0</b></div>
-          </div>
-          <div class="monitor">
-            <p class="panel__tab">Program: <span class="monitor__seq">Parker Manley, 2023 to now</span></p>
+      <div class="edit__pin pr">
+        <div class="pr__menu" aria-hidden="true"><span>Parker Manley</span><i>Edit</i><i>Color</i><i>Effects</i><i>Audio</i><i>Graphics</i><i>Export</i></div>
+        <div class="pr__top">
+          <section class="pr__panel pr__fx" aria-hidden="true">
+            <div class="pr__tabs"><span>Source</span><span class="is-on">Effect Controls</span><span>Lumetri Scopes</span></div>
+            <div class="fxc">
+              <p class="fxc__clip">Master * <b>{e(first['title'])}</b></p>
+              <div class="fxc__row fxc__group"><em>fx</em> Motion</div>
+              <div class="fxc__row"><span>Position</span><b class="fxc__pos">960.0 &nbsp;540.0</b></div>
+              <div class="fxc__row"><span>Scale</span><b class="fxc__scale">100.0</b></div>
+              <div class="fxc__row fxc__group"><em>fx</em> Opacity</div>
+              <div class="fxc__row"><span>Opacity</span><b class="fxc__op">100.0 %</b></div>
+              <div class="fxc__row fxc__group"><em>fx</em> <span class="fxc__trname">Lumetri Color</span></div>
+              <div class="fxc__bar"><i class="fxc__fill"></i><span class="fxc__key"></span><span class="fxc__key fxc__key--end"></span></div>
+              <div class="fxc__row"><span>Temperature</span><b class="fxc__temp">0.0</b></div>
+              <div class="fxc__row"><span>Exposure</span><b class="fxc__exp">0.0</b></div>
+            </div>
+          </section>
+          <section class="pr__panel monitor" aria-label="Program monitor">
+            <div class="pr__tabs"><span class="is-on">Program: <span class="monitor__title">{e(first['title'])}</span></span><a class="monitor__open" href="/films/{first['slug']}/">Open film &#8599;</a></div>
             <div class="monitor__screen">
               <div class="monitor__a"><img alt="" src="/media/posters/{first['slug']}.jpg"></div>
               <div class="monitor__b"><img alt=""></div>
-              <span class="monitor__tc">00:00:00:00</span>
               <span class="monitor__trlabel"></span>
             </div>
-            <div class="monitor__bar">
-              <div><h3 class="monitor__title">{e(first['title'])}</h3><p class="monitor__meta">{e(meta_line(first))}</p></div>
-              <a class="btn btn--ticket monitor__open" href="/films/{first['slug']}/">Open the film</a>
+            <div class="pr__transport" aria-hidden="true">
+              <span class="monitor__tc">00:00:00:00</span>
+              <span class="pr__fit">Fit &#9662;</span>
+              <span class="pr__btns"><i>&#9664;&#9664;</i><i>&#9664;|</i><i class="pr__play">&#9654;</i><i>|&#9654;</i><i>&#9654;&#9654;</i></span>
+              <span class="pr__res">Full &#9662;</span>
+              <span class="monitor__meta">{e(meta_line(first))}</span>
             </div>
-          </div>
+          </section>
           <div class="meters" aria-hidden="true"><i></i><i></i></div>
         </div>
-        <div class="timeline">
-          <div class="timeline__heads" aria-hidden="true"><span>V1</span><span>A1</span></div>
-          <div class="timeline__window">
-            <div class="timeline__strip">
-              <div class="ruler" aria-hidden="true"></div>
-              <div class="fxlane" aria-hidden="true"></div>
-              <nav class="track" aria-label="Every film, oldest first">
-{chr(10).join(clips)}
-              </nav>
+        <section class="pr__panel timeline" aria-label="Timeline">
+          <div class="pr__tabs"><span class="is-on">Parker Manley, 2023 to now</span><span class="pr__seq-tc monitor__tc2">00:00:00:00</span></div>
+          <div class="timeline__body">
+            <div class="timeline__heads" aria-hidden="true">
+              <span></span>
+              <span class="th"><i>&#128274;</i><b>V1</b><i>&#128065;</i></span>
+              <span class="th"><i>&#128274;</i><b>A1</b><i>M</i><i>S</i></span>
             </div>
-            <span class="playhead" aria-hidden="true"></span>
+            <div class="timeline__window">
+              <div class="timeline__strip">
+                <div class="ruler" aria-hidden="true"></div>
+                <div class="fxlane" aria-hidden="true"></div>
+                <nav class="track" aria-label="Every film, oldest first">
+{chr(10).join(clips)}
+                </nav>
+              </div>
+              <span class="playhead" aria-hidden="true"></span>
+            </div>
           </div>
-        </div>
-        <p class="edit__hint" aria-hidden="true">Scroll to scrub</p>
+        </section>
       </div>
     </div>"""
 

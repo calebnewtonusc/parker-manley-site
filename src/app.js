@@ -471,6 +471,7 @@
     const aImg = A.querySelector("img");
     const bImg = B.querySelector("img");
     const tc = $(".monitor__tc");
+    const tc2 = $(".monitor__tc2");
     const trLabel = $(".monitor__trlabel");
     const title = $(".monitor__title");
     const meta = $(".monitor__meta");
@@ -510,6 +511,14 @@
           lane.appendChild(t);
         }
       });
+      // Ruler timecodes every 5 minutes of Parker's runtime.
+      for (let m = 0; m * px < strip.scrollWidth; m += 5) {
+        const t = document.createElement("span");
+        t.className = "ruler__tc";
+        t.textContent = `00:${String(m).padStart(2, "0")}:00:00`;
+        t.style.left = `${m * px}px`;
+        ruler.appendChild(t);
+      }
       edit.style.height = `${strip.scrollWidth + innerHeight * 1.2}px`;
     };
     let lastK = -1;
@@ -523,7 +532,7 @@
       title.textContent = c.dataset.title;
       meta.textContent = c.dataset.meta;
       open.href = c.getAttribute("href");
-      fx.clip.textContent = c.dataset.title;
+      fx.clip.innerHTML = `Master * <b>${c.dataset.title}</b>`;
       // Each clip carries its own grade, the way a colorist leaves them.
       fx.temp.textContent = (((i * 37) % 21) - 10).toFixed(1);
       fx.exp.textContent = ((((i * 13) % 9) - 4) / 10).toFixed(1);
@@ -588,7 +597,7 @@
         reset();
         fx.op.textContent = "100.0 %";
         fx.pos.innerHTML = "960.0 &nbsp;540.0";
-        fx.name.textContent = "None";
+        fx.name.textContent = "Lumetri Color";
         fx.fill.style.width = "0";
         trLabel.classList.remove("is-on");
       }
@@ -596,6 +605,7 @@
       // Timecode is real: Parker's runtimes, added up to the playhead.
       const mins = xh / px;
       tc.textContent = `${pad2(mins / 60)}:${pad2(mins % 60)}:${pad2((mins * 60) % 60)}:${pad2((mins * 1440) % 24)}`;
+      if (tc2) tc2.textContent = tc.textContent;
     };
     layout();
     addEventListener("resize", () => { layout(); scrub(); });
