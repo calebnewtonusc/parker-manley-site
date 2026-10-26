@@ -1682,6 +1682,37 @@ if (
       skyPin.style.transform = st > 0.5 ? `translateY(${(-st).toFixed(1)}px)` : "";
     }
   };
+  // End Credits in the Dock: the way on, said the way macOS says it. One
+  // bounce once the viewer has stopped on the Mac (sooner on the Contact
+  // tab, where the take is over), at most twice a visit; a click rolls them.
+  const reel = deskRun.querySelector(".dock__app--credits");
+  if (reel) {
+    const rollCredits = () => {
+      const top = deskRun.getBoundingClientRect().top + scrollY;
+      scrollTo({ top: top + deskRun.offsetHeight - innerHeight * 0.4, behavior: reduced ? "auto" : "smooth" });
+    };
+    reel.addEventListener("click", rollCredits);
+    let idleSince = performance.now(), bounces = 0, page = "flix", contactAt = 0;
+    const poke = () => { idleSince = performance.now(); };
+    ["scroll", "pointermove", "pointerdown", "keydown", "wheel"].forEach((t) => addEventListener(t, poke, { passive: true }));
+    document.addEventListener("desk:page", (ev) => { page = ev.detail; if (page === "contact") contactAt = performance.now(); });
+    setInterval(() => {
+      if (bounces >= 2 || innerWidth < 900) return;
+      const r = deskRun.getBoundingClientRect();
+      const span = deskRun.offsetHeight - innerHeight;
+      const p = -r.top / span;
+      if (p < 0.05 || p > 0.86) return;
+      const idle = performance.now() - idleSince;
+      // 4s after the slate has settled on the Contact tab, else 9s anywhere.
+      const ready = page === "contact" ? performance.now() - contactAt > 6500 && idle > 4000 : idle > 9000;
+      if (!ready) return;
+      bounces++;
+      idleSince = performance.now();
+      reel.classList.remove("is-bouncing");
+      void reel.offsetWidth;
+      reel.classList.add("is-bouncing");
+    }, 1000);
+  }
   addEventListener("scroll", deskTick, { passive: true });
   addEventListener("resize", () => { lay(); deskTick(); });
   requestAnimationFrame(() => requestAnimationFrame(() => { lay(); deskTick(); }));
@@ -2028,17 +2059,17 @@ if (knoll && openingEl) {
       for (let i = 1; i <= SKYN; i++) { const im = new Image(); im.src = `/media/sky/${String(i).padStart(3, "0")}.webp`; fr.push(im); }
     };
     new IntersectionObserver(([en]) => { if (en.isIntersecting) load2(); }, { rootMargin: "200% 0px" }).observe(sky);
-    // The tilt takes the last third of the frames over the last screens of
-    // the section, after the credits have rolled out of frame.
-    const TILT = Math.round(SKYN / 3);
+    // The sky holds still while the credits roll (Caleb, 2026-10-25: no
+    // moving background under the text). Once the last credit has left the
+    // top of the window, the whole move plays: the tilt down to the star.
+    const lastCredit = () => { const r = sky.querySelector(".roll"); return r && r.lastElementChild; };
     const drawSky = () => {
       if (!started2) return;
-      const top = sky.getBoundingClientRect().top + scrollY;
-      const span = sky.offsetHeight - innerHeight;
-      const p = Math.max(0, Math.min(1, (scrollY - top) / span));
-      const roll = Math.min(1, p / 0.7);
-      const tilt = Math.max(0, (p - 0.7) / 0.3);
-      const i = Math.min(SKYN - 1, Math.floor(roll * (SKYN - TILT - 1) + tilt * TILT));
+      const end = sky.getBoundingClientRect().top + scrollY + sky.offsetHeight - innerHeight;
+      const lc = lastCredit();
+      const go = lc ? lc.getBoundingClientRect().bottom + scrollY : end - innerHeight;
+      const t = Math.max(0, Math.min(1, (scrollY - go) / Math.max(1, end - go)));
+      const i = Math.min(SKYN - 1, Math.floor(t * (SKYN - 1) + 0.0001));
       const f = fr[i];
       if (!f || !f.complete || !f.naturalWidth) return;
       const dpr = Math.min(2, devicePixelRatio || 1);

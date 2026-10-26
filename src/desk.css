@@ -1666,3 +1666,18 @@
 .ig-reel__w { font: 400 26px/1 "Bebas Neue", "Oswald", sans-serif; letter-spacing: 0.04em; color: #e50914; }
 .ig-reel__c { font: 600 13px/1.35 var(--sys); color: #fff; max-width: 90%; }
 @media (hover: hover) and (pointer: fine) { .ig-reel--mfx:hover .ig-reel__c { text-decoration: underline; } }
+
+/* End Credits in the Dock. When the viewer has stopped on the Mac, it does
+   one macOS attention bounce, the Dock's own way of saying an app wants you,
+   and a click rolls the credits. */
+.dock__app--credits { cursor: pointer; }
+.dock__app--credits.is-bouncing { animation: dock-bounce 1.1s cubic-bezier(0.3, 0, 0.3, 1) 1; }
+@keyframes dock-bounce {
+  0%, 100% { transform: translateY(0); }
+  18% { transform: translateY(-55%); }
+  36% { transform: translateY(0); }
+  52% { transform: translateY(-30%); }
+  68% { transform: translateY(0); }
+  80% { transform: translateY(-10%); }
+}
+@media (prefers-reduced-motion: reduce) { .dock__app--credits.is-bouncing { animation: none; } }

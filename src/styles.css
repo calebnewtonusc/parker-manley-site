@@ -3440,3 +3440,10 @@ html.has-leader body { overflow: hidden; }
   .desk-run > .desk { opacity: calc(1 - var(--out, 0)); }
   .cpm--end .draft-slate::after { white-space: nowrap; }
 }
+
+/* The Mac finishes dissolving into the night sky before any credit is on
+   screen: the roll starts a full window below the fold (Caleb, 2026-10-25,
+   "start the text way lower"). */
+@media (min-width: 900px) { .sky__roll { padding-top: 115svh !important; } }
+/* Room after the last credit for the tilt down to the star. */
+@media (min-width: 900px) { .sky[data-frames]:not([data-frames="0"]) .sky__roll { padding-bottom: 320svh; } }

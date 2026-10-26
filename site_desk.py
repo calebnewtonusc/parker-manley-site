@@ -105,6 +105,16 @@ DOCK_CUT = (
     '<rect x="22" y="40" width="56" height="34" rx="3"/><path d="M22 40l8-14 52 0-6 14"/><path d="M40 26l-6 14M58 26l-6 14"/></g>'
     '<path d="M44 50v14l12-7z" fill="#c9b6ff"/></svg>'
 )
+DOCK_CREDITS = (
+    '<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="dk-r" x1="0" y1="0" x2="0" y2="1">'
+    '<stop offset="0" stop-color="#2b2b2e"/><stop offset="1" stop-color="#0e0e10"/></linearGradient></defs>'
+    f'<path d="{SQ}" fill="url(#dk-r)"/>'
+    '<circle cx="42" cy="44" r="24" fill="#c9c3b6"/><circle cx="42" cy="44" r="5" fill="#1a1a1c"/>'
+    '<g fill="#1a1a1c"><circle cx="42" cy="30" r="6.5"/><circle cx="55.3" cy="39.7" r="6.5"/><circle cx="50.2" cy="55.3" r="6.5"/>'
+    '<circle cx="33.8" cy="55.3" r="6.5"/><circle cx="28.7" cy="39.7" r="6.5"/></g>'
+    '<path d="M42 68c10 0 22 2 34 10" fill="none" stroke="#c9c3b6" stroke-width="7" stroke-linecap="round"/>'
+    '<path d="M44 66l2 5M54 67l1 5M64 70l-1 5" stroke="#1a1a1c" stroke-width="1.6"/></svg>'
+)
 DOCK_TRASH = (
     '<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="dk-t" x1="0" y1="0" x2="1" y2="0">'
     '<stop offset="0" stop-color="#d6dadf"/><stop offset="0.5" stop-color="#f4f6f8"/><stop offset="1" stop-color="#c6cbd1"/></linearGradient></defs>'
@@ -345,7 +355,7 @@ def desk_section(films, photos):
       </div>
       <template class="cw__favs"><span data-for="flix">{M_ICON}</span><span data-for="gram">{GRAM_FAV}</span></template>
     </div>
-    <div class="dock" aria-hidden="true"><div class="dock__glass">{dock_html}<span class="dock__sep"></span>
+    <div class="dock" aria-hidden="true"><div class="dock__glass">{dock_html}<span class="dock__app dock__app--credits" data-name="End Credits">{DOCK_CREDITS}<span class="dock__tip">End Credits</span></span><span class="dock__sep"></span>
       <span class="dock__app" data-name="Trash">{DOCK_TRASH}<span class="dock__tip">Trash</span></span></div></div>
   </div>
 </section>
