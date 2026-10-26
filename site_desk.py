@@ -189,14 +189,52 @@ def _mfx(films):
       </div>"""
 
 
-def _gram(photos):
-    posts = [{"thumb": f"/media/photos/thumb/{p['file']}", "full": f"/media/photos/{p['file']}", "w": p["w"], "h": p["h"]} for p in photos]
+# The first two rows are his strongest and most varied frames, the way
+# you'd curate the top of a real profile; the rest follow in his order.
+GRAM_LEAD = ["01", "07", "58", "22", "39", "55", "03", "45", "59", "24"]
+# Highlights group the photographs by what they are, from looking at each.
+GRAM_HIGHLIGHTS = [
+    ("Light", ["01", "02", "03", "05", "11", "43", "52", "56", "61", "65", "68"]),
+    ("Night", ["07", "21", "49", "54", "64"]),
+    ("Travel", ["04", "08", "09", "16", "20", "45", "46", "47"]),
+    ("Faith", ["02", "14", "22", "24", "25", "28"]),
+    ("Live", ["36", "38", "39", "40"]),
+    ("Outside", ["13", "18", "29", "31", "35", "48", "51", "58", "59", "67", "69"]),
+]
+TAGGED = [("set", "Parker on set behind a cinema camera"), ("rock", "Parker filming on a granite outcrop"), ("bigbear", "Parker above a mountain lake")]
+
+
+def _gram(photos, films=()):
+    by = {p["file"][:2]: p for p in photos}
+    lead = [by[k] for k in GRAM_LEAD if k in by]
+    ordered = lead + [p for p in photos if p not in lead]
+    posts = [{"thumb": f"/media/photos/thumb/{p['file']}", "full": f"/media/photos/{p['file']}", "w": p["w"], "h": p["h"]} for p in ordered]
     n = len(posts)
-    tiles = "".join(
-        f'<button type="button" class="ig-tile{" ig-tile--pin" if p.get("pinned") else ""}" data-i="{i}" data-full="{p["full"]}" '
-        f'data-w="{p["w"]}" data-h="{p["h"]}" aria-label="Post {i + 1} of {n}">'
-        f'<img src="{p["thumb"]}" alt="" loading="lazy" decoding="async">{PIN if p.get("pinned") else ""}</button>'
-        for i, p in enumerate(posts)
+    tile = lambda p, i, total, label="Post": (
+        f'<button type="button" class="ig-tile" data-i="{i}" data-full="{p["full"]}" '
+        f'data-w="{p["w"]}" data-h="{p["h"]}" aria-label="{label} {i + 1} of {total}">'
+        f'<img src="{p["thumb"]}" alt="" loading="lazy" decoding="async"></button>')
+    tiles = "".join(tile(p, i, n) for i, p in enumerate(posts))
+    def hl_set(ks):
+        return ",".join(f"/media/photos/{by[k]['file']}|{by[k]['w']}|{by[k]['h']}" for k in ks if k in by)
+    hl = "".join(
+        f'<button type="button" class="ig-hl" data-set="{hl_set(ks)}">'
+        f'<span class="ig-hl__ring"><img src="/media/photos/thumb/{by[ks[0]]["file"]}" alt="" loading="lazy"></span><span class="ig-hl__t">{t}</span></button>'
+        for t, ks in GRAM_HIGHLIGHTS
+    )
+    from PIL import Image as _I
+    tagged = []
+    for k, alt in TAGGED:
+        w, h = _I.open(f"media/desk/tagged/{k}.jpg").size
+        tagged.append({"thumb": f"/media/desk/tagged/{k}-t.jpg", "full": f"/media/desk/tagged/{k}.jpg", "w": w, "h": h})
+    tagged_html = "".join(tile(p, i, len(tagged), "Tagged photo") for i, p in enumerate(tagged))
+    feat = [f for f in films if f.get("featured")]
+    reels = "".join(
+        f'<a class="ig-reel" href="/films/{f["slug"]}/" aria-label="{e(f["title"])}">'
+        f'<img src="/media/posters/{f["slug"]}.jpg" alt="" loading="lazy">'
+        f'<video muted loop playsinline preload="none" data-src="/media/loops/{f["slug"]}-720.mp4"></video>'
+        f'<span class="ig-reel__t">{igi("reels")}{e(f["title"])}</span></a>'
+        for f in feat
     )
     av = '<img src="/media/desk/avatar.jpg" alt="">'
     rail = "".join(f'<span class="ig-rail__i">{igi(k)}</span>' for k in ("home", "search", "explore", "reels", "direct", "heart", "create"))
@@ -217,8 +255,11 @@ def _gram(photos):
             </div>
           </header>
           <p class="ig-stats"><span><b>{n}</b><br>posts</span></p>
-          <nav class="ig-tabs" aria-hidden="true"><span class="is-on">{igi("grid")}<i>Posts</i></span><span>{igi("reels")}<i>Reels</i></span><span>{igi("tag")}<i>Tagged</i></span></nav>
-          <div class="ig-grid">{tiles}</div>
+          <div class="ig-hls">{hl}</div>
+          <nav class="ig-tabs" role="tablist"><button type="button" class="is-on" data-tab="posts">{igi("grid")}<i>Posts</i></button><button type="button" data-tab="reels">{igi("reels")}<i>Reels</i></button><button type="button" data-tab="tagged">{igi("tag")}<i>Tagged</i></button></nav>
+          <div class="ig-grid" data-grid="posts">{tiles}</div>
+          <div class="ig-grid ig-grid--reels" data-grid="reels" hidden>{reels}</div>
+          <div class="ig-grid" data-grid="tagged" hidden>{tagged_html}</div>
         </div>
         <nav class="ig-nav" aria-hidden="true">{tabbar}<span class="ig-nav__i"><span class="ig-av ig-av--xs">{av}</span></span></nav>
       </div>
@@ -300,7 +341,7 @@ def desk_section(films, photos):
       </div>
       <div class="cw__vp">
       {_mfx(films)}
-      {_gram(photos)}
+      {_gram(photos, films)}
       <div class="cpm cw__page" data-page="contact" aria-label="Contact Parker Manley" hidden><img class="cpm__shot" src="/media/desk/pinned.jpg" alt="Parker Manley filming on a green screen"></div>
       </div>
       <template class="cw__favs"><span data-for="flix">{M_ICON}</span><span data-for="gram">{GRAM_FAV}</span></template>

@@ -124,7 +124,9 @@
 
   // ManleyGram post viewer.
   const gram = pages.gram;
-  const tiles = [...gram.querySelectorAll(".ig-tile")];
+  // The viewer pages through whichever set it was opened from: the posts
+  // grid, the tagged grid, or a highlight.
+  let tiles = [];
   const viewer = cw.querySelector(".igv");
   const vImg = viewer.querySelector(".igv__img");
   const vMedia = viewer.querySelector(".igv__media");
@@ -146,8 +148,9 @@
       new Image().src = n.dataset.full;
     });
   };
-  const openViewer = (i) => {
-    opener = tiles[i];
+  const openViewer = (i, set, from) => {
+    if (set) tiles = set;
+    opener = from || tiles[i];
     paint(i);
     viewer.hidden = false;
     viewer.scrollTop = 0;
@@ -166,11 +169,33 @@
     if (opener && now !== true) opener.focus({ preventScroll: true });
   }
 
-  tiles.forEach((t, i) =>
-    t.addEventListener("click", () => {
-      openViewer(i);
-    }),
-  );
+  gram.querySelectorAll(".ig-grid").forEach((grid) => {
+    const set = [...grid.querySelectorAll(".ig-tile")];
+    set.forEach((t, i) => t.addEventListener("click", () => openViewer(i, set)));
+  });
+  // Highlights: each opens its own run of photographs.
+  gram.querySelectorAll(".ig-hl").forEach((h) => {
+    const set = h.dataset.set.split(",").map((x) => {
+      const [full, w, hh] = x.split("|");
+      return { dataset: { full, w, h: hh }, focus: () => h.focus({ preventScroll: true }) };
+    });
+    h.addEventListener("click", () => openViewer(0, set, h));
+  });
+  // Posts / Reels / Tagged.
+  const tabBtns = [...gram.querySelectorAll(".ig-tabs [data-tab]")];
+  tabBtns.forEach((b) => b.addEventListener("click", () => {
+    tabBtns.forEach((x) => x.classList.toggle("is-on", x === b));
+    gram.querySelectorAll("[data-grid]").forEach((g) => { g.hidden = g.dataset.grid !== b.dataset.tab; });
+  }));
+  // Reels play on hover, the way the grid previews them.
+  gram.querySelectorAll(".ig-reel").forEach((r) => {
+    const v = r.querySelector("video");
+    r.addEventListener("pointerenter", () => {
+      if (!v.src) v.src = v.dataset.src;
+      v.play().then(() => r.classList.add("is-playing")).catch(() => {});
+    });
+    r.addEventListener("pointerleave", () => { v.pause(); r.classList.remove("is-playing"); });
+  });
   viewer.querySelector(".igv__x").addEventListener("click", closeViewer);
   viewer.querySelector(".igv__back").addEventListener("click", closeViewer);
   viewer
