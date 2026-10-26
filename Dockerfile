@@ -1,6 +1,6 @@
 FROM python:3.12-alpine AS build
 WORKDIR /app
-COPY build.py ./
+COPY build.py site_desk.py ./
 COPY data ./data
 COPY src ./src
 COPY media ./media
