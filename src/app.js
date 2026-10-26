@@ -1272,11 +1272,13 @@ if (house) {
       button.disabled = true;
       status.dataset.state = "";
       status.textContent = "Sending...";
-      // FormSubmit sometimes hangs for 25 s or more (2026-10-26 it did, and
-      // the slate sat on "Sending..." forever), so give it 12 s and then
-      // hand over his email instead.
+      // FormSubmit answered in 17 to 26 s on 2026-10-26 (three tries, every
+      // one slow, none failed), and with no limit the slate sat on
+      // "Sending..." forever. Say so at 8 s, give up at 45 s and hand over
+      // his email instead.
       const ctl = new AbortController();
-      const timer = setTimeout(() => ctl.abort(), 12000);
+      const slow = setTimeout(() => { if (status.textContent === "Sending...") status.textContent = "Still sending..."; }, 8000);
+      const timer = setTimeout(() => ctl.abort(), 45000);
       try {
         const res = await fetch(form.action, {
           method: "POST",
@@ -1296,6 +1298,7 @@ if (house) {
         console.error("contact form", err);
       } finally {
         clearTimeout(timer);
+        clearTimeout(slow);
         button.disabled = false;
       }
     });
