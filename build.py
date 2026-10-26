@@ -680,18 +680,17 @@ def home(films):
   </div>
 </section>
 
-<section class="flight-todo" aria-label="Lafayette to Los Angeles, coming soon">
+<section class="flight-todo" aria-label="My journey, Lafayette to Los Angeles">
   <div class="flight-todo__card">
     <p class="ft__h">Lafayette &rarr; Los Angeles</p>
-    <p class="ft__what">One unbroken flight from where Parker started filming to where he is now, his films along the way. Coming soon.</p>
-    <p class="ft__ask">Parker, for this part:</p>
-    <ol class="ft__qs">
-      <li>What made you start filming in Boulder?</li>
-      <li>One real moment from high school in Boulder</li>
-      <li>One from the summer you made Somnambulist</li>
-      <li>One from getting into USC</li>
-      <li>One from your first semester in LA</li>
+    <ol class="ft__beats">
+      <li>I&rsquo;ve always loved storytelling, from making animal documentaries to LEGO stop-motion films as a kid.</li>
+      <li>At Peak to Peak High School, I led the Student Council Publicity Department, producing and filming biweekly video announcements.</li>
+      <li>A summer filmmaking program at LMU showed me that filmmaking could be a real career path.</li>
+      <li>Since then, I&rsquo;ve made short films with theater friends, shooting on my iPhone and editing in CapCut, and making my way up to Sonys and DaVinci.</li>
+      <li>I was accepted into USC&rsquo;s film school, where I&rsquo;ve been refining my craft, developing technical skills and meeting amazing creative people.</li>
     </ol>
+    <div class="ft__photos">{"".join(f'<img src="/media/journey/journey-{k}.jpg" alt="" loading="lazy">' for k in range(1, 5))}</div>
   </div>
 </section>
 <section class="reels" id="films" aria-label="Featured films">

@@ -3555,3 +3555,9 @@ html.has-leader body { overflow: hidden; }
   .cam__hallfilm-in { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; -webkit-mask: url("/media/rig/hallscreen_mask.png") 0 0 / 100% 100% no-repeat; mask: url("/media/rig/hallscreen_mask.png") 0 0 / 100% 100% no-repeat; }
   .cam__hallfilm-in img { position: absolute; left: 0; top: 0; width: 960px; height: 540px; object-fit: cover; transform-origin: 0 0; filter: brightness(0.88) saturate(0.95); }
 }
+
+/* Parker's story beats and journey photos, until the drive render lands. */
+.ft__beats { margin: 18px 0 0; padding: 0 0 0 1.2em; display: grid; gap: 10px; line-height: 1.5; }
+.ft__photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 22px; }
+.ft__photos img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 3px; }
+@media (max-width: 700px) { .ft__photos { grid-template-columns: repeat(2, 1fr); } }

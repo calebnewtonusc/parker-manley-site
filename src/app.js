@@ -2016,7 +2016,7 @@ if (rollin) {
   // Work in progress, marked for Parker: a red frame on each part that's
   // still being built or needs his input, saying what it will become.
   const WIP = [
-    [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
+    [".flight-todo", "Draft render coming", "Your story is in. Next: the low poly drive, a red Subaru through the Rockies, the flight over LA, the blue Kia to SCA, with these lines above it."],
     [".sky__pin", "Draft render", "Low poly preview of the move. Once you like it, the street renders as the real Hollywood Blvd: lit storefronts, neon and streetlights."],
   ];
   WIP.forEach(([sel, kind, text]) => {
