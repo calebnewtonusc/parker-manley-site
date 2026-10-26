@@ -657,6 +657,9 @@ def home(films):
       <div class="irisout__card">
         <h2 id="contact-h" class="sr-only">Your film</h2>
   <div class="slate draft-slate">
+          <img class="sl__board" src="/media/props/slate/board.webp" alt="">
+          <p class="sl__cells" aria-hidden="true"><span>Need a</span><span>director</span><span>or a DP?</span></p>
+          <img class="sl__stick" src="/media/props/slate/stick.webp" alt="">
           <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST" novalidate>
             <input type="hidden" name="_subject" value="New message from parkermanley.com">
             <input type="hidden" name="_template" value="table">
@@ -668,6 +671,7 @@ def home(films):
             <p class="form__status" role="status"></p>
           </form>
         </div>
+        <p class="end__sent" aria-hidden="true">That's a wrap. I'll get back to you soon.</p>
         <p class="end__links"><a href="mailto:{EMAIL}">{EMAIL}</a><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></p>
       </div>
     </div>

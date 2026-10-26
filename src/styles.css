@@ -3157,3 +3157,25 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 .ft__what, .ft__ask, .ft__qs { font: 500 23px/34px "Caveat", cursive; margin: 0; }
 .ft__ask { margin-top: 8px; }
 .ft__qs { padding-left: 22px; }
+
+/* v20 slate: the board and the clapper stick are separate renders, graded
+   to Parker's golden-hour shot. The stick hinges on its real pivot and comes
+   down on send. The pitch is written in marker in the ROLL/SCENE/TAKE row. */
+.draft-slate { background: none !important; container-type: inline-size; }
+.sl__board, .sl__stick { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.sl__stick { transform-origin: 16.36% 27.65%; transition: transform 110ms cubic-bezier(.6,0,1,1); }
+.draft-slate.is-clap .sl__stick { transform: rotate(14deg); }
+.sl__cells { position: absolute; left: 12.5%; right: 9.5%; top: 39.2%; height: 13.9%; margin: 0; display: grid; grid-template-columns: 24.6fr 2.7fr 24.9fr 2.5fr 23.5fr; align-items: center; pointer-events: none; }
+.sl__cells span { font: 600 7.6cqw/1 "Caveat", cursive; color: #1d1c1a; text-align: center; transform: rotate(-2deg); }
+.sl__cells span:nth-child(2) { grid-column: 3; }
+.sl__cells span:nth-child(3) { grid-column: 5; }
+.draft-slate input, .draft-slate textarea { font-size: 5.6cqw !important; color: #141312 !important; }
+.draft-slate input::placeholder { color: rgba(20,19,18,0.5) !important; }
+.draft-slate::after, .end__links a, .draft-slate .form__status { text-shadow: 0 0 2px rgba(0,0,0,0.9), 0 2px 14px rgba(0,0,0,0.95), 0 0 30px rgba(0,0,0,0.7) !important; }
+.draft-slate::after { font-size: 30px; }
+.end__links { font-size: 1.02rem; }
+/* After the clap lands, the slate is pulled out of frame. */
+.draft-slate.is-pulled { transition: transform 700ms cubic-bezier(.5,0,.75,0) 250ms; }
+
+.end__sent { position: absolute; left: 0; right: 0; top: 40%; margin: 0; text-align: center; font: 600 40px/1.15 "Caveat", cursive; color: #f4efe4; opacity: 0; transition: opacity 500ms ease-out 900ms; pointer-events: none; text-shadow: 0 0 2px rgba(0,0,0,0.9), 0 2px 14px rgba(0,0,0,0.95), 0 0 30px rgba(0,0,0,0.7); }
+.draft-slate.is-pulled ~ .end__sent { opacity: 1; }

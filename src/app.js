@@ -1223,10 +1223,14 @@ if (house) {
   const slate = document.querySelector(".slate");
   if (slate) {
     slate.querySelector("form").addEventListener("submit", () => {
+      // The sticks come down, and the clack lands on the frame they meet.
+      // Only for a real take: an incomplete slate doesn't get clapped.
+      const f = slate.querySelector("form");
+      if (![...f.querySelectorAll("input[required]")].every((x) => x.checkValidity())) return;
       slate.classList.remove("is-clap");
       void slate.offsetWidth;
       slate.classList.add("is-clap");
-      sfx.clack();
+      setTimeout(() => sfx.clack(), 110);
       setTimeout(() => {
         const st = slate.querySelector(".form__status");
         if (st && st.dataset.state === "ok") slate.classList.add("is-pulled");
