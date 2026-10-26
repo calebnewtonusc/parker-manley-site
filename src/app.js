@@ -1991,4 +1991,44 @@ if (knoll && openingEl) {
     tick();
   }, 700);
 }
+
+  // Sky over the credits, then the tilt down to the star.
+  const sky = document.querySelector(".sky");
+  const SKYN = sky ? Number(sky.dataset.frames) : 0;
+  if (sky && SKYN > 0) {
+    const cv2 = sky.querySelector(".sky__c");
+    const c2 = cv2.getContext("2d");
+    const fr = [];
+    let started2 = false;
+    const load2 = () => {
+      if (started2) return;
+      started2 = true;
+      for (let i = 1; i <= SKYN; i++) { const im = new Image(); im.src = `/media/sky/${String(i).padStart(3, "0")}.webp`; fr.push(im); }
+    };
+    new IntersectionObserver(([en]) => { if (en.isIntersecting) load2(); }, { rootMargin: "200% 0px" }).observe(sky);
+    // The tilt takes the last third of the frames over the last screens of
+    // the section, after the credits have rolled out of frame.
+    const TILT = Math.round(SKYN / 3);
+    const drawSky = () => {
+      if (!started2) return;
+      const top = sky.getBoundingClientRect().top + scrollY;
+      const span = sky.offsetHeight - innerHeight;
+      const p = Math.max(0, Math.min(1, (scrollY - top) / span));
+      const roll = Math.min(1, p / 0.7);
+      const tilt = Math.max(0, (p - 0.7) / 0.3);
+      const i = Math.min(SKYN - 1, Math.floor(roll * (SKYN - TILT - 1) + tilt * TILT));
+      const f = fr[i];
+      if (!f || !f.complete || !f.naturalWidth) return;
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      if (cv2.width !== Math.round(innerWidth * dpr)) { cv2.width = Math.round(innerWidth * dpr); cv2.height = Math.round(innerHeight * dpr); }
+      const s2 = Math.max(cv2.width / f.naturalWidth, cv2.height / f.naturalHeight);
+      c2.drawImage(f, (cv2.width - f.naturalWidth * s2) / 2, (cv2.height - f.naturalHeight * s2) / 2, f.naturalWidth * s2, f.naturalHeight * s2);
+    };
+    addEventListener("scroll", drawSky, { passive: true });
+    addEventListener("resize", drawSky);
+    setInterval(drawSky, 500);
+    // The footer is the star the tilt lands on, so it doesn't fade in.
+    const ft = document.querySelector(".foot");
+    if (ft) ft.classList.add("is-landed");
+  }
 })();

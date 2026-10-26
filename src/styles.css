@@ -3372,3 +3372,15 @@ html.has-leader body { overflow: hidden; }
 /* The camera stays in the theater: the roll-in's last frame is the room
    behind the rig, so the cut lands on the same monitor in the same place. */
 @media (min-width: 900px) { .cam__pin { background: #000 url("/media/hall/rollin/060.webp") center / cover no-repeat !important; } }
+
+/* The credits roll over the night sky above Hollywood Blvd; when they end
+   the camera tilts down onto the star, which is the footer's frame. */
+.sky { position: relative; }
+.sky__pin { display: none; }
+.sky[data-frames]:not([data-frames="0"]) .sky__pin { display: block; position: sticky; top: 0; height: 100svh; margin-bottom: -100svh; z-index: 0; }
+.sky__c { display: block; width: 100%; height: 100%; }
+.sky__roll { position: relative; z-index: 1; }
+.sky[data-frames]:not([data-frames="0"]) .sky__roll { padding-bottom: 160svh; }
+.sky[data-frames]:not([data-frames="0"]) .sky__roll .roll { text-shadow: 0 1px 10px rgba(0,0,0,0.8); }
+
+.foot.is-landed .foot__pin { opacity: 1 !important; }

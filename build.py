@@ -510,6 +510,11 @@ def preview(home_html):
 HALL = ["scar-tissue", "abundance", "beneath-the-surface", "somnambulist", "the-five-stages-of-wasabi"]
 
 
+def sky_frames():
+    d = ROOT / "media/sky"
+    return len(list(d.glob("*.webp"))) if d.exists() else 0
+
+
 def home(films):
     from site_desk import desk_section
 
@@ -721,7 +726,7 @@ def home(films):
       </div>
     </div>
   </div>
-{end_credits(films)}
+<div class="sky" data-frames="{sky_frames()}"><div class="sky__pin" aria-hidden="true"><canvas class="sky__c"></canvas></div><div class="sky__roll">{end_credits(films)}</div></div>
 </section>
 """
     body += screenings(films)
