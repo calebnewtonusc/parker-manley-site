@@ -1614,94 +1614,78 @@ const overlapUnder = (prev, next, screens = 1) => {
 const deskRun = document.querySelector(".desk-run");
 const editEl = document.querySelector(".edit");
 const irisEl = document.querySelector(".irisout");
+const skyEl = document.querySelector(".sky");
 if (
   deskRun &&
   editEl &&
   irisEl &&
+  skyEl &&
   document.body.classList.contains("is-home")
 ) {
-  const grow = document.createElement("img");
-  grow.className = "desk__grow";
-  grow.alt = "";
-  grow.src = "/media/desk/pinned.jpg";
-  document.body.appendChild(grow);
-  let gramOpened = false;
-  const lay = () => {
-    overlapUnder(editEl, deskRun, 2);
-    overlapUnder(deskRun, irisEl);
+  // On a computer the end card lives in the Contact tab of Parker's Chrome,
+  // so the Mac stays one place you click around. Opening the tab plays the
+  // card: Parker on green, the key pulls to the real forest, the slate comes
+  // in. On a phone it stays its own section, the way it was.
+  const cpm = document.querySelector(".cpm");
+  const irisPin = irisEl.querySelector(".irisout__pin");
+  const cards = [...irisPin.children];
+  let inTab = false;
+  const place = () => {
+    const want = innerWidth >= 900 && !!cpm;
+    if (want === inTab) return;
+    inTab = want;
+    (want ? cpm : irisPin).append(...cards);
+    cpm?.classList.toggle("cpm--end", want);
+    irisEl.classList.toggle("is-in-tab", want);
   };
-  // The desk's own stretch: browse, then the Contact tab takes the screen.
+  let played = 0;
+  const play = () => {
+    if (!inTab) return;
+    const t0 = performance.now();
+    const run = played = t0;
+    const ease = (x) => 1 - (1 - Math.max(0, Math.min(1, x))) ** 3;
+    const step = (now) => {
+      if (played !== run) return;
+      const t = reduced ? 9 : (now - t0) / 1000;
+      // Green for a beat, the key pulls over 0.4s, then the slate is held in.
+      cpm.style.setProperty("--enter", "1");
+      cpm.style.setProperty("--key", Math.max(0, Math.min(1, (t - 0.7) / 0.4)).toFixed(3));
+      cpm.style.setProperty("--in", ease((t - 1.3) / 0.9).toFixed(3));
+      if (t > 0.75 && !cpm.dataset.keyed) { cpm.dataset.keyed = "1"; sfx.chk(); }
+      if (t < 2.4) requestAnimationFrame(step);
+    };
+    delete cpm.dataset.keyed;
+    requestAnimationFrame(step);
+  };
+  document.addEventListener("desk:page", (ev) => { if (ev.detail === "contact") play(); });
+  const lay = () => {
+    place();
+    overlapUnder(editEl, deskRun, 2);
+    // The Mac fades to black and the credits come up under it.
+    overlapUnder(deskRun, inTab ? skyEl : irisEl);
+  };
   const deskTick = () => {
-    if (innerWidth < 900) {
-      grow.style.opacity = "0";
-      return;
-    }
+    if (innerWidth < 900) return;
     const top = deskRun.getBoundingClientRect().top + scrollY;
     const span = deskRun.offsetHeight - innerHeight;
     const p = Math.max(0, Math.min(1, (scrollY - top) / span));
-        // Near the end of the Mac, the third tab comes forward: the contact page
-    // is Parker on the green screen, and it grows into the end card.
-    const g = window.desk && window.desk.page() === "contact" ? Math.max(0, Math.min(1, (p - 0.8) / 0.2)) : 0;
-    if (g <= 0 || !window.desk) {
-      grow.style.opacity = "0";
-      return;
+    const out = Math.max(0, Math.min(1, (p - 0.88) / 0.12));
+    deskRun.style.setProperty("--out", out.toFixed(3));
+    deskRun.style.pointerEvents = out > 0.5 ? "none" : "";
+    const skyPin = skyEl.querySelector(".sky__pin");
+    if (skyPin) {
+      // While the Mac dissolves, hold the night sky at the top of the window
+      // (it would otherwise ride up with its section) so the credits roll up
+      // over it the way they will once it's pinned.
+      const st = skyEl.getBoundingClientRect().top;
+      skyPin.style.visibility = out > 0 || st <= 0.5 ? "" : "hidden";
+      skyPin.style.transform = st > 0.5 ? `translateY(${(-st).toFixed(1)}px)` : "";
     }
-    const r = window.desk.contactRect();
-    const e = 1 - (1 - g) ** 3;
-    // Cover the screen with the same 4:3 frame the end card opens on.
-    const ar = 4 / 3;
-    let W = innerWidth;
-    let H = W / ar;
-    if (H < innerHeight) {
-      H = innerHeight;
-      W = H * ar;
-    }
-    const L = (a, b) => a + (b - a) * e;
-    grow.style.left = `${L(r.left, (innerWidth - W) * 0.3)}px`;
-    grow.style.top = `${L(r.top, (innerHeight - H) * 0.3)}px`;
-    grow.style.width = `${L(r.width, W)}px`;
-    grow.style.height = `${L(r.height, H)}px`;
-    grow.style.opacity = "1";
-    grow.style.visibility =
-      irisEl.getBoundingClientRect().top <= 0.5 ? "hidden" : "";
   };
   addEventListener("scroll", deskTick, { passive: true });
-  addEventListener("resize", () => {
-    lay();
-    deskTick();
-  });
-  // Measure after the edit bay has set its own height.
-  requestAnimationFrame(() =>
-    requestAnimationFrame(() => {
-      lay();
-      deskTick();
-    }),
-  );
-  setTimeout(() => {
-    lay();
-    deskTick();
-  }, 600);
-  // Clicking the Contact tab takes you there: the page glides on, and the
-  // green screen in that tab grows into the end card on the way.
-  document.addEventListener("desk:page", (ev) => {
-    if (ev.detail !== "contact" || innerWidth < 900) return;
-    const top = deskRun.getBoundingClientRect().top + scrollY;
-    const span = deskRun.offsetHeight - innerHeight;
-    if (scrollY >= top + span * 0.995) return;
-    setTimeout(() => scrollTo({ top: top + span, behavior: reduced ? "auto" : "smooth" }), 250);
-  });
-  // The end card hides until it's pinned, then it is the grown post.
-  const irisPin = irisEl.querySelector(".irisout__pin");
-  const irisShow = () => {
-    if (innerWidth < 900) {
-      irisPin.style.visibility = "";
-      return;
-    }
-    const growing = grow.style.opacity === "1";
-    irisPin.style.visibility = growing && irisEl.getBoundingClientRect().top > 0.5 ? "hidden" : "";
-  };
-  addEventListener("scroll", irisShow, { passive: true });
-  irisShow();
+  addEventListener("resize", () => { lay(); deskTick(); });
+  requestAnimationFrame(() => requestAnimationFrame(() => { lay(); deskTick(); }));
+  setTimeout(() => { lay(); deskTick(); }, 600);
 }
 // Director: the premiere. Each film is its own render of the hall with
 // that film projected and its title on the letterboard; changing film is a

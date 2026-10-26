@@ -19,7 +19,8 @@ with sync_playwright() as p:
         pg.wait_for_timeout(1500)
         for s in PINS:
             r = pg.evaluate(f"()=>{{const e=document.querySelector('{s}');if(!e)return null;const r=e.getBoundingClientRect();return [r.left,r.width]}}")
-            if r and (abs(r[0]) > 0.5 or abs(r[1] - w) > 0.5):
+            # A scene hidden at this width (display: none) has nothing to frame.
+            if r and r[1] > 0 and (abs(r[0]) > 0.5 or abs(r[1] - w) > 0.5):
                 bad.append(f"{w}x{h} {s} left={r[0]:.0f} width={r[1]:.0f}")
         # A pinned scene's pin must sit at the top of its section, or the
         # section's own padding shows the scene before it for that many px

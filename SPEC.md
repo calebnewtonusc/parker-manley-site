@@ -44,6 +44,6 @@ Each section ends on the exact frame that the next one begins on.
 - Hall into camera: the camera rolls up the aisle into the shot, then we push into its monitor. The hall is now the picture on that monitor, so the director scene turns into the cinematography scene on one screen.
 - Camera into edit bay: the last shot on the monitor scales up to fill the screen, then pulls back into the edit bay's program monitor. It's the same frame, now sitting in Premiere.
 - Edit bay into Mac: the editing session ends, the window leaves full screen, and it slides off the desktop to reveal Chrome behind it with Manleygle.
-- ManleyGram into the end card: Parker's most recent post is the shot of him filming on the rock, shown on green. The post scales up until it fills the screen. Then the green is keyed into the real forest, and the slate is held in.
-- End card into credits: after the clap, or once you scroll on, the shot fades to black under the first credits, the way a film ends.
+- The end card lives in the Contact tab of his Chrome (computer): opening the tab shows him on green, the key pulls to the real forest, the slate is held in. Caleb, 2026-10-25: the card jumping out of the tab broke the Mac's UX. On a phone it stays its own section.
+- Mac into credits: the Mac dissolves into the night sky as the credits roll up over it.
 - Credits into star: the credits roll over a night sky above Hollywood Boulevard. When they end, the camera tilts down from the sky to the sidewalk and stops on his star. One render, and no cut.

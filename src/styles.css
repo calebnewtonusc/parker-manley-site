@@ -3425,3 +3425,18 @@ html.has-leader body { overflow: hidden; }
   .edit { pointer-events: none; }
   .edit .fc, .edit a, .edit button { pointer-events: auto; }
 }
+
+/* The end card inside the Contact tab (computer only). */
+@media (min-width: 900px) {
+  .irisout.is-in-tab { display: none; }
+  .cpm.cpm--end { position: relative; overflow: hidden; height: 100%; container-type: size; }
+  .cpm.cpm--end .cpm__shot { display: none; }
+  .cpm--end .irisout__img, .cpm--end .end__green, .cpm--end .end__parker { position: absolute; inset: 0; width: 100% !important; height: 100% !important; object-fit: cover; object-position: 30% 30% !important; }
+  .cpm--end .irisout__mask { display: none; }
+  .cpm--end .irisout__card { position: absolute; top: 52% !important; right: 5% !important; }
+  .cpm--end .irisout__card .draft-slate { width: min(440px, 36cqw, 66cqh * 5 / 6) !important; }
+  /* The Mac dissolves into the credits rolling up beneath it. */
+  .desk-run { z-index: 5 !important; }
+  .desk-run > .desk { opacity: calc(1 - var(--out, 0)); }
+  .cpm--end .draft-slate::after { white-space: nowrap; }
+}
