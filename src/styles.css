@@ -2909,3 +2909,19 @@ html.is-screening, html.is-screening body { overflow: hidden; }
 .scr__up { width: max-content; }
 .scr__up:focus:not(:focus-visible) { outline: none; }
 .film-page .scr { padding-top: 40px; }
+
+/* v16: things on the desk answer the hand. A polaroid lifts off the sheet
+   when you reach for it; a scene on the call sheet gets highlighted the way
+   an AD marks your scene before handing the sheet over. */
+@media (hover: hover) and (pointer: fine) {
+  .polaroid { transition: translate 150ms ease-out, scale 150ms ease-out, box-shadow 150ms ease-out, filter 150ms ease-out; }
+  .polaroid:hover { translate: 0 -12px; scale: 1.06; z-index: 6; box-shadow: 0 26px 40px rgba(0,0,0,0.55), 0 6px 12px rgba(0,0,0,0.35); }
+  .polaroids:hover .polaroid:not(:hover) { filter: brightness(0.82); }
+  .cs__sched tbody b { background-image: linear-gradient(100deg, rgba(255, 226, 40, 0) 0, rgba(255, 226, 40, 0.62) 4px, rgba(255, 226, 40, 0.55) calc(100% - 4px), rgba(255, 226, 40, 0) 100%); background-repeat: no-repeat; background-position: 0 60%; background-size: 0% 72%; padding: 0 3px; margin: 0 -3px; transition: background-size 240ms ease-out; mix-blend-mode: multiply; }
+  .cs__sched tbody tr:hover b { background-size: 100% 72%; }
+}
+
+/* Hand-torn tape: ragged short ends. */
+.polaroid::before { clip-path: polygon(3% 0, 97% 2%, 99% 18%, 96% 34%, 100% 52%, 97% 70%, 99% 86%, 96% 100%, 4% 98%, 1% 82%, 4% 66%, 0 48%, 3% 30%, 0 14%); }
+.polaroid:nth-child(2)::before { clip-path: polygon(1% 2%, 99% 0, 96% 16%, 100% 30%, 97% 48%, 100% 64%, 96% 82%, 99% 100%, 2% 97%, 5% 80%, 1% 62%, 4% 44%, 0 26%, 4% 12%); transform: rotate(4deg); }
+.polaroid:nth-child(3)::before { clip-path: polygon(4% 0, 96% 3%, 100% 20%, 97% 38%, 99% 56%, 95% 74%, 99% 94%, 97% 100%, 1% 100%, 4% 84%, 0 66%, 3% 46%, 1% 28%, 5% 12%); transform: rotate(-6deg); }
