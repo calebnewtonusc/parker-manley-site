@@ -1,3 +1,5 @@
+from pathlib import Path
+import json
 """Item 9: the Mac desktop the edit bay leaves onto.
 
 desk_section(films, photos) returns one <section class="desk">: a macOS
@@ -222,11 +224,10 @@ def _gram(photos, films=()):
         f'<span class="ig-hl__ring"><img src="/media/photos/thumb/{by[ks[0]]["file"]}" alt="" loading="lazy"></span><span class="ig-hl__t">{t}</span></button>'
         for t, ks in GRAM_HIGHLIGHTS
     )
-    from PIL import Image as _I
-    tagged = []
-    for k, alt in TAGGED:
-        w, h = _I.open(f"media/desk/tagged/{k}.jpg").size
-        tagged.append({"thumb": f"/media/desk/tagged/{k}-t.jpg", "full": f"/media/desk/tagged/{k}.jpg", "w": w, "h": h})
+    # Sizes come from a file written when the photos were made: the deploy
+    # image has no Pillow, so the build reads no images.
+    sizes = json.loads(Path("media/desk/tagged/sizes.json").read_text())
+    tagged = [{"thumb": f"/media/desk/tagged/{k}-t.jpg", "full": f"/media/desk/tagged/{k}.jpg", "w": sizes[k][0], "h": sizes[k][1]} for k, _ in TAGGED]
     tagged_html = "".join(tile(p, i, len(tagged), "Tagged photo") for i, p in enumerate(tagged))
     feat = [f for f in films if f.get("featured")]
     reels = (
