@@ -333,7 +333,7 @@ def end_credits(films):
     titles = "".join(f'<li><a href="/films/{f["slug"]}/">{e(f["title"])}</a></li>' for f in films)
     people = "".join(f"<li>{e(n)}</li>" for n in names)
     pair = lambda r, n: f'<div class="roll__pair"><dt>{r}</dt><dd>{n}</dd></div>'
-    return f"""  <div class="roll">
+    return f"""  <div class="roll"><audio class="roll__song" src="/media/music/where-is-my-mind.mp3" preload="none"></audio>
     <p class="roll__pre">A Parker Manley picture</p>
     <dl class="roll__pairs">
       {pair("Directed by", "Parker Manley")}
@@ -345,6 +345,7 @@ def end_credits(films):
     <dl class="roll__pairs">
       {pair("Special thanks", "Jesus Christ")}
       {pair("Reel music", "&ldquo;I Am Chemistry&rdquo; by Yeasayer")}
+      {pair("Outro music", "&ldquo;Where Is My Mind?&rdquo; by Pixies")}
       {pair("Filmed in", "Boulder, Colorado<br>Los Angeles, California")}
     </dl>
   </div>

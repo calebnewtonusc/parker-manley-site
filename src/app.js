@@ -856,6 +856,39 @@
     };
   }
 
+  // Outro: "Where Is My Mind?" comes up as the credits start rolling and
+  // carries through the star, fading the same two seconds the reel does.
+  const roll = document.querySelector(".roll");
+  const song = roll && roll.querySelector(".roll__song");
+  if (song) {
+    let lvl = 0;
+    let goal = 0;
+    let raf = 0;
+    let t0 = 0;
+    const tick = (t) => {
+      const dt = t0 ? (t - t0) / 1000 : 0;
+      t0 = t;
+      lvl += Math.sign(goal - lvl) * Math.min(Math.abs(goal - lvl), dt / 2.2);
+      try { song.volume = lvl * 0.9; } catch (err) { /* iOS volume is fixed */ }
+      if (lvl <= 0.001 && goal === 0) { song.pause(); raf = 0; t0 = 0; return; }
+      if (Math.abs(goal - lvl) < 0.001) { raf = 0; t0 = 0; return; }
+      raf = requestAnimationFrame(tick);
+    };
+    const set = (on) => {
+      goal = on && sfx.on ? 1 : 0;
+      if (window.score) window.score.duck(goal === 1);
+      if (goal === 1 && song.paused) song.play().catch(() => {});
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    const end = [roll, document.querySelector(".foot")].filter(Boolean);
+    const seen = new Set();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => (en.isIntersecting ? seen.add(en.target) : seen.delete(en.target)));
+      set(seen.size > 0);
+    }, { threshold: 0.15 });
+    end.forEach((el) => io.observe(el));
+  }
+
   // The last frame: after the credits, the star fades up out of black.
   const foot = document.querySelector(".foot");
   if (foot && document.body.classList.contains("is-home")) {
