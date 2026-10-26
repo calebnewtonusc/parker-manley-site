@@ -3493,3 +3493,7 @@ html.has-leader body { overflow: hidden; }
 
 /* Phone: same order, credits on black, then the scene. */
 @media (max-width: 899px) { .sky[data-frames]:not([data-frames="0"]) .sky__pin { margin-bottom: 0; } .sky[data-frames]:not([data-frames="0"])::after { content: ""; display: block; height: 120svh; } .sky[data-frames]:not([data-frames="0"]) .sky__roll { padding-bottom: 20svh; } }
+/* Any note from the slate (sending, sent, didn't go through) takes the
+   hint's place; the two never stack. */
+.draft-slate:has(.form__status:not(:empty))::after { opacity: 0; }
+.draft-slate .form__status a { color: inherit; text-decoration: underline; text-underline-offset: 3px; pointer-events: auto; }

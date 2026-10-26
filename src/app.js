@@ -1272,11 +1272,17 @@ if (house) {
       button.disabled = true;
       status.dataset.state = "";
       status.textContent = "Sending...";
+      // FormSubmit sometimes hangs for 25 s or more (2026-10-26 it did, and
+      // the slate sat on "Sending..." forever), so give it 12 s and then
+      // hand over his email instead.
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 12000);
       try {
         const res = await fetch(form.action, {
           method: "POST",
           headers: { Accept: "application/json" },
           body: new FormData(form),
+          signal: ctl.signal,
         });
         if (!res.ok) throw new Error(String(res.status));
         form.reset();
@@ -1284,10 +1290,12 @@ if (house) {
         status.textContent = "Sent. I'll get back to you soon.";
       } catch (err) {
         status.dataset.state = "err";
-        status.textContent =
-          "That didn't send. Email me directly at the address above.";
+        const to = form.action.split("/").pop();
+        const body = encodeURIComponent(`${form.message?.value || ""}\n\n${form.name?.value || ""}`);
+        status.innerHTML = `Didn't go through. <a href="mailto:${to}?subject=${encodeURIComponent("Your next film")}&body=${body}">Email me instead</a>`;
         console.error("contact form", err);
       } finally {
+        clearTimeout(timer);
         button.disabled = false;
       }
     });
