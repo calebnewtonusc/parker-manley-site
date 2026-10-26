@@ -1632,3 +1632,15 @@
 .cw__fav--pm { width: 16px; height: 16px; border-radius: 4px; background: #111; color: #f3e6c4; font: 700 10px/16px Georgia, serif; text-align: center; }
 .cpm { background: #0a0a0a; }
 .cpm__shot { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 30% 30%; }
+/* 85% of the screen, and tabs big enough that nobody misses Contact. */
+.cw { width: 85% !important; --strip: 60px; }
+.cw__tabs .cw__tab { height: 50px; flex-basis: 320px; max-width: 320px; font-size: 16px; font-weight: 500; padding: 0 12px 0 18px; gap: 12px; border-radius: 12px 12px 0 0; }
+.cw__tabs .cw__tab .cw__fav, .cw__tabs .cw__tab .cw__fav svg { width: 20px; height: 20px; flex-basis: 20px; }
+.cw__fav--pm { font-size: 13px !important; line-height: 20px !important; border-radius: 5px !important; }
+.cw__lights i { width: 14px !important; height: 14px !important; }
+.cw__strip { padding-left: 96px; }
+@media (max-width: 760px) {
+  .cw { width: calc(100% - 16px) !important; --strip: 46px; }
+  .cw__tabs .cw__tab { height: 38px; font-size: 12px; padding: 0 8px; flex-basis: auto; }
+  .cw__strip { padding-left: 70px; }
+}

@@ -72,7 +72,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <a class="skip" href="#main">Skip to content</a>
 <header class="mast">
   <a class="mast__name" href="/">Parker Manley</a>
-  <nav class="mast__side mast__side--r" aria-label="Pages">{nav("/photography/", "Photography", "photos")}{nav("/#contact", "Contact", "contact")}</nav>
+  <nav class="mast__side mast__side--r" aria-label="Pages">{nav("/#contact", "Contact", "contact")}</nav>
   <button class="mast__sound" type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="mast__wave" d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path class="mast__wave" d="M18 6.5a7.6 7.6 0 0 1 0 11"/></g></svg><span class="mast__sound-off" aria-hidden="true"></span></button>
 </header>
 <main id="main">
@@ -820,8 +820,9 @@ def main():
   <a class="btn btn--ticket" href="/">Back to the screening</a>
 </section>
 """, path="/404"))
+    # Photography lives in ManleyGram on the Mac now; old links land home.
     (DIST / "photography").mkdir()
-    (DIST / "photography/index.html").write_text(photography())
+    (DIST / "photography/index.html").write_text('<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=/"><link rel="canonical" href="/"><title>Parker Manley</title>')
     for name in ("styles.css", "app.js", "score.js", "topo.svg", "desk.css", "desk.js"):
         shutil.copy(ROOT / "src" / name, DIST / name)
     (DIST / "favicon.svg").write_text(FAVICON)

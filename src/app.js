@@ -1570,7 +1570,6 @@ if (
     const p = Math.max(0, Math.min(1, (scrollY - top) / span));
         // Near the end of the Mac, the third tab comes forward: the contact page
     // is Parker on the green screen, and it grows into the end card.
-    if (window.desk && p > 0.7 && window.desk.page() !== "contact") window.desk.open("contact");
     const g = window.desk && window.desk.page() === "contact" ? Math.max(0, Math.min(1, (p - 0.8) / 0.2)) : 0;
     if (g <= 0 || !window.desk) {
       grow.style.opacity = "0";
@@ -1611,6 +1610,15 @@ if (
     lay();
     deskTick();
   }, 600);
+  // Clicking the Contact tab takes you there: the page glides on, and the
+  // green screen in that tab grows into the end card on the way.
+  document.addEventListener("desk:page", (ev) => {
+    if (ev.detail !== "contact" || innerWidth < 900) return;
+    const top = deskRun.getBoundingClientRect().top + scrollY;
+    const span = deskRun.offsetHeight - innerHeight;
+    if (scrollY >= top + span * 0.995) return;
+    setTimeout(() => scrollTo({ top: top + span, behavior: reduced ? "auto" : "smooth" }), 250);
+  });
   // The end card hides until it's pinned, then it is the grown post.
   const irisPin = irisEl.querySelector(".irisout__pin");
   const irisShow = () => {

@@ -67,6 +67,7 @@
     pages[name].scrollTop = 0;
     url.value = META[name].url;
     tabs.forEach((t) => t.classList.toggle("is-on", t.dataset.go === name));
+    document.dispatchEvent(new CustomEvent("desk:page", { detail: name }));
     back.disabled = at === 0;
     fwd.disabled = at === stack.length - 1;
     if (name === "flix") {
