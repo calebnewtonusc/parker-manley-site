@@ -3547,3 +3547,11 @@ html.has-leader body { overflow: hidden; }
 .photo-open.is-on { opacity: 1; }
 .photo-open img { max-width: min(88vw, 1400px); max-height: 86vh; object-fit: contain; box-shadow: 0 30px 80px rgba(0,0,0,0.6); transform: scale(0.97); transition: transform 220ms ease-out; }
 .photo-open.is-on img { transform: none; }
+
+/* The hall screen behind the camera rig plays the film being shot. */
+.cam__hallfilm { display: none; }
+@media (min-width: 900px) {
+  .cam__hallfilm { display: block; position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  .cam__hallfilm-in { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; -webkit-mask: url("/media/rig/hallscreen_mask.png") 0 0 / 100% 100% no-repeat; mask: url("/media/rig/hallscreen_mask.png") 0 0 / 100% 100% no-repeat; }
+  .cam__hallfilm-in img { position: absolute; left: 0; top: 0; width: 960px; height: 540px; object-fit: cover; transform-origin: 0 0; filter: brightness(0.88) saturate(0.95); }
+}

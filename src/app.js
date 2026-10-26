@@ -856,6 +856,15 @@
     // the hand-offs the same quad slides between the glass and the whole
     // screen, so nothing ever jumps.
     const rig = cam.querySelector(".rig__base");
+    // The hall screen behind the rig shows the film being shot (Parker,
+    // 2026-10-26). The still is mapped into the render's hall-screen quad and
+    // masked by the render's own coverage, so the monitor still covers it.
+    const hallFilm = document.createElement("div");
+    hallFilm.className = "cam__hallfilm";
+    hallFilm.innerHTML = '<div class="cam__hallfilm-in"><img alt=""></div>';
+    if (rig) rig.after(hallFilm);
+    const hallImg = hallFilm.querySelector("img");
+    const hallIn = hallFilm.querySelector(".cam__hallfilm-in");
     cam.querySelector(".cam__screen")?.addEventListener("click", () => cam.querySelector(".cam__watch")?.click());
     const scr = cam.querySelector(".cam__screen");
     let RIG = null;
@@ -902,6 +911,15 @@
       const dolly = z > 0 ? `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${k.toFixed(5)})` : "";
       rig.style.transformOrigin = "0 0";
       rig.style.transform = dolly;
+      if (RIG.hall_screen) {
+        hallFilm.style.transformOrigin = "0 0";
+        hallFilm.style.transform = dolly;
+        hallIn.style.transform = `translate(${ox}px, ${oy}px) scale(${s})`;
+        // 3% past the render's screen edge so none of the baked-in film
+        // shows around it; the mask trims what the rig covers.
+        const hq = RIG.hall_screen, hcx = hq.reduce((a, p) => a + p[0], 0) / 4, hcy = hq.reduce((a, p) => a + p[1], 0) / 4;
+        hallImg.style.transform = homog(hq.map(([x, y]) => [hcx + (x - hcx) * 1.03, hcy + (y - hcy) * 1.03]));
+      }
       const glassEl = cam.querySelector(".rig__glass");
       if (glassEl) { glassEl.style.transformOrigin = "0 0"; glassEl.style.transform = dolly; }
       // The glass quad isn't a perfect rectangle in perspective, so in the
@@ -957,6 +975,7 @@
         cam.dataset.kind = sh.kind;
         hud("wb").textContent = "5600K"; hud("iris").textContent = "T2.8"; hud("nd").textContent = "ND Clear"; hud("zoom").textContent = "35 mm";
         imgs.forEach((im) => { im.style.filter = ""; im.style.transform = ""; });
+        if (imgs[i]) hallImg.src = imgs[i].src;
       }
       const e = reduced ? 1 : ease(clamp((u - 0.08) / 0.6));
       const from = Number(sh.from);
