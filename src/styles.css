@@ -2793,3 +2793,15 @@ body.is-home .mast { position: fixed; left: 0; right: 0; }
    with a black edge, no bar behind them. */
 .cam__hud { background: none; text-shadow: 0 0 2px #000, 0 0 1px #000, 1px 1px 0 #000; }
 .cam__hud .vf__tc { position: static; transform: none; }
+/* The editor's cursor: one small arrow over the panels, out of the grid. */
+.fc { position: sticky; }
+.fc__cursor { position: absolute; left: 0; top: 0; z-index: 20; width: 16px; height: 24px; pointer-events: none; transition: none; will-change: transform; }
+.fc__cursor svg { display: block; width: 16px; height: 24px; transition: transform 80ms ease-out; transform-origin: 2px 2px; }
+.fc__cursor.is-down svg { transform: scale(0.88); }
+.fc__ghost { position: absolute; left: 14px; top: 18px; padding: 2px 6px; font-size: 10.5px; white-space: nowrap; color: #e6e6e6; background: rgba(58, 58, 70, 0.92); border: 1px solid #5794ec; border-radius: 2px; opacity: 0; }
+.fc__cursor.is-dragging .fc__ghost { opacity: 1; }
+.fc .cutline { position: absolute; z-index: 3; top: 60px; height: 120px; width: 1px; background: #fff; opacity: 0; }
+.fc .cutline.is-on { opacity: 0.9; }
+.fc .fxlane__tr.is-pending { opacity: 0; }
+.fc .fxlane__tr.is-pending.is-dropped { opacity: 1; }
+@media (max-width: 899px) { .fc__cursor { display: none; } }
