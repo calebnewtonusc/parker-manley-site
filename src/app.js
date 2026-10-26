@@ -790,19 +790,21 @@
   let hall = null;
   if (filmsScene) {
     const screens = [...filmsScene.querySelectorAll(".scene__bg video")];
-    // 1600px between theaters: at 900px perspective the next screen sits at
-    // a third of the frame, small enough to read as the next room.
-    const GAP = 1600;
+    // One picture at a time. 600px between films; the next one is only
+    // drawn while the camera is pushing through the current one, and it
+    // never sits smaller than 78% of the frame.
+    const GAP = 600;
     hall = () => {
       const top = filmsScene.getBoundingClientRect().top + scrollY;
       const p = Math.max(0, Math.min(1, (scrollY - top) / (filmsScene.offsetHeight - innerHeight)));
       const cam = p * (screens.length - 0.5) * GAP;
       screens.forEach((v, i) => {
         const z = cam - i * GAP;
-        if (z > 400 || z < -GAP * 2.2) { v.style.visibility = "hidden"; return; }
+        if (z > 300 || z < -GAP * 0.5) { v.style.visibility = "hidden"; return; }
         v.style.visibility = "visible";
-        v.style.transform = `translateZ(${z.toFixed(1)}px)`;
+        v.style.transform = `translateZ(${Math.max(z, -250).toFixed(1)}px)`;
         v.style.opacity = z > 0 ? Math.max(0, 1 - z / 300).toFixed(3) : "1";
+        v.style.zIndex = String(screens.length - i);
       });
     };
   }
@@ -820,7 +822,6 @@
       if (!reduced && cue) cue.classList.toggle("is-on", p > 0.82 && p < 0.97 && Math.floor(p * 60) % 3 !== 0);
     }
     scenes.forEach((update) => update());
-    if (hall) hall();
     if (scrub) scrub();
     if (camUpdate) camUpdate();
     if (circUpdate) circUpdate();

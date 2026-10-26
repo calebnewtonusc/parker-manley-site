@@ -2744,3 +2744,9 @@ body.is-home .mast { position: fixed; left: 0; right: 0; }
   .mast__side--r { grid-row: 1; grid-column: 2; gap: 14px; font-size: 0.8rem; }
   .mast__sound { top: 50%; transform: translateY(-50%); }
 }
+/* Now Showing: one picture, full bleed, no frames inside frames. */
+.scene--films .scene__bg video { border: 0; border-image: none; }
+/* Now Showing: a straight cut between films, on the same beat as the marquee. */
+.scene--films .scene__bg { perspective: none; }
+.scene--films .scene__bg video { visibility: visible !important; opacity: 0 !important; transform: none !important; transition: none !important; }
+.scene--films .scene__bg video.is-on { opacity: 1 !important; }
