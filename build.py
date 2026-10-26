@@ -63,7 +63,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Jost:wght@400;500&family=Oswald:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Jost:wght@400;500&family=Oswald:wght@600;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -80,6 +80,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <footer class="foot"><div class="walk" aria-label="A Hollywood Walk of Fame star for Parker Manley">
   <div class="walk__star"><span class="walk__name">Parker Manley</span><svg class="walk__emblem" viewBox="0 0 40 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="7" r="5.5"/><circle cx="21" cy="7" r="5.5"/><rect x="4" y="13" width="22" height="11" rx="1.5"/><path d="M26 16l9-4v14l-9-4z"/></g></svg></div>
 </div><span class="foot__edge">Parker Manley &nbsp;&#9656;&nbsp; Boulder, Colorado to Los Angeles &nbsp;&#9656;&nbsp; Tail</span></footer>
+<script src="/score.js" defer></script>
 <script src="/app.js" defer></script>
 </body>
 </html>
@@ -350,6 +351,8 @@ def home(films):
     )
     body = f"""
 <div class="leader" role="dialog" aria-label="Opening countdown">
+  <span class="leader__sprockets leader__sprockets--l" aria-hidden="true"></span><span class="leader__sprockets leader__sprockets--r" aria-hidden="true"></span>
+  <canvas class="leader__dirt" aria-hidden="true"></canvas>
   <svg class="leader__dial" viewBox="0 0 200 200">
     <circle cx="100" cy="100" r="92"/><circle cx="100" cy="100" r="74"/>
     <path d="M100 0V200M0 100H200"/>
@@ -466,12 +469,12 @@ def home(films):
         <p class="contact__lede">Looking for a director, a DP or an editor? I'd love to hear about it.</p>
         <a class="contact__mail" href="mailto:{EMAIL}">{EMAIL}</a>
   <div class="slate">
-          <div class="slate__clap" aria-hidden="true"><span class="slate__stick slate__stick--top"></span><span class="slate__stick"></span></div>
+          <div class="slate__art" aria-hidden="true"><img class="slate__board-img" src="/media/props/clapper/board-520.webp" srcset="/media/props/clapper/board-520.webp 520w, /media/props/clapper/board-1000.webp 1000w" sizes="240px" alt="" loading="lazy"><img class="slate__stick-img" src="/media/props/clapper/stick-520.webp" srcset="/media/props/clapper/stick-520.webp 520w, /media/props/clapper/stick-1000.webp 1000w" sizes="240px" alt="" loading="lazy"><span class="slate__chalk slate__chalk--prod">Your next film</span><span class="slate__chalk slate__chalk--dir">P. Manley</span><span class="slate__chalk slate__chalk--take">1</span></div>
           <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST">
             <input type="hidden" name="_subject" value="New message from parkermanley.com">
             <input type="hidden" name="_template" value="table">
             <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
-            <div class="slate__info" aria-hidden="true"><span><small>Prod.</small>Your next film</span><span><small>Director</small>P. Manley</span><span><small>Take</small>1</span></div>
+            
             <div class="row">
               <label>Name<input name="name" autocomplete="name" required></label>
               <label>Email<input name="email" type="email" autocomplete="email" required></label>
@@ -664,7 +667,7 @@ def main():
 """, path="/404"))
     (DIST / "photography").mkdir()
     (DIST / "photography/index.html").write_text(photography())
-    for name in ("styles.css", "app.js", "topo.svg"):
+    for name in ("styles.css", "app.js", "score.js", "topo.svg"):
         shutil.copy(ROOT / "src" / name, DIST / name)
     (DIST / "favicon.svg").write_text(FAVICON)
     if (ROOT / "media").exists():

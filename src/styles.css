@@ -2454,3 +2454,37 @@ main { overflow-x: clip; }
   .circuit__pin { padding-top: 96px; }
 }
 .irisout__card .slate { margin-top: clamp(52px, 7vh, 72px); }
+
+/* The rendered slate (Nalana, two layers): the top stick claps on Action.
+   Pivot from media/props/clapper/clapper.json: 8.74% 27.36%, rendered 14 deg open. */
+.slate__clap { display: none; }
+.slate__art { position: relative; width: 240px; aspect-ratio: 847 / 1049; margin: 0 0 -46px 18px; z-index: 1; transform: rotate(-4deg); }
+.slate__art img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.slate__stick-img { transform-origin: 8.74% 27.36%; }
+.slate.is-clap .slate__stick-img { animation: clap-real 420ms cubic-bezier(0.6, 0, 0.4, 1); }
+@keyframes clap-real { 0% { transform: none; } 38% { transform: rotate(14deg); } 52% { transform: rotate(13deg); } 100% { transform: none; } }
+.slate__chalk { position: absolute; font-family: "Caveat", "Bradley Hand", "Segoe Print", cursive; font-size: 17px; color: #ece8df; white-space: nowrap; opacity: 0.92; }
+.slate__chalk--prod { left: 30%; top: 38.5%; }
+.slate__chalk--dir { left: 45%; top: 60%; }
+.slate__chalk--take { left: 82%; top: 50.5%; }
+.irisout__card .slate { margin-top: 18px; }
+@media (max-width: 700px) { .slate__art { width: 200px; margin-bottom: -38px; } .slate__chalk { font-size: 14px; } }
+
+/* The leader as a worn print: gray stock, thick rings, sprockets running past,
+   dirt and flicker. The references are real Academy and SMPTE leaders. */
+.leader { background: radial-gradient(ellipse 75% 70% at 50% 50%, #c9c5b8 0%, #a7a294 55%, #6b675e 100%); color: #22211d; filter: brightness(var(--flick, 1)) contrast(1.08) sepia(0.12); }
+.leader::after { background: radial-gradient(ellipse at center, transparent 48%, rgba(20, 18, 12, 0.65) 100%); }
+.leader__dial { stroke: #262520; stroke-width: 2.6; opacity: 0.9; }
+.leader__sweep { background: conic-gradient(rgba(30, 28, 22, 0.32) var(--a), transparent 0); }
+.leader:not(.is-rolling) .leader__sweep { background: conic-gradient(rgba(30, 28, 22, 0.18) 0 90deg, transparent 0); }
+.leader__n { font-family: "Oswald", "Helvetica Neue", sans-serif; font-weight: 700; color: #1f1e1a; font-size: min(42vmin, 340px); }
+.leader:not(.is-rolling) .leader__dial, .leader:not(.is-rolling) .leader__sweep, .leader:not(.is-rolling) .leader__n { opacity: 0.32; }
+.leader__dirt { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: multiply; z-index: 2; }
+.leader__sprockets { position: absolute; top: -40px; bottom: -40px; width: clamp(34px, 5vw, 60px); z-index: 1; background-color: #141310;
+  background-image: radial-gradient(ellipse 34% 26% at 50% 50%, #d8d4c6 0 92%, transparent 100%); background-size: 100% 40px; background-repeat: repeat-y;
+  animation: run 0.42s steps(10) infinite; }
+.leader__sprockets--l { left: 0; } .leader__sprockets--r { right: 0; }
+@keyframes run { to { background-position: 0 40px; } }
+.leader__gate { z-index: 3; }
+.leader__sound { color: rgba(34, 33, 29, 0.75); }
+@media (prefers-reduced-motion: reduce) { .leader__sprockets { animation: none; } }

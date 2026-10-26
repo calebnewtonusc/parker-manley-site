@@ -31,122 +31,29 @@
   const glide = (top) =>
     scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
 
-  // Sound: synthesised with Web Audio, no files. Browsers only allow audio
-  // after the visitor's first click or key, so that gesture turns it on and
-  // it stays on for the visit unless they switch it off.
+  // Sound: score.js (Web Audio, real recordings when present) does the
+  // work. This adapter keeps the call sites short.
   const sfx = (() => {
-    let ctx = null;
-    let on = true;
-    try { on = sessionStorage.getItem("sound") !== "off"; } catch (err) { on = true; }
-    const get = () => {
-      const C = window.AudioContext || window.webkitAudioContext;
-      if (!C) return null;
-      if (!ctx) ctx = new C();
-      if (ctx.state === "suspended") ctx.resume();
-      return ctx;
-    };
-    let noiseBuf = null;
-    const burst = (t, dur, freq, q, gain) => {
-      const c = get();
-      if (!c) return;
-      if (!noiseBuf) {
-        noiseBuf = c.createBuffer(1, c.sampleRate * 0.5, c.sampleRate);
-        const d = noiseBuf.getChannelData(0);
-        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-      }
-      const src = c.createBufferSource();
-      const bp = c.createBiquadFilter();
-      const g = c.createGain();
-      src.buffer = noiseBuf;
-      bp.type = "bandpass";
-      bp.frequency.value = freq;
-      bp.Q.value = q;
-      g.gain.setValueAtTime(gain, t);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      src.connect(bp).connect(g).connect(c.destination);
-      src.start(t, Math.random() * 0.4, dur);
-    };
-    const tone = (t, freq, dur, gain) => {
-      const c = get();
-      if (!c) return;
-      const o = c.createOscillator();
-      const g = c.createGain();
-      o.frequency.value = freq;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(gain, t + 0.008);
-      g.gain.setValueAtTime(gain, t + dur - 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(g).connect(c.destination);
-      o.start(t);
-      o.stop(t + dur + 0.02);
-    };
-    const now = () => (get() ? ctx.currentTime : 0);
+    const S = () => window.score;
+    const play = (name, opts) => { const sc = S(); if (sc) sc.play(name, opts); };
     return {
-      get on() { return on; },
-      set(v) { on = v; try { sessionStorage.setItem("sound", v ? "on" : "off"); } catch (err) { /* private mode */ } },
-      wake() { get(); },
-      // The leader's 1 kHz pop, the tone every countdown is remembered by.
-      beep() { if (on) tone(now(), 1000, 0.11, 0.18); },
-      // A projector's pull-down claw: 24 soft ticks a second.
-      clatter(sec) {
-        if (!on) return;
-        const t0 = now();
-        for (let i = 0; i < sec * 24; i++) {
-          const fade = Math.min(1, (sec * 24 - i) / 24);
-          burst(t0 + i / 24, 0.018, 3200, 1.4, 0.07 * fade);
-        }
-      },
-      // Carousel slide change: the slide drops out, the next one drops in.
-      chk() {
-        if (!on) return;
-        const t = now();
-        burst(t, 0.035, 2400, 1.1, 0.5);
-        burst(t + 0.1, 0.05, 1300, 1.0, 0.45);
-      },
-      // Split-flap letters on the marquee: one tiny click each.
-      flap(n) {
-        if (!on || !ctx) return;
-        const t = now();
-        for (let i = 0; i < Math.min(n, 25); i++) burst(t + i * 0.014, 0.012, 2600, 1.6, 0.07);
-      },
-      // Camera REC: the short high beep a cinema camera makes when it rolls.
-      rec() { if (on && ctx) tone(now(), 2000, 0.07, 0.05); },
-      // Lens motor while focus or iris moves.
-      servo() { if (on && ctx) burst(now(), 0.05, 4200, 3, 0.035); },
-      // The playhead crossing a cut on the timeline.
-      tick() { if (on && ctx) burst(now(), 0.01, 1800, 1.2, 0.14); },
-      // A push or iris transition: noise swept up through a filter.
-      whoosh() {
-        if (!on || !ctx) return;
-        const t = now();
-        for (let i = 0; i < 6; i++) burst(t + i * 0.035, 0.06, 500 + i * 380, 0.9, 0.05);
-      },
-      // The tail of the film slapping on the take-up reel after the last frame.
-      runout() {
-        if (!on || !ctx) return;
-        const t = now();
-        for (let i = 0; i < 7; i++) burst(t + i * 0.13, 0.03, 900, 0.7, 0.3 * (1 - i / 8));
-      },
-      // A laurel stamped onto the poster: a low, short thud.
-      stamp() {
-        if (!on || !ctx) return;
-        const t = now();
-        tone(t, 110, 0.09, 0.12);
-        burst(t, 0.05, 600, 0.8, 0.25);
-      },
-      // A ticket torn along its perforation: a short dry rip.
-      rip() {
-        if (!on) return;
-        const t = now();
-        for (let i = 0; i < 9; i++) burst(t + i * 0.022, 0.03, 2200 + i * 260, 0.7, 0.22 * (1 - i / 12));
-      },
-      // The clapper: one hard wooden crack.
-      clack() {
-        if (!on) return;
-        const t = now();
-        burst(t, 0.07, 1700, 0.6, 1.0);
-        burst(t + 0.004, 0.03, 4200, 0.8, 0.5);
-      },
+      get on() { const sc = S(); return sc ? sc.on : true; },
+      set(v) { const sc = S(); if (sc) sc.on = v; },
+      wake() { const sc = S(); if (sc) sc.unlock(); },
+      // The real leader only pops on the 2.
+      beep(k) { if (k === 2) play("pop2"); },
+      clatter(sec) { play("clatter", { dur: sec }); },
+      rip() { play("rip"); },
+      flap(n) { play("flap", { n }); },
+      stamp() { play("stamp"); },
+      rec() { play("rec"); },
+      servo() { play("servo"); },
+      tick() { play("tick"); },
+      whoosh() { play("whoosh"); },
+      chk() { play("chk"); },
+      clack() { play("clack"); },
+      // After the last frame: the tail-pop, then the film flapping on the reel.
+      runout() { play("tailpop", { at: 0.6 }); play("runout", { at: 0.9 }); },
     };
   })();
 
@@ -168,6 +75,58 @@
     else {
       try { sessionStorage.setItem("leader", "1"); } catch (err) { /* private mode */ }
       const num = leader.querySelector(".leader__n");
+      // The print: grain, dust, hairs and scratches redrawn at 24 fps, the
+      // way a worn leader looks running through a projector.
+      const dirt = leader.querySelector(".leader__dirt");
+      const dc = dirt.getContext("2d");
+      const grain = document.createElement("canvas");
+      grain.width = 200;
+      grain.height = 200;
+      const gc = grain.getContext("2d");
+      const gimg = gc.createImageData(200, 200);
+      let lastDraw = 0;
+      let scratchX = Math.random();
+      const paint = (t) => {
+        if (!leader.isConnected) return;
+        requestAnimationFrame(paint);
+        if (t - lastDraw < 1000 / 24) return;
+        lastDraw = t;
+        const w = (dirt.width = Math.round(innerWidth / 2));
+        const h = (dirt.height = Math.round(innerHeight / 2));
+        for (let i = 0; i < gimg.data.length; i += 4) {
+          const v = Math.random() * 255;
+          gimg.data[i] = gimg.data[i + 1] = gimg.data[i + 2] = v;
+          gimg.data[i + 3] = 46;
+        }
+        gc.putImageData(gimg, 0, 0);
+        dc.drawImage(grain, 0, 0, w, h);
+        dc.fillStyle = "rgba(20, 18, 14, 0.85)";
+        for (let i = 0; i < 9; i++) {
+          dc.beginPath();
+          dc.arc(Math.random() * w, Math.random() * h, Math.random() * 2.4 + 0.4, 0, 6.3);
+          dc.fill();
+        }
+        // A hair now and then, curled, on the frame for a beat.
+        if (Math.random() < 0.25) {
+          dc.strokeStyle = "rgba(20, 18, 14, 0.7)";
+          dc.lineWidth = 1;
+          dc.beginPath();
+          let x = Math.random() * w;
+          let y = Math.random() * h;
+          dc.moveTo(x, y);
+          for (let k = 0; k < 6; k++) { x += (Math.random() - 0.5) * 30; y += Math.random() * 18; dc.lineTo(x, y); }
+          dc.stroke();
+        }
+        // The long scratch drifts slowly, the way one does down a reel.
+        scratchX += (Math.random() - 0.5) * 0.01;
+        dc.strokeStyle = `rgba(250, 248, 240, ${0.25 + Math.random() * 0.35})`;
+        dc.beginPath();
+        dc.moveTo(scratchX * w, 0);
+        dc.lineTo(scratchX * w + (Math.random() - 0.5) * 3, h);
+        dc.stroke();
+        leader.style.setProperty("--flick", (0.9 + Math.random() * 0.12).toFixed(3));
+      };
+      requestAnimationFrame(paint);
       let timer = null;
       leader.classList.add("is-on");
       document.documentElement.classList.add("has-leader");
@@ -195,7 +154,7 @@
           leader.classList.remove("is-tick");
           void leader.offsetWidth;
           leader.classList.add("is-tick");
-          sfx.beep();
+          sfx.beep(k);
         };
         sfx.clatter(2.6);
         tick();
@@ -236,6 +195,16 @@
       if (sfx.on) sfx.tick();
       show();
     });
+  }
+  // The score's set pieces: a click at every splice, and the motif once at
+  // each part, each on its own instrument.
+  if (window.score) {
+    document.querySelectorAll(".splice").forEach((el) => window.score.watch(el, "splice"));
+    const parts = [...document.querySelectorAll(".intertitle")];
+    const voices = ["motif:brass", "motif:celesta", "motif:piano"];
+    parts.forEach((el, i) => { if (voices[i]) window.score.watch(el, voices[i]); });
+    if (document.querySelector(".callsheet")) window.score.watch(".callsheet", "motif:guitar");
+    if (document.querySelector(".monitor")) window.score.watch(".monitor", "crt");
   }
   // Sound on by default: the first click or key anywhere turns the reel up,
   // unless the visitor switched sound off.
@@ -783,6 +752,7 @@
       const p = Math.max(0, Math.min(1, (scrollY - top) / (iris.offsetHeight - innerHeight)));
       const e = reduced ? 1 : 1 - (1 - Math.min(1, p / 0.7)) ** 3;
       iris.style.setProperty("--r", `${(140 - e * (140 - (innerWidth < 700 ? 30 : 22))).toFixed(2)}vmax`);
+      if (p > 0.55 && window.score) window.score.motif("strings");
       const closed = e > 0.92;
       if (closed && !iris.classList.contains("is-closed")) sfx.runout();
       iris.classList.toggle("is-closed", closed);
@@ -859,6 +829,7 @@
   if (player) {
     const btn = player.querySelector("button");
     btn.addEventListener("click", () => {
+      if (window.score) window.score.duck(true);
       const f = document.createElement("iframe");
       f.src = player.dataset.yt
         ? `https://www.youtube-nocookie.com/embed/${player.dataset.yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`
@@ -952,7 +923,7 @@
       if (busy || next === at) return;
       if (reduced) { paint(next); return; }
       busy = true;
-      sfx.chk();
+      if (at === 0 && window.score) { window.score.play("shutter"); window.score.play("flash", { at: 0.2 }); } else sfx.chk();
       room.classList.add("is-dark");
       setTimeout(() => {
         paint(next);
