@@ -1626,6 +1626,8 @@ if (
   // so the Mac stays one place you click around. Opening the tab plays the
   // card: Parker on green, the key pulls to the real forest, the slate comes
   // in. On a phone it stays its own section, the way it was.
+  let creditsOpen = innerWidth < 900;
+  if (!creditsOpen) document.documentElement.classList.add("credits-locked");
   const cpm = document.querySelector(".cpm");
   const irisPin = irisEl.querySelector(".irisout__pin");
   const cards = [...irisPin.children];
@@ -1662,14 +1664,15 @@ if (
     place();
     overlapUnder(editEl, deskRun, 2);
     // The Mac fades to black and the credits come up under it.
-    overlapUnder(deskRun, inTab ? skyEl : irisEl);
+    if (creditsOpen || !inTab) overlapUnder(deskRun, inTab ? skyEl : irisEl);
   };
   const deskTick = () => {
     if (innerWidth < 900) return;
     const top = deskRun.getBoundingClientRect().top + scrollY;
     const span = deskRun.offsetHeight - innerHeight;
     const p = Math.max(0, Math.min(1, (scrollY - top) / span));
-    const out = Math.max(0, Math.min(1, (p - 0.88) / 0.12));
+    // Locked, the Mac just holds at the end; open, it dissolves into the credits.
+    const out = creditsOpen ? Math.max(0, Math.min(1, (p - 0.88) / 0.12)) : 0;
     deskRun.style.setProperty("--out", out.toFixed(3));
     deskRun.style.pointerEvents = out > 0.5 ? "none" : "";
     const skyPin = skyEl.querySelector(".sky__pin");
@@ -1687,11 +1690,27 @@ if (
   // tab, where the take is over), at most twice a visit; a click rolls them.
   const reel = deskRun.querySelector(".dock__app--credits");
   if (reel) {
+    // The Mac is the end of the page until End Credits is opened: no amount
+    // of scrolling reaches the credits (Caleb, 2026-10-25: "the end credits
+    // button should be the only way to end the credits").
     const rollCredits = () => {
+      if (!creditsOpen) {
+        creditsOpen = true;
+        document.documentElement.classList.remove("credits-locked");
+        lay();
+      }
       const top = deskRun.getBoundingClientRect().top + scrollY;
       scrollTo({ top: top + deskRun.offsetHeight - innerHeight * 0.4, behavior: reduced ? "auto" : "smooth" });
     };
     reel.addEventListener("click", rollCredits);
+    // Premiere Pro in the Dock brings the edit bay back on screen.
+    const pr = deskRun.querySelector('.dock__app[data-name="Adobe Premiere Pro"]');
+    if (pr) {
+      pr.style.cursor = "pointer";
+      pr.addEventListener("click", () => {
+        scrollTo({ top: editEl.getBoundingClientRect().top + scrollY + 2, behavior: reduced ? "auto" : "smooth" });
+      });
+    }
     let idleSince = performance.now(), bounces = 0, page = "flix", contactAt = 0;
     const poke = () => { idleSince = performance.now(); };
     ["scroll", "pointermove", "pointerdown", "keydown", "wheel"].forEach((t) => addEventListener(t, poke, { passive: true }));

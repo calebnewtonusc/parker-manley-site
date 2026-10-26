@@ -3454,3 +3454,10 @@ html.has-leader body { overflow: hidden; }
 /* The edit bay sits above the Mac while its window leaves (the Mac's run is
    raised over the credits, so the edit bay has to be raised over it). */
 @media (min-width: 900px) { .edit { z-index: 6 !important; } }
+
+/* Until End Credits is opened from the Dock, the Mac is the end of the page. */
+@media (min-width: 900px) {
+  html.credits-locked .is-home #contact, html.credits-locked .is-home ~ .foot, html.credits-locked body.is-home .foot { display: none !important; }
+}
+.roll__pre { white-space: nowrap; }
+@media (max-width: 700px) { .roll__pre { white-space: normal; } }
