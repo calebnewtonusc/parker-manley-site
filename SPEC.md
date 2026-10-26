@@ -7,6 +7,7 @@ is a slide. Written 2026-10-25 from every message Caleb sent that night.
 ## Rules (Caleb's words)
 
 - Nothing ever rendered until Caleb has answered the questions and seen `/preview/`.
+- No final or polish renders until the final product is locked with Parker's vision (Caleb, 2026-10-25 23:55). Until then, low poly drafts only.
 - Everything has to look REAL. Nothing can look HTML/CSS, like a video game, like a PDF, or like Claude slop.
 - No repeats: each film appears in one place, except in ManleyFlix, which holds the whole library.
 - No unintentional rectangles, gradients, lines, overflow or transitions. Complex is not the same as creative.
