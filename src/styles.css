@@ -3266,3 +3266,7 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
    table is built; a shrink with no destination read as a mistake. */
 .opening__frame { transform: none !important; border-radius: 0 !important; }
 .opening__pin::before, .opening__pin::after { clip-path: none !important; }
+
+/* One sound control: the speaker in the corner. */
+.opening .sound { display: none !important; }
+.mast__sound[aria-pressed="false"] .mast__wave { opacity: 0; }

@@ -72,7 +72,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <header class="mast">
   <a class="mast__name" href="/">Parker Manley</a>
   <nav class="mast__side mast__side--r" aria-label="Pages">{nav("/photography/", "Photography", "photos")}{nav("/#contact", "Contact", "contact")}</nav>
-  <button class="mast__sound" type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="8" r="4"/><circle cx="16" cy="8" r="4"/><rect x="4" y="13" width="12" height="7" rx="1"/><path d="M16 15l5-2.5v8L16 18"/></g></svg><span class="mast__sound-off" aria-hidden="true"></span></button>
+  <button class="mast__sound" type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="mast__wave" d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path class="mast__wave" d="M18 6.5a7.6 7.6 0 0 1 0 11"/></g></svg><span class="mast__sound-off" aria-hidden="true"></span></button>
 </header>
 <main id="main">
 {body}
