@@ -3305,3 +3305,12 @@ html.has-leader body { overflow: hidden; }
 }
 @media (min-width: 900px) { .scene--films .scene__copy { transform: none !important; } }
 @media (min-width: 900px) { .scene--films .card__laurels, .scene--films .card__fest { justify-content: flex-start !important; text-align: left !important; } }
+
+/* Phone: the same order, with clean cuts. The hall frame sits whole at the
+   top with the film's card under it; the camera roll-in is a desktop move. */
+@media (max-width: 899px) {
+  .rollin { display: none !important; }
+  .scene--films .scene__pin { --W: 100vw; --H: 56.25vw; }
+  .hall__stack { top: 18svh; transform: translateX(-50%); }
+  .scene--films .scene__copy { top: calc(18svh + 56.25vw + 24px) !important; bottom: auto !important; background: none !important; }
+}

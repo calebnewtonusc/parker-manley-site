@@ -535,7 +535,7 @@ def home(films):
     )
     n = len(featured)
     hall_stills = "".join(
-        f'<img class="hall__f{" is-on" if i == 0 else ""}" src="/media/hall/{f["slug"] if exists(f"media/hall/{f['slug']}.webp") else "hall"}.webp" alt="" loading="{"eager" if i == 0 else "lazy"}">'
+        f'<img class="hall__f{" is-on" if i == 0 else ""}" src="/media/hall/{f["slug"] if exists(f"media/hall/{f['slug']}.webp") else HALL[0]}.webp" alt="" loading="{"eager" if i == 0 else "lazy"}">'
         for i, f in enumerate(featured)
     )
     cards = "\n".join(
