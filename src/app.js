@@ -1811,4 +1811,26 @@ if (rollin) {
     requestAnimationFrame(() => requestAnimationFrame(() => { layC(); showC(); if (camUpdate) camUpdate(); }));
     setTimeout(() => { layC(); showC(); }, 700);
   }
+
+  // Work in progress, marked for Parker: a red frame on each part that's
+  // still being built or needs his input, saying what it will become.
+  const WIP = [
+    [".opening__pin", "In progress", "The reel will shrink down into the flip screen of Parker's camera, sitting on his production table."],
+    [".about", "In progress", "Becomes one top-down 3D shot of Parker's kit on a production table, with this call sheet clipped to a real clipboard and the polaroids loose beside it."],
+    [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
+    [".scene--films .scene__pin", "In progress", "Being re-rendered in 3D: each film projected on the theater screen, the P. MANLEY chair you can read, and the title on a real letterboard."],
+    [".rollin__pin", "In progress", "Re-rendering: the camera rolls up in front of the chair, its monitor turns on, and we push into it."],
+    [".cam__pin", "In progress", "This whole scene moves onto that same 3D camera, playing on its real monitor and buttons."],
+    [".foot__pin", "In progress", "The credits will roll over the night sky above Hollywood Blvd, then tilt down to this star."],
+  ];
+  WIP.forEach(([sel, kind, text]) => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    if (getComputedStyle(el).position === "static") el.style.position = "relative";
+    const f = document.createElement("div");
+    f.className = "wip";
+    f.setAttribute("aria-hidden", "true");
+    f.innerHTML = `<p class="wip__tag"><b>${kind}</b><span>${text}</span></p>`;
+    el.appendChild(f);
+  });
 })();
