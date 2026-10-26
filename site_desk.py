@@ -190,12 +190,11 @@ def _mfx(films):
 
 
 def _gram(photos):
-    posts = [{"thumb": "/media/desk/pinned-thumb.jpg", "full": "/media/desk/pinned.jpg", "w": 1280, "h": 960, "pinned": True}]
-    posts += [{"thumb": f"/media/photos/thumb/{p['file']}", "full": f"/media/photos/{p['file']}", "w": p["w"], "h": p["h"]} for p in photos]
+    posts = [{"thumb": f"/media/photos/thumb/{p['file']}", "full": f"/media/photos/{p['file']}", "w": p["w"], "h": p["h"]} for p in photos]
     n = len(posts)
     tiles = "".join(
         f'<button type="button" class="ig-tile{" ig-tile--pin" if p.get("pinned") else ""}" data-i="{i}" data-full="{p["full"]}" '
-        f'data-w="{p["w"]}" data-h="{p["h"]}" aria-label="{"Pinned post: Parker filming on the rock" if p.get("pinned") else f"Post {i} of {n}"}">'
+        f'data-w="{p["w"]}" data-h="{p["h"]}" aria-label="Post {i + 1} of {n}">'
         f'<img src="{p["thumb"]}" alt="" loading="lazy" decoding="async">{PIN if p.get("pinned") else ""}</button>'
         for i, p in enumerate(posts)
     )
@@ -263,8 +262,7 @@ def _ntp():
 
 def desk_section(films, photos):
     menus = "".join(f"<span>{m}</span>" for m in ("File", "Edit", "View", "History", "Bookmarks", "Profiles", "Tab", "Window", "Help"))
-    dock = [("Finder", DOCK_FINDER, False), ("Messages", DOCK_MESSAGES, False), ("Photos", DOCK_PHOTOS, False),
-            ("Google Chrome", DOCK_CHROME, True), ("FilmCraft", DOCK_CUT, True)]
+    dock = [("Google Chrome", DOCK_CHROME, True), ("FilmCraft", DOCK_CUT, True)]
     dock_html = "".join(
         f'<span class="dock__app" data-name="{n}">{svg}{"<i class=dock__dot></i>" if run else ""}<span class="dock__tip">{n}</span></span>'
         for n, svg, run in dock

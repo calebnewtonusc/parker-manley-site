@@ -1531,7 +1531,7 @@ if (tvEl) {
 // under the last screenful of the one before it (measured, so it lines up
 // at any window size) and shows itself only once it's pinned in place.
 //   edit bay  ->  the window leaves full screen onto Parker's Mac
-//   the Mac   ->  his pinned ManleyGram post grows into the end card
+//   the Mac   ->  the Contact tab's green screen grows into the end card
 const overlapUnder = (prev, next, screens = 1) => {
     if (!prev || !next) return;
     next.style.marginTop = "0px";
@@ -1559,7 +1559,7 @@ if (
     overlapUnder(editEl, deskRun, 2);
     overlapUnder(deskRun, irisEl);
   };
-  // The desk's own stretch: browse, then the pinned post takes the screen.
+  // The desk's own stretch: browse, then the Contact tab takes the screen.
   const deskTick = () => {
     if (innerWidth < 900) {
       grow.style.opacity = "0";
@@ -1611,16 +1611,6 @@ if (
     lay();
     deskTick();
   }, 600);
-  // A click on the pinned post jumps to the same hand-off.
-  document.addEventListener("desk:pinned", (ev) => {
-    if (innerWidth < 900) return;
-    ev.preventDefault();
-    const top = deskRun.getBoundingClientRect().top + scrollY;
-    scrollTo({
-      top: top + (deskRun.offsetHeight - innerHeight),
-      behavior: reduced ? "auto" : "smooth",
-    });
-  });
   // The end card hides until it's pinned, then it is the grown post.
   const irisPin = irisEl.querySelector(".irisout__pin");
   const irisShow = () => {

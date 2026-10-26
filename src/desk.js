@@ -1,6 +1,6 @@
 // Item 9: Parker's Mac. The menu bar clock, the Chrome window's history and
 // its three pages, and the ManleyGram post viewer. window.desk is the hook
-// the end card uses to grow the pinned post into the frame.
+// the end card uses to grow the Contact tab into the frame.
 (() => {
   const desk = document.querySelector(".desk");
   if (!desk) return;
@@ -124,7 +124,6 @@
   // ManleyGram post viewer.
   const gram = pages.gram;
   const tiles = [...gram.querySelectorAll(".ig-tile")];
-  const pinned = gram.querySelector(".ig-tile--pin");
   const viewer = cw.querySelector(".igv");
   const vImg = viewer.querySelector(".igv__img");
   const vMedia = viewer.querySelector(".igv__media");
@@ -166,23 +165,8 @@
     if (opener && now !== true) opener.focus({ preventScroll: true });
   }
 
-  // The pinned post belongs to the end card: announce it, and only open it
-  // here if nobody takes it.
-  const firePinned = () => {
-    const img = pinned.querySelector("img");
-    const ev = new CustomEvent("desk:pinned", {
-      cancelable: true,
-      detail: {
-        tile: pinned,
-        rect: img.getBoundingClientRect(),
-        src: pinned.dataset.full,
-      },
-    });
-    return document.dispatchEvent(ev);
-  };
   tiles.forEach((t, i) =>
     t.addEventListener("click", () => {
-      if (t === pinned && !firePinned()) return;
       openViewer(i);
     }),
   );
@@ -240,14 +224,5 @@
     open: go,
     page: () => stack[at],
     contactRect: () => pages.contact.querySelector(".cpm__shot").getBoundingClientRect(),
-    // Opens ManleyGram at the top and hands the pinned post to whoever is
-    // listening for desk:pinned. Returns the tile so its box can be measured.
-    openPinned() {
-      if (stack[at] !== "gram") go("gram");
-      gram.scrollTop = 0;
-      if (firePinned()) openViewer(0);
-      return pinned;
-    },
-    pinnedRect: () => pinned.querySelector("img").getBoundingClientRect(),
   };
 })();
