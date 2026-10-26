@@ -835,17 +835,15 @@
   let irisUpdate = null;
   if (iris) {
     irisUpdate = () => {
+      // The end card is Parker's own shot of himself behind the camera. As
+      // you arrive, a slate is held into his frame from the right, the way
+      // it comes in before a take. No masks, no circles.
       const top = iris.getBoundingClientRect().top + scrollY;
       const p = Math.max(0, Math.min(1, (scrollY - top) / (iris.offsetHeight - innerHeight)));
-      const e = reduced ? 1 : 1 - (1 - Math.min(1, p / 0.6)) ** 3;
-      // The last beat is a hard cut inside the same frame: Parker and the
-      // card are gone and the star is there. No section edge to scroll past.
-
-      iris.style.setProperty("--r", `${(140 - e * (140 - (innerWidth < 700 ? 30 : 22))).toFixed(2)}vmax`);
-      if (p > 0.55 && window.score) window.score.motif("strings");
-      const closed = e > 0.92;
-      if (closed && !iris.classList.contains("is-closed")) sfx.runout();
-      iris.classList.toggle("is-closed", closed);
+      const e = reduced ? 1 : 1 - (1 - Math.min(1, p / 0.45)) ** 3;
+      iris.style.setProperty("--in", e.toFixed(3));
+      if (p > 0.4 && window.score) window.score.motif("strings");
+      iris.classList.toggle("is-closed", e > 0.92);
     };
   }
 
@@ -1187,6 +1185,10 @@ if (house) {
       void slate.offsetWidth;
       slate.classList.add("is-clap");
       sfx.clack();
+      setTimeout(() => {
+        const st = slate.querySelector(".form__status");
+        if (st && st.dataset.state === "ok") slate.classList.add("is-pulled");
+      }, 1400);
     });
   }
 // Parker's Apple TV. Hovering an app focuses it the way the Siri Remote

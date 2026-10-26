@@ -499,7 +499,7 @@ def preview(home_html):
     )
     i = h.index('<section class="reels" id="films"')
     h = h[:i] + after_about + h[i:]
-    h = h.replace('<div class="slate">', '<div class="slate draft-slate"><span class="draft-tag">Slate, draft render</span>', 1)
+    h = h.replace('<div class="slate draft-slate">', '<div class="slate draft-slate"><span class="draft-tag">Slate, draft render</span>', 1)
     return h
 
 
@@ -640,27 +640,20 @@ def home(films):
       <img class="irisout__img" src="/media/portraits/rock.jpg" alt="Parker framing a shot on a granite outcrop above a pine forest" loading="lazy">
       <div class="irisout__mask" aria-hidden="true"></div>
       <div class="irisout__card">
-        <p class="card__no">Coming soon</p>
-        <h2 id="contact-h" class="nextup__title">Your film</h2>
-        <p class="contact__lede">Looking for a director, a DP or an editor? I'd love to hear about it.</p>
-        <a class="contact__mail" href="mailto:{EMAIL}">{EMAIL}</a>
-        <p class="elsewhere"><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></p>
-  <div class="slate">
-          
+        <h2 id="contact-h" class="sr-only">Your film</h2>
+  <div class="slate draft-slate">
           <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST" novalidate>
             <input type="hidden" name="_subject" value="New message from parkermanley.com">
             <input type="hidden" name="_template" value="table">
             <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
-            
-            <div class="row">
-              <label>Name<input name="name" autocomplete="name" placeholder="Your name" required></label>
-              <label>Email<input name="email" type="email" autocomplete="email" placeholder="Your email" required></label>
-            </div>
-            <label>Message<textarea name="message" placeholder="Your film" required></textarea></label>
+            <label class="sl-prod">Your film<input name="message" autocomplete="off" placeholder="Your film" required></label>
+            <label class="sl-dir">Your name<input name="name" autocomplete="name" placeholder="Your name" required></label>
+            <label class="sl-cam">Your email<input name="email" type="email" autocomplete="email" placeholder="Your email" required></label>
             <button class="btn btn--ember" type="submit">Send</button>
             <p class="form__status" role="status"></p>
           </form>
         </div>
+        <p class="end__links"><a href="mailto:{EMAIL}">{EMAIL}</a><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></p>
       </div>
     </div>
   </div>

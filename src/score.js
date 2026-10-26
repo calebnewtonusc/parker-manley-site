@@ -228,7 +228,7 @@
     // Camera rolling: one short soft beep.
     rec: {
       len: 0.15,
-      trim: 2,
+      trim: -6,
       f(E, t) {
         os(E, t, "sine", 1760, 0.075, db(-27), 0.003);
         os(E, t, "sine", 3520, 0.05, db(-42), 0.003);
@@ -237,7 +237,7 @@
     // Lens motor: a small geared whine while focus, iris or zoom moves.
     servo: {
       len: 0.35,
-      trim: 8,
+      trim: -4,
       gap: 70,
       f(E, t, o) {
         const d = o.dur || 0.22,
@@ -360,7 +360,7 @@
     // CRT powering on: the thump, a crackle of static, the flyback whine.
     crt: {
       len: 1.1,
-      trim: -2,
+      trim: -10,
       f(E, t) {
         os(E, t, "sine", 70, 0.18, 0.25, 0.003, E.sfx, 32);
         nz(E, t, 0.08, 220, 0.8, 0.3, "lowpass");
