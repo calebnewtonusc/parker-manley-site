@@ -3384,3 +3384,10 @@ html.has-leader body { overflow: hidden; }
 .sky[data-frames]:not([data-frames="0"]) .sky__roll .roll { text-shadow: 0 1px 10px rgba(0,0,0,0.8); }
 
 .foot.is-landed .foot__pin { opacity: 1 !important; }
+
+/* Full bleed. The generic section gutter (40px a side) was framing the
+   table and the end card, so the reel behind showed in strips on both edges
+   during the flip-screen pull back (Caleb's screenshots, 2026-10-25). */
+@media (min-width: 900px) {
+  .knoll, #contact { padding-left: 0 !important; padding-right: 0 !important; }
+}

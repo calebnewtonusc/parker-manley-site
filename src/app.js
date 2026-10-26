@@ -882,11 +882,42 @@
       if (fh > pin.height) { fh = pin.height; fw = fh * 16 / 9; }
       const fx = (pin.width - fw) / 2, fy = (pin.height - fh) / 2;
       const full = [[fx, fy], [fx + fw, fy], [fx + fw, fy + fh], [fx, fy + fh]];
-      const q = glass.map((p, i) => [p[0] + (full[i][0] - p[0]) * z, p[1] + (full[i][1] - p[1]) * z]);
+      // Our point of view dollies into the monitor: the rig, its glass and
+      // the picture all move as one, scaled about the same point, until the
+      // monitor's screen covers the window. Nothing leaves the camera.
+      const xs = glass.map((p) => p[0]), ys = glass.map((p) => p[1]);
+      const gx = Math.min(...xs), gy = Math.min(...ys);
+      const gw = Math.max(...xs) - gx, gh = Math.max(...ys) - gy;
+      const K = Math.max(pin.width / gw, pin.height / gh);
+      const k = Math.exp(Math.log(K) * z);
+      const w = K === 1 ? z : (1 - 1 / k) / (1 - 1 / K);
+      const cx = gx + gw / 2, cy = gy + gh / 2;
+      const tx = cx * (1 - k) + (pin.width / 2 - cx) * w;
+      const ty = cy * (1 - k) + (pin.height / 2 - cy) * w;
+      const dolly = z > 0 ? `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${k.toFixed(5)})` : "";
+      rig.style.transformOrigin = "0 0";
+      rig.style.transform = dolly;
+      const glassEl = cam.querySelector(".rig__glass");
+      if (glassEl) { glassEl.style.transformOrigin = "0 0"; glassEl.style.transform = dolly; }
+      // The glass quad isn't a perfect rectangle in perspective, so in the
+      // last stretch of the move it settles onto the full frame exactly.
+      const settle = clamp((z - 0.8) / 0.2);
+      const q = glass.map((p, i) => {
+        const m = [p[0] * k + tx, p[1] * k + ty];
+        return [m[0] + (full[i][0] - m[0]) * settle, m[1] + (full[i][1] - m[1]) * settle];
+      });
       scr.style.transform = homog(q);
-      const o = String(1 - Math.min(1, z * 2.5));
-      cam.querySelectorAll(".cam__hud, .vf, .cam__call, .cam__meters, .cam__scale, .pan__cap, .rig__glass").forEach((el) => (el.style.opacity = z > 0 ? o : ""));
-      rig.style.opacity = String(1 - Math.min(1, z * 1.6));
+      const o = String(1 - Math.min(1, z * 4));
+      cam.querySelectorAll(".cam__call, .pan__cap").forEach((el) => (el.style.opacity = z > 0 ? o : ""));
+      if (glassEl) glassEl.style.opacity = z > 0 ? String(1 - z) : "";
+      const hud = String(1 - clamp((z - 0.5) / 0.4));
+      cam.querySelectorAll(".cam__hud, .vf, .cam__meters, .cam__scale").forEach((el) => (el.style.opacity = z > 0 ? hud : ""));
+      rig.style.opacity = "";
+      // The edit bay opens on this frame with black either side, so the
+      // monitor's bezel falls to black as the picture settles.
+      rig.style.filter = z > 0 ? `brightness(${(1 - settle).toFixed(3)})` : "";
+      // The theater behind the rig is the pin's own background; dim it too.
+      rig.parentElement.style.boxShadow = z > 0 ? `inset 0 0 0 100vmax rgba(0,0,0,${settle.toFixed(3)})` : "";
     };
     camUpdate = () => {
       const top = cam.getBoundingClientRect().top + scrollY;
