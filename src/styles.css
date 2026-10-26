@@ -3099,3 +3099,6 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 /* The star opens the way Parker closed: an iris. The iris-out on him, the
    credits on the black, then an iris-in on the star. Same move, bookended. */
 .is-home .foot__pin { opacity: 1; clip-path: circle(calc(var(--fade, 0) * 78%) at 50% 46%); }
+/* Preview: the monitor body has to fit inside the frame, so the feed is
+   drawn at half width and the body grows around it. */
+.is-preview .cam__screen { width: min(46vw, 70vh * 933 / 555 * 0.52) !important; margin: 18vh auto 0 !important; }
