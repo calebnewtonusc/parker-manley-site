@@ -3314,3 +3314,19 @@ html.has-leader body { overflow: hidden; }
   .hall__stack { top: 18svh; transform: translateX(-50%); }
   .scene--films .scene__copy { top: calc(18svh + 56.25vw + 24px) !important; bottom: auto !important; background: none !important; }
 }
+
+/* v24: the cinematography scene plays on the 3D camera's own monitor. */
+.rig__base, .rig__glass { display: none; }
+@media (min-width: 900px) {
+  .cam__pin { padding: 0 !important; display: block !important; }
+  .rig__base, .rig__glass { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .rig__base { z-index: 1; }
+  .rig__glass { z-index: 4; mix-blend-mode: screen; }
+  .cam__body { position: static !important; width: auto !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; }
+  .cam__buttons, .cam__tally { display: none !important; }
+  .cam__screen.is-mapped { position: absolute !important; left: 0; top: 0; width: 960px !important; height: 540px !important; aspect-ratio: auto !important; transform-origin: 0 0; z-index: 2; border-radius: 0 !important; }
+  .cam__screen.is-mapped .cam__hud { font-size: 15px; }
+  .pan__cap { position: absolute !important; z-index: 5; left: 0; right: 0; bottom: 3vh; margin: 0 !important; }
+}
+@media (min-width: 900px) { .cam__body { will-change: auto !important; transform: none !important; contain: none !important; filter: none !important; } }
+@media (min-width: 900px) { .cam .pan__cap { top: 2.5vh; bottom: auto !important; } .cam .lens__title { font-size: clamp(1.6rem, 2.4vw, 2.4rem) !important; } }

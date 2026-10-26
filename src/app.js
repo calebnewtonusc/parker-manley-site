@@ -840,19 +840,46 @@
     const clamp = (x) => Math.max(0, Math.min(1, x));
     const camFrame = cam.querySelector(".cam__frame");
     const camChrome = [...cam.querySelectorAll(".cam__hud, .vf, .cam__call, .cam__buttons, .pan__cap, .lens__title, .lens__meta, .cam__tally, .draft-mon, .draft-tag")];
+    // The monitor is the 3D render's; the live screen is mapped onto its
+    // glass in true perspective (a homography onto the exported quad). For
+    // the hand-offs the same quad slides between the glass and the whole
+    // screen, so nothing ever jumps.
+    const rig = cam.querySelector(".rig__base");
+    const scr = cam.querySelector(".cam__screen");
+    let RIG = null;
+    fetch("/media/rig/monitor.json").then((r) => r.json()).then((j) => { RIG = j; handoff(lastZ); }).catch(() => {});
+    const SW = 960, SH = 540;
+    const homog = (q) => {
+      // Maps the screen's own (0,0)-(SW,SH) rectangle onto quad q.
+      const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = q;
+      const dx1 = x1 - x2, dx2 = x3 - x2, sx = x0 - x1 + x2 - x3;
+      const dy1 = y1 - y2, dy2 = y3 - y2, sy = y0 - y1 + y2 - y3;
+      const den = dx1 * dy2 - dx2 * dy1;
+      const g = (sx * dy2 - dx2 * sy) / den;
+      const h = (dx1 * sy - sx * dy1) / den;
+      const A = x1 - x0 + g * x1, B = x3 - x0 + h * x3, C = x0;
+      const D = y1 - y0 + g * y1, E = y3 - y0 + h * y3, F = y0;
+      return `matrix3d(${A / SW},${D / SW},0,${g / SW},${B / SH},${E / SH},0,${h / SH},0,0,1,0,${C},${F},0,1)`;
+    };
+    let lastZ = 0;
     const handoff = (z) => {
-      if (!camFrame) return;
-      const scr = camFrame.parentElement;
-      if (z <= 0) { camFrame.style.transform = ""; camFrame.style.zIndex = ""; scr.style.overflow = ""; camChrome.forEach((el) => (el.style.opacity = "")); return; }
-      scr.style.overflow = "visible";
-      camFrame.style.transform = "";
-      const r = camFrame.getBoundingClientRect();
-      const sc = Math.min(innerWidth / r.width, innerHeight / r.height);
-      const dx = innerWidth / 2 - (r.left + r.width / 2);
-      const dy = innerHeight / 2 - (r.top + r.height / 2);
-      camFrame.style.transform = `translate(${(dx * z).toFixed(1)}px, ${(dy * z).toFixed(1)}px) scale(${(1 + (sc - 1) * z).toFixed(4)})`;
-      camFrame.style.zIndex = "40";
-      camChrome.forEach((el) => (el.style.opacity = String(1 - Math.min(1, z * 2.5))));
+      lastZ = z;
+      if (!scr) return;
+      if (innerWidth < 900 || !RIG || !rig) { scr.style.transform = ""; scr.classList.remove("is-mapped"); return; }
+      scr.classList.add("is-mapped");
+      const pin = rig.parentElement.getBoundingClientRect();
+      const s = Math.max(pin.width / RIG.size[0], pin.height / RIG.size[1]);
+      const ox = (pin.width - RIG.size[0] * s) / 2, oy = (pin.height - RIG.size[1] * s) / 2;
+      const glass = RIG.screen.map(([x, y]) => [ox + x * s, oy + y * s]);
+      let fw = pin.width, fh = fw * 9 / 16;
+      if (fh > pin.height) { fh = pin.height; fw = fh * 16 / 9; }
+      const fx = (pin.width - fw) / 2, fy = (pin.height - fh) / 2;
+      const full = [[fx, fy], [fx + fw, fy], [fx + fw, fy + fh], [fx, fy + fh]];
+      const q = glass.map((p, i) => [p[0] + (full[i][0] - p[0]) * z, p[1] + (full[i][1] - p[1]) * z]);
+      scr.style.transform = homog(q);
+      const o = String(1 - Math.min(1, z * 2.5));
+      cam.querySelectorAll(".cam__hud, .vf, .cam__call, .cam__meters, .cam__scale, .pan__cap, .rig__glass").forEach((el) => (el.style.opacity = z > 0 ? o : ""));
+      rig.style.opacity = String(1 - Math.min(1, z * 1.6));
     };
     camUpdate = () => {
       const top = cam.getBoundingClientRect().top + scrollY;
@@ -1812,7 +1839,7 @@ if (rollin) {
     [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
     [".scene--films .scene__pin", "In progress", "Draft-quality render. The final render sharpens the room, and the camera rolls in from here."],
     [".rollin__pin", "In progress", "Re-rendering: the camera rolls up in front of the chair, its monitor turns on, and we push into it."],
-    [".cam__pin", "In progress", "This whole scene moves onto that same 3D camera, playing on its real monitor and buttons."],
+    [".cam__pin", "In progress", "Draft-quality render of the camera. The final render is sharper and matches the one that rolls in."],
     [".foot__pin", "In progress", "The credits will roll over the night sky above Hollywood Blvd, then tilt down to this star."],
   ];
   WIP.forEach(([sel, kind, text]) => {
