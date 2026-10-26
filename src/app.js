@@ -377,84 +377,16 @@
     };
   });
 
-  // Now Showing: a theater marquee. Black letters on the backlit board,
-  // each one flips over to spell the film that's on.
-  const marquee = document.querySelector(".marquee");
+  // Now Showing: the marquee board is a picture of a real board, one per
+  // film. It swaps on the same beat as the cut, with the letters' clatter.
+  const marquee = document.querySelector(".marquee__img");
   if (marquee) {
-    const scene = marquee.closest(".scene");
-    const board = marquee.querySelector(".marquee__board");
-    const bottom = marquee.querySelector(".marquee__bottom");
-    const titles = [...scene.querySelectorAll(".card__title")].map((x) => x.textContent);
-    const metas = [...scene.querySelectorAll(".card__meta")].map((x) => x.textContent);
-    const spell = (i, animate) => {
-      board.replaceChildren();
-      const words = titles[i].toUpperCase().split(" ");
-      // 14 ms a letter keeps the longest title (25 letters) under 400 ms.
-      let k = 0;
-      words.forEach((w) => {
-        const word = document.createElement("span");
-        word.className = "marquee__word";
-        [...w].forEach((ch) => {
-          const t = document.createElement("span");
-          t.className = "tile";
-          t.textContent = ch;
-          if (animate && !reduced) t.style.animationDelay = `${k * 14}ms`;
-          else t.classList.add("is-still");
-          k += 1;
-          word.appendChild(t);
-        });
-        board.appendChild(word);
-      });
-      bottom.textContent = metas[i];
-    };
-    spell(0, false);
-    scene.addEventListener("chapter", (e) => spell(e.detail, true));
-  }
-
-  // Photography: the light table. Scrolling pans across every slide; the
-  // loupe magnifies whatever's under it (the cursor on desktop, the center
-  // on a phone).
-  const table = document.querySelector(".lighttable");
-  let tableUpdate = null;
-  if (table) {
-    const pin = table.querySelector(".lighttable__pin");
-    const surface = table.querySelector(".lighttable__surface");
-    const loupe = table.querySelector(".loupe");
-    const view = loupe.querySelector(".loupe__view");
-    view.appendChild(surface.cloneNode(true));
-    const copy = view.firstElementChild;
-    copy.querySelectorAll("button").forEach((b) => b.setAttribute("tabindex", "-1"));
-    copy.querySelectorAll("img").forEach((im) => { im.loading = "eager"; im.src = im.getAttribute("src"); });
-    const head = table.querySelector(".lighttable__head");
-    let tx = 0;
-    let ty = 0;
-    let lx = innerWidth / 2;
-    let ly = innerHeight * 0.58;
-    // 2x is a real loupe's working magnification for 35mm slides on a table.
-    const MAG = 2;
-    const place = () => {
-      const R = loupe.clientWidth / 2;
-      loupe.style.transform = `translate(${lx - R}px, ${ly - R}px)`;
-      const sx = lx - tx;
-      const sy = ly - ty - surface.offsetTop;
-      copy.style.transform = `translate(${R - sx * MAG}px, ${R - sy * MAG}px) scale(${MAG})`;
-    };
-    tableUpdate = () => {
-      const top = table.getBoundingClientRect().top + scrollY;
-      const p = Math.max(0, Math.min(1, (scrollY - top) / (table.offsetHeight - innerHeight)));
-      const W = surface.scrollWidth - pin.clientWidth;
-      const H = surface.scrollHeight - (pin.clientHeight - surface.offsetTop);
-      // An S across the table, the way you'd slide a loupe over it.
-      tx = -Math.max(0, W) * (0.5 - 0.5 * Math.cos(p * Math.PI * 2)) * 0.9 - Math.max(0, W) * 0.05;
-      ty = -Math.max(0, H) * p;
-      surface.style.transform = `translate(${tx}px, ${ty}px)`;
-      head.style.opacity = String(Math.max(0, 1 - p * 7));
-      place();
-    };
-    if (fine) pin.addEventListener("mousemove", (e) => { lx = e.clientX; ly = e.clientY; place(); });
-    addEventListener("resize", () => tableUpdate());
-    addEventListener("scroll", () => requestAnimationFrame(tableUpdate), { passive: true });
-    tableUpdate();
+    const slugs = marquee.dataset.slugs.split(" ");
+    slugs.forEach((sl) => { const im = new Image(); im.src = `/media/titles/marquee-${sl}-900.webp`; });
+    marquee.closest(".scene").addEventListener("chapter", (e) => {
+      marquee.src = `/media/titles/marquee-${slugs[e.detail]}-900.webp`;
+      sfx.flap(12);
+    });
   }
 
   // All Films: a Premiere-style edit. Scrolling drags the timeline under a

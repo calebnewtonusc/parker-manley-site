@@ -2778,3 +2778,14 @@ body.is-home .mast { position: fixed; left: 0; right: 0; }
 @keyframes grain { 0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); } 60% { transform: translate(-1%, 3%); } 80% { transform: translate(3%, -1%); } }
 @media (max-width: 700px) { .scene--films .scene__copy { bottom: 56px; } .scene--films .card__syn { font-size: 0.85rem; } }
 @media (prefers-reduced-motion: reduce) { .titlecard, .opening__pin::after, .scene--films .scene__pin::before { animation: none; } }
+
+/* Real objects instead of CSS boxes: the printed title card and the marquee board. */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.titlecard { background: none; border: 0; outline: 0; box-shadow: none; padding: 0; text-shadow: none; filter: none; width: min(760px, 92vw); max-width: none; }
+.titlecard__img { display: block; width: 100%; height: auto; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45)); }
+.marquee { display: block; background: none; border: 0; padding: 0; width: min(900px, calc(100% - 24px)); }
+.marquee::before { display: none; }
+.marquee__img { display: block; width: 100%; height: auto; filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.5)); }
+.scene--films .card__title, .scene--films .card__meta { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.scene--films .scene__copy { left: 50%; transform: translateX(-50%); text-align: center; bottom: clamp(56px, 9vh, 96px); }
+.scene--films .card__laurels { justify-content: center; }

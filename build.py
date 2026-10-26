@@ -423,9 +423,8 @@ def home(films):
         data-src="/media/reel/reel.mp4" data-src-small="/media/reel/reel-720.mp4" aria-label="Parker Manley reel"></video>
     </div>
     <div class="titlecard">
-      <p class="titlecard__pre">A picture by</p>
-      <h1 class="titlecard__name">Parker Manley</h1>
-      <p class="titlecard__role">Director &middot; Cinematographer &middot; Editor</p>
+      <h1 class="sr">A picture by Parker Manley, director, cinematographer, editor</h1>
+      <img class="titlecard__img" src="/media/titles/titlecard-900.webp" srcset="/media/titles/titlecard-900.webp 900w, /media/titles/titlecard.webp 1800w" sizes="(max-width: 700px) 92vw, 760px" alt="">
     </div>
     <button class="sound" type="button" aria-pressed="false"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg><span class="label">Sound off</span></button>
   </div>
@@ -438,9 +437,7 @@ def home(films):
 {layers}
       </div>
       <div class="marquee" aria-hidden="true">
-        <p class="marquee__top">Now Showing</p>
-        <p class="marquee__board"></p>
-        <p class="marquee__bottom"></p>
+        <img class="marquee__img" src="/media/titles/marquee-{featured[0]["slug"]}-900.webp" alt="" data-slugs="{" ".join(f["slug"] for f in featured)}">
       </div>
       <div class="scene__copy">
 {cards}
