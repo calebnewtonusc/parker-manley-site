@@ -3262,3 +3262,7 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 /* The Mac stays on screen long enough to actually use: two screens under
    the edit bay's exit, then three to browse. */
 @media (min-width: 900px) { .desk-run { height: 600vh !important; } }
+/* The reel holds full frame until the hand-off into the camera on Parker's
+   table is built; a shrink with no destination read as a mistake. */
+.opening__frame { transform: none !important; border-radius: 0 !important; }
+.opening__pin::before, .opening__pin::after { clip-path: none !important; }
