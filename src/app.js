@@ -472,6 +472,10 @@
     const bImg = B.querySelector("img");
     const tc = $(".monitor__tc");
     const tc2 = $(".monitor__tc2");
+    const tc3 = $(".monitor__tc3");
+    const luClip = $(".lu__clip");
+    const luTemp = $(".lu__temp");
+    const luExp = $(".lu__exp");
     const trLabel = $(".monitor__trlabel");
     const title = $(".monitor__title");
     const meta = $(".monitor__meta");
@@ -492,10 +496,15 @@
       half = innerWidth < 700 ? 34 : 56;
       ruler.replaceChildren();
       lane.replaceChildren();
+      clips.forEach((c) => c.querySelector(".clip__t") && c.querySelector(".clip__t").remove());
       let last = "";
       clips.forEach((c, i) => {
         if (c.dataset.year !== last) {
           last = c.dataset.year;
+          const tchip = document.createElement("span");
+          tchip.className = "clip__t";
+          tchip.textContent = last;
+          c.prepend(tchip);
           const m = document.createElement("span");
           m.className = "ruler__year";
           m.textContent = last;
@@ -506,8 +515,9 @@
           const t = document.createElement("span");
           t.className = "fxlane__tr";
           t.textContent = KINDS[i % KINDS.length];
-          t.style.left = `${c.offsetLeft + c.offsetWidth - half}px`;
-          t.style.width = `${half * 2}px`;
+          // Drawn the way an NLE draws it: a narrow hatched block on the cut.
+          t.style.left = `${c.offsetLeft + c.offsetWidth - 7}px`;
+          t.style.width = "14px";
           lane.appendChild(t);
         }
       });
@@ -532,10 +542,13 @@
       title.textContent = c.dataset.title;
       meta.textContent = c.dataset.meta;
       open.href = c.getAttribute("href");
-      fx.clip.innerHTML = `Master * <b>${c.dataset.title}</b>`;
+      fx.clip.textContent = c.dataset.title;
+      if (luClip) luClip.textContent = c.dataset.title;
       // Each clip carries its own grade, the way a colorist leaves them.
       fx.temp.textContent = (((i * 37) % 21) - 10).toFixed(1);
       fx.exp.textContent = ((((i * 13) % 9) - 4) / 10).toFixed(1);
+      if (luTemp) { luTemp.textContent = fx.temp.textContent; luTemp.previousElementSibling.firstElementChild.style.left = `${50 + Number(fx.temp.textContent) * 2.5}%`; }
+      if (luExp) { luExp.textContent = fx.exp.textContent; luExp.previousElementSibling.firstElementChild.style.left = `${50 + Number(fx.exp.textContent) * 40}%`; }
       if (video) { video.remove(); video = null; }
       if (c.dataset.loop) {
         video = document.createElement("video");
@@ -606,6 +619,7 @@
       const mins = xh / px;
       tc.textContent = `${pad2(mins / 60)}:${pad2(mins % 60)}:${pad2((mins * 60) % 60)}:${pad2((mins * 1440) % 24)}`;
       if (tc2) tc2.textContent = tc.textContent;
+      if (tc3) tc3.textContent = tc.textContent;
     };
     layout();
     addEventListener("resize", () => { layout(); scrub(); });
