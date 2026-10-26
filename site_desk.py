@@ -98,12 +98,10 @@ DOCK_CHROME = (
     '<circle cx="24" cy="24" r="8" fill="#1a73e8"/></svg>'
 )
 DOCK_CUT = (
-    '<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="dk-c" x1="0" y1="0" x2="0" y2="1">'
-    '<stop offset="0" stop-color="#2a2340"/><stop offset="1" stop-color="#120e1f"/></linearGradient></defs>'
-    f'<path d="{SQ}" fill="url(#dk-c)"/>'
-    '<g fill="none" stroke="#c9b6ff" stroke-width="3.2" stroke-linecap="round">'
-    '<rect x="22" y="40" width="56" height="34" rx="3"/><path d="M22 40l8-14 52 0-6 14"/><path d="M40 26l-6 14M58 26l-6 14"/></g>'
-    '<path d="M44 50v14l12-7z" fill="#c9b6ff"/></svg>'
+    # Premiere Pro's own mark: lavender Pr on deep navy.
+    '<svg viewBox="0 0 100 100" aria-hidden="true">'
+    f'<path d="{SQ}" fill="#00005b"/>'
+    '<text x="50" y="69" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="700" font-size="50" letter-spacing="-1" fill="#9999ff">Pr</text></svg>'
 )
 DOCK_CREDITS = (
     '<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="dk-r" x1="0" y1="0" x2="0" y2="1">'
@@ -312,7 +310,7 @@ def _ntp():
 
 def desk_section(films, photos):
     menus = "".join(f"<span>{m}</span>" for m in ("File", "Edit", "View", "History", "Bookmarks", "Profiles", "Tab", "Window", "Help"))
-    dock = [("Google Chrome", DOCK_CHROME, True), ("FilmCraft", DOCK_CUT, True)]
+    dock = [("Google Chrome", DOCK_CHROME, True), ("Adobe Premiere Pro", DOCK_CUT, True)]
     dock_html = "".join(
         f'<span class="dock__app" data-name="{n}">{svg}{"<i class=dock__dot></i>" if run else ""}<span class="dock__tip">{n}</span></span>'
         for n, svg, run in dock

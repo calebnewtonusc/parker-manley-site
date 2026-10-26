@@ -2062,6 +2062,7 @@ if (knoll && openingEl) {
     // The sky holds still while the credits roll (Caleb, 2026-10-25: no
     // moving background under the text). Once the last credit has left the
     // top of the window, the whole move plays: the tilt down to the star.
+    let drawnSky = -1;
     const lastCredit = () => { const r = sky.querySelector(".roll"); return r && r.lastElementChild; };
     const drawSky = () => {
       if (!started2) return;
@@ -2073,7 +2074,13 @@ if (knoll && openingEl) {
       const f = fr[i];
       if (!f || !f.complete || !f.naturalWidth) return;
       const dpr = Math.min(2, devicePixelRatio || 1);
-      if (cv2.width !== Math.round(innerWidth * dpr)) { cv2.width = Math.round(innerWidth * dpr); cv2.height = Math.round(innerHeight * dpr); }
+      const resized = cv2.width !== Math.round(innerWidth * dpr);
+      if (resized) { cv2.width = Math.round(innerWidth * dpr); cv2.height = Math.round(innerHeight * dpr); }
+      // Redraw only when the frame changes. The sky holds one frame through
+      // the whole roll, and repainting a full-window canvas on every scroll
+      // event under the credits is what made the roll stutter (2026-10-25).
+      if (!resized && i === drawnSky) return;
+      drawnSky = i;
       const s2 = Math.max(cv2.width / f.naturalWidth, cv2.height / f.naturalHeight);
       c2.drawImage(f, (cv2.width - f.naturalWidth * s2) / 2, (cv2.height - f.naturalHeight * s2) / 2, f.naturalWidth * s2, f.naturalHeight * s2);
     };

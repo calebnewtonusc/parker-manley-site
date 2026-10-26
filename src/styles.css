@@ -3447,3 +3447,7 @@ html.has-leader body { overflow: hidden; }
 @media (min-width: 900px) { .sky__roll { padding-top: 115svh !important; } }
 /* Room after the last credit for the tilt down to the star. */
 @media (min-width: 900px) { .sky[data-frames]:not([data-frames="0"]) .sky__roll { padding-bottom: 320svh; } }
+/* A blurred shadow on every credit forced a repaint of each line over the
+   sky on every frame of the roll; a tight one reads the same on a still sky. */
+.sky[data-frames]:not([data-frames="0"]) .sky__roll .roll { text-shadow: 0 1px 2px rgba(0,0,0,0.85); }
+.sky__roll { will-change: transform; }

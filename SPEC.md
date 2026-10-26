@@ -24,7 +24,7 @@ is a slide. Written 2026-10-25 from every message Caleb sent that night.
 5. Boulder to LA. PLACEHOLDER until Parker answers: what made him start filming in Boulder, and one moment from each stop. It must tell his story, not just show places. Do not render it until he gives direction.
 6. Director: the 3D premiere hall with the director's chair (P. MANLEY) in the foreground and his featured films on the big screen. Above the screen, a premiere banner that changes with each film (title and year, never an invented date). This replaces the marquee.
 7. Camera: a cinema camera on a tripod rolls into the hall (unbranded, like the Sony rig in his on-set polaroid). We push in until the hall is seen through its lens or monitor, then the cinematography adjustments play on that same screen. Sounds kept low.
-8. The last camera shot zooms to full screen, then pulls back into the Premiere-style edit bay (FilmCraft UI) with a very big program monitor. As you scroll, the panels grow and the monitor shrinks: the editing session with the cursor.
+8. The last camera shot zooms to full screen, then pulls back into the Premiere Pro edit bay with a very big program monitor. As you scroll, the panels grow and the monitor shrinks: the editing session with the cursor.
 9. The edit bay window leaves full screen onto a Mac desktop. A Chrome window sits behind it, overlapping. Scrolling moves the edit bay away and Chrome is revealed: a blank new tab reading "Manleygle" with a very big bookmarks bar holding two bookmarks, ManleyFlix and ManleyGram. The Apple TV is gone.
    - ManleyFlix: Netflix layout with a red M, every film. (built)
    - ManleyGram: his photos as an Instagram-style profile.
