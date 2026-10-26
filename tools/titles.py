@@ -150,6 +150,46 @@ if __name__ == "__main__":
     print("titles:", sorted(os.listdir(OUT)))
 
 
+def roll_ticket_mask(W, H, seed=7):
+    """A ticket off a roll: the long edges are clean, the short ends were
+    torn from the next ticket so they're ragged, each corner has the round
+    bite the roll's die leaves, and handling has started two small rips."""
+    rng = np.random.default_rng(seed)
+    a = np.full((H, W), 255.0)
+    yy, xx = np.mgrid[0:H, 0:W]
+    R = 30
+    for cx, cy in ((0, 0), (W, 0), (0, H), (W, H)):
+        a[(xx - cx) ** 2 + (yy - cy) ** 2 < R * R] = 0
+    # Torn ends: a slow wander plus fibre-scale jitter, softened at the edge.
+    def torn(n):
+        slow = np.convolve(rng.normal(0, 1, n + 60), np.ones(30) / 30, "same")[30:30 + n]
+        return 7 + 5 * slow / (np.abs(slow).max() + 1e-6) + rng.uniform(0, 2.4, n)
+    for side in (0, 1):
+        d = torn(H)
+        for y in range(H):
+            depth = d[y]
+            xs = np.arange(0, int(depth) + 3)
+            fall = np.clip((xs - depth + 2.5) / 2.5, 0, 1) * 255
+            if side == 0:
+                a[y, : len(xs)] = np.minimum(a[y, : len(xs)], fall)
+            else:
+                a[y, W - len(xs):] = np.minimum(a[y, W - len(xs):], fall[::-1])
+    # Two small rips into the long edges, each a thin tapering split.
+    img = Image.fromarray(a.astype("uint8"))
+    dr = ImageDraw.Draw(img)
+    for x0, top, depth in ((W * 0.31, True, 44), (W - 120, False, 30)):
+        pts = []
+        y = 0 if top else H
+        step = depth / 6
+        for k in range(7):
+            yk = y + (k * step if top else -k * step)
+            pts.append((x0 + rng.uniform(-3, 3) + k * 1.2, yk))
+        left = [(px - 3.2 * (1 - k / 6), py) for k, (px, py) in enumerate(pts)]
+        right = [(px + 3.2 * (1 - k / 6), py) for k, (px, py) in enumerate(pts)]
+        dr.polygon(left + right[::-1], fill=0)
+    return img
+
+
 def ticket(serial="573145"):
     """ADMIT ONE on ticket cardstock, as two pieces (ticket and stub) so the
     page can tear it along the perforation."""
@@ -189,10 +229,7 @@ def ticket(serial="573145"):
     px = W - STUB
     for y in range(14, H, 22):
         da.ellipse((px - 5, y - 5, px + 5, y + 5), fill=0)
-    # Rounded die-cut corners.
-    mask = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(mask).rounded_rectangle((0, 0, W - 1, H - 1), 18, fill=255)
-    alpha = ImageChops.multiply(alpha, mask)
+    alpha = ImageChops.multiply(alpha, roll_ticket_mask(W, H))
     stock = stock.convert("RGBA")
     stock.putalpha(alpha)
     stock.crop((0, 0, px, H)).save(OUT / "ticket-main.webp", "WEBP", quality=88, method=6)

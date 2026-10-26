@@ -464,6 +464,45 @@ def tv(films):
 """
 
 
+FLIGHT_BEATS = [
+    ("falling", "Dawn over east Boulder, the Flatirons ahead", "2023, Boulder. Falling and Moments From My Life, made for his Film Studies class, and Keeping Up With the Olympians."),
+    ("somnambulist", "Over the First Flatiron, rising past Green Mountain", "2024. Somnambulist, selected by the Colorado High School Film Festival and Rising Stars Colorado."),
+    ("beneath-the-surface", "Climbing west over the Continental Divide", "2024. Beneath the Surface, the film that got him into the USC School of Cinematic Arts."),
+    ("mad", "High over the red rock of the Colorado Plateau at noon", "2024. Mad, the film that got him into Loyola Marymount's Film Production program."),
+    ("abundance", "Across the Mojave, down over the San Gabriels at sunset", "2025, Los Angeles. Abundance, selected for Indie Film LA."),
+    ("scar-tissue", "Mulholland at dusk, Parker on the ridge, the basin lit", "2026, USC. Scar Tissue, Reflect and As We Are, You Shall Be, his shorts for USC production classes."),
+]
+
+
+def preview(home_html):
+    """/preview/: the whole planned site with the props agent's low-sample
+    draft renders standing in, so the layout can be judged before the real
+    renders run. Every stand-in wears a DRAFT tag."""
+    h = home_html.replace('<body class="is-home"', '<body class="is-home is-preview"', 1)
+    h = h.replace("<title>", '<meta name="robots" content="noindex"><title>DRAFT · ', 1)
+    # Director: the premiere hall, the film playing on its screen.
+    h = h.replace('<div class="scene__pin">\n      <div class="scene__bg"',
+                  '<div class="scene__pin">\n      <img class="draft-hall" src="/media/draft/premiere.webp" alt=""><span class="draft-tag">Premiere hall, draft render</span>\n      <div class="scene__bg"', 1)
+    # Cinematographer: the real monitor body around the live feed.
+    h = h.replace('<div class="cam__screen">',
+                  '<div class="cam__screen"><img class="draft-mon" src="/media/draft/monitor.webp" alt=""><span class="draft-tag">Monitor, draft render</span>', 1)
+    # About: the knolled kit after the call sheet, then the flight.
+    beats = "".join(
+        f'<li class="fl__beat"><img src="/media/stills/{s}-1.jpg" alt="" loading="lazy"><p class="fl__where">{w}</p><p class="fl__cap">{e(c)}</p></li>'
+        for s, w, c in FLIGHT_BEATS
+    )
+    after_about = (
+        '<figure class="draft-frame"><img src="/media/draft/knolling.webp" alt="Parker\'s kit laid out on a desk" loading="lazy">'
+        '<span class="draft-tag">Knolling, draft render</span></figure>'
+        '<section class="fl" aria-label="Boulder to Los Angeles"><span class="draft-tag">Flight, storyboard. One continuous take, dawn to dusk, films pinned where they happened</span>'
+        f'<ol class="fl__beats">{beats}</ol></section>'
+    )
+    i = h.index('<section class="reels" id="films"')
+    h = h[:i] + after_about + h[i:]
+    h = h.replace('<div class="slate">', '<div class="slate draft-slate"><span class="draft-tag">Slate, draft render</span>', 1)
+    return h
+
+
 def home(films):
     featured = [f for f in films if f["featured"]]
     archive = [f for f in films if not f["featured"]]
@@ -614,10 +653,10 @@ def home(films):
             <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
             
             <div class="row">
-              <label>Name<input name="name" autocomplete="name" required></label>
-              <label>Email<input name="email" type="email" autocomplete="email" required></label>
+              <label>Name<input name="name" autocomplete="name" placeholder="Your name" required></label>
+              <label>Email<input name="email" type="email" autocomplete="email" placeholder="Your email" required></label>
             </div>
-            <label>Message<textarea name="message" required></textarea></label>
+            <label>Message<textarea name="message" placeholder="Your film" required></textarea></label>
             <button class="btn btn--ember" type="submit">Send</button>
             <p class="form__status" role="status"></p>
           </form>
@@ -747,7 +786,10 @@ def main():
     if DIST.exists():
         shutil.rmtree(DIST)
     DIST.mkdir()
-    (DIST / "index.html").write_text(home(films))
+    home_html = home(films)
+    (DIST / "index.html").write_text(home_html)
+    (DIST / "preview").mkdir(exist_ok=True)
+    (DIST / "preview/index.html").write_text(preview(home_html))
     for i, f in enumerate(films):
         out = DIST / "films" / f["slug"]
         out.mkdir(parents=True)

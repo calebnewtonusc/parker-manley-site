@@ -3060,3 +3060,42 @@ html.is-app, html.is-app body { overflow: hidden; }
 body:not(.is-home) .foot { height: auto; }
 body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 .mfx__bill::after { background: linear-gradient(to top, #141414 0%, rgba(20,20,20,0) 32%), linear-gradient(77deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 62%); }
+/* Tape is a texture of real torn masking tape, not a box. */
+.polaroid::before { clip-path: none !important; background: url("/media/props/tape/tape-1.png") center / 100% 100% no-repeat !important; width: 96px; height: 28px; margin-left: -48px; top: -12px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)); }
+.polaroid:nth-child(2)::before { background-image: url("/media/props/tape/tape-2.png") !important; }
+.polaroid:nth-child(3)::before { background-image: url("/media/props/tape/tape-3.png") !important; }
+
+/* ===== /preview/ only: draft renders standing in for the real ones. */
+.draft-tag { display: none; }
+.is-preview .draft-tag { display: inline-block; position: absolute; z-index: 30; top: 14px; left: 14px; padding: 4px 9px; border-radius: 3px; background: #ffd400; color: #111; font: 600 11px/1.3 "Inter", sans-serif; letter-spacing: 0.04em; text-transform: uppercase; max-width: 60vw; }
+.is-preview .scene--films .scene__pin { --W: max(100vw, 177.78vh); --H: max(56.25vw, 100vh); }
+.is-preview .draft-hall { position: absolute; left: 50%; top: 50%; width: var(--W); height: var(--H); transform: translate(-50%, -50%); object-fit: fill; z-index: 0; }
+.is-preview .scene--films .scene__bg { position: absolute; inset: auto; z-index: 1; left: calc(50% - var(--W) / 2 + var(--W) * 0.297); top: calc(50% - var(--H) / 2 + var(--H) * 0.295); width: calc(var(--W) * 0.4068); height: calc(var(--H) * 0.3954); transform: none !important; }
+.is-preview .scene--films .marquee { display: none; }
+.is-preview .scene--films .scene__copy { z-index: 2; }
+.is-preview .cam__screen { position: relative; overflow: visible !important; aspect-ratio: 933 / 555; }
+.is-preview .draft-mon { position: absolute; z-index: 5; pointer-events: none; left: -46.9%; top: 0; margin-top: -33.86%; width: 192.94%; max-width: none; }
+.is-preview .cam__body { background: none !important; box-shadow: none !important; border: 0 !important; }
+.is-preview .cam__tally { display: none; }
+.is-preview .draft-frame { position: relative; margin: 0 auto; width: min(1200px, 100%); padding: 0 var(--gutter) 80px; }
+.is-preview .draft-frame img { width: 100%; display: block; }
+.is-preview .fl { position: relative; padding: 80px var(--gutter) 120px; background: var(--ground); }
+.is-preview .fl__beats { list-style: none; margin: 40px auto 0; padding: 0; width: min(1200px, 100%); display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.is-preview .fl__beat img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; filter: saturate(0.7); }
+.is-preview .fl__where { margin: 10px 0 4px; font: 600 12px/1.4 "Inter", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #ffd400; }
+.is-preview .fl__cap { margin: 0; color: rgba(236,228,210,0.8); font-size: 0.92rem; line-height: 1.5; }
+@media (max-width: 700px) { .is-preview .fl__beats { grid-template-columns: 1fr; } }
+.is-preview .draft-slate { position: relative; width: min(380px, 86vw); aspect-ratio: 5 / 6; background: url("/media/draft/slate.webp") center / 100% 100% no-repeat; margin-top: 20px; }
+.is-preview .draft-slate .slate__board { position: absolute; inset: 0; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; }
+.is-preview .draft-slate label { position: absolute; left: 14.2%; width: 74.4%; height: 6.4%; margin: 0; font-size: 0; color: transparent; }
+.is-preview .draft-slate .row { display: contents; }
+.is-preview .draft-slate .row label:nth-child(1) { top: 67.2%; }
+.is-preview .draft-slate .row label:nth-child(2) { top: 76.5%; }
+.is-preview .draft-slate .slate__board > label { top: 85.9%; }
+.is-preview .draft-slate input, .is-preview .draft-slate textarea { width: 100%; height: 100%; min-height: 0 !important; padding: 0 8px; border: 0 !important; background: transparent !important; font: 500 22px/1 "Caveat", cursive; color: #1e1d1b; resize: none; }
+.is-preview .draft-slate input::placeholder, .is-preview .draft-slate textarea::placeholder { color: rgba(30,29,27,0.45); }
+.is-preview .draft-slate .btn { position: absolute; left: 50%; bottom: -64px; transform: translateX(-50%); }
+.is-preview .draft-slate .form__status { position: absolute; bottom: -100px; left: 0; right: 0; }
+/* The star opens the way Parker closed: an iris. The iris-out on him, the
+   credits on the black, then an iris-in on the star. Same move, bookended. */
+.is-home .foot__pin { opacity: 1; clip-path: circle(calc(var(--fade, 0) * 78%) at 50% 46%); }
