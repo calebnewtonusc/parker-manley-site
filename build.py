@@ -234,6 +234,7 @@ def festival_program(films):
     return f"""    <div class="edit">
       <div class="edit__pin fc" aria-label="Every film, in an edit">
         <div class="fc__bar" aria-hidden="true"><span class="fc__home">&#8962;</span><i>Import</i><i class="is-on">Edit</i><i>Export</i><b class="fc__title">Parker Manley, 2023 to now - Edited</b><span class="fc__icons">&#9776; &#8679; &#9906; &#128264; &#9974;</span></div>
+        <p class="fc__note"><span class="fc__note-i" aria-hidden="true">i</span>Scroll to move the playhead. Click any clip to watch the film.</p>
         <div class="fc__top">
           <section class="fc__panel fc__ec" aria-hidden="true">
             <div class="fc__tabs"><span>Lumetri Scopes</span><span>Source</span><span class="is-on">Effect Controls &#9776;</span></div>
@@ -314,7 +315,6 @@ def festival_program(films):
             <div class="mt__lufs"><span>M</span><b>-14.8 LUFS</b><span>S</span><b>-16.2 LUFS</b><span>I</span><b class="is-hot">-15.7 LUFS</b><span>TP</span><b class="is-red">-1.2 dBTP</b></div>
           </section>
         </div>
-        <div class="fc__status" aria-hidden="true">Click a clip to open the film. Scroll to move the playhead.</div>
       </div>
     </div>"""
 
@@ -428,29 +428,6 @@ def home(films):
   </div>
 </div>
 
-<section class="reels" id="films" aria-label="Featured films">
-  <div class="scene scene--films">
-    <div class="scene__pin">
-      <div class="scene__bg" aria-hidden="true">
-{layers}
-      </div>
-      <div class="marquee" aria-hidden="true">
-        <img class="marquee__img" src="/media/titles/marquee-{featured[0]["slug"]}-900.webp" alt="" data-slugs="{" ".join(f["slug"] for f in featured)}">
-      </div>
-      <div class="scene__copy">
-{cards}
-      </div>
-      <div class="scene__ticks" aria-hidden="true">{ticks}</div>
-    </div>
-  </div>
-</section>
-{lens_scene(films)}
-<section class="reels" aria-label="Every film">
-  <div class="lobby" id="all-films">
-{program}
-  </div>
-</section>
-
 <section class="about" id="about" aria-label="About Parker">
   <div class="callsheet-wrap">
     <article class="callsheet">
@@ -478,6 +455,29 @@ def home(films):
       <figure class="polaroid"><img src="/media/portraits/bigbear.jpg" alt="Parker outdoors" loading="lazy"><figcaption>Sc. 2 &middot; outdoors</figcaption></figure>
       <figure class="polaroid"><img src="/media/portraits/faith.jpg" alt="A crucifix against a castle tower" loading="lazy"><figcaption>Sc. 3 &middot; faith</figcaption></figure>
     </div>
+  </div>
+</section>
+
+<section class="reels" id="films" aria-label="Featured films">
+  <div class="scene scene--films">
+    <div class="scene__pin">
+      <div class="scene__bg" aria-hidden="true">
+{layers}
+      </div>
+      <div class="marquee" aria-hidden="true">
+        <img class="marquee__img" src="/media/titles/marquee-{featured[0]["slug"]}-900.webp" alt="" data-slugs="{" ".join(f["slug"] for f in featured)}">
+      </div>
+      <div class="scene__copy">
+{cards}
+      </div>
+      <div class="scene__ticks" aria-hidden="true">{ticks}</div>
+    </div>
+  </div>
+</section>
+{lens_scene(films)}
+<section class="reels" aria-label="Every film">
+  <div class="lobby" id="all-films">
+{program}
   </div>
 </section>
 
