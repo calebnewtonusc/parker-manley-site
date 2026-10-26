@@ -29,7 +29,7 @@ is a slide. Written 2026-10-25 from every message Caleb sent that night.
    - ManleyFlix: Netflix layout with a red M, every film. (built)
    - ManleyGram: his photos as an Instagram-style profile.
 10. Your film: Parker's own photo of himself filming fills the frame, and the slate is held into the shot. PROD = your film, DIR = name, CAM = email. Clap the sticks to send, then the slate is pulled out of frame. (live; a hand pulling it off is optional)
-11. Credits roll, then "Where Is My Mind?" by the Pixies as the outro, played through the official YouTube audio with credit in the roll. (pending)
+11. Credits roll with "Where Is My Mind?" by the Pixies as the outro. The song is hosted with the site, credited in the roll, and fades in and out over 2 s. Caleb chose hosting and took the risk, 2026-10-25. (live)
 12. Walk of Fame star fades up out of black. The medallion is being re-rendered because its lighting looked pasted on.
 
 ## Open, waiting on someone
