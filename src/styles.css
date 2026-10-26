@@ -2805,3 +2805,49 @@ body.is-home .mast { position: fixed; left: 0; right: 0; }
 .fc .fxlane__tr.is-pending { opacity: 0; }
 .fc .fxlane__tr.is-pending.is-dropped { opacity: 1; }
 @media (max-width: 899px) { .fc__cursor { display: none; } }
+
+/* One black for the whole site. Sections had five near-blacks between them,
+   which showed as bands and lines where they met. */
+:root { --ground: #0b0b09; }
+html, body { background: var(--ground); }
+body::before { display: none; }
+.about, .lobby, .room, .lighttable__pin, .irisout__pin, .cam__pin, .circuit, .intertitle, .contact, .reels, .lens, .edit, .foot, .scene__pin, .scene__bg { background-color: var(--ground) !important; }
+.mast { background: rgba(11, 11, 9, 0.92); border-bottom: 0; }
+.fc { background: var(--ground); }
+
+/* End card: the photo always fills the frame; the iris closes on his face. */
+.irisout__img { inset: 0 auto 0 0; width: 112vw; transform: none !important; object-position: 50% 30%; }
+.irisout__mask { background: radial-gradient(circle at 62% 40%, transparent calc(var(--r) - 1px), var(--ground) var(--r)) !important; }
+@media (min-width: 900px) {
+  .irisout__card { left: 5%; right: auto; width: 36%; }
+}
+@media (max-width: 899px) {
+  .irisout__img { width: 100%; inset: 0; object-position: 50% 30%; }
+  .irisout__mask { background: radial-gradient(circle at 50% 40%, transparent calc(30vmax - 1px), var(--ground) 30vmax) !important; }
+}
+
+/* The call sheet as a printout: office paper (ambientCG scan, CC0), toner
+   type, a fold across the middle from being carried in a pocket. */
+.callsheet { background: url("/media/paper/printer.jpg") center / 600px; color: #232220; border-radius: 0; transform: rotate(-0.8deg);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25), 0 18px 40px rgba(0, 0, 0, 0.55); position: relative; }
+.callsheet::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to bottom, transparent 49.6%, rgba(0, 0, 0, 0.07) 49.9%, rgba(255, 255, 255, 0.35) 50.2%, transparent 50.8%),
+              linear-gradient(115deg, rgba(255, 255, 255, 0.18), transparent 40%, rgba(0, 0, 0, 0.06)); }
+.callsheet, .callsheet * { text-shadow: 0 0 0.35px rgba(20, 20, 18, 0.55); }
+.cs__head { border-bottom-color: #232220; }
+.cs__sched th { background: #2a2926; color: #f3f1ea; }
+.cs__label, .cs__loc { color: #55534d; }
+/* The footer: the star, photographed on the Boulevard. */
+.foot { padding: 0 0 28px; }
+.foot__star { display: block; width: 100%; height: auto; max-height: 70svh; object-fit: cover; margin-bottom: 22px; }
+
+/* The ticket is two printed pieces of cardstock now, not a drawn box. */
+.admit { display: flex; align-items: stretch; width: min(620px, 90vw); aspect-ratio: auto; padding: 0; background: none; border: 0; outline: 0; transform: rotate(-3deg);
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.35)) drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45)); }
+.admit:focus { outline: 0; }
+.admit:focus-visible { filter: drop-shadow(0 0 0 2px rgba(255, 255, 255, 0.8)) drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45)); }
+.admit img { display: block; height: auto; }
+.admit__main { width: 79.2%; } .admit__stub { width: 20.8%; }
+.admit__main, .admit__stub { background: none !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; }
+.admit__main::before, .admit__stub::before { display: none !important; }
+@media (hover: hover) and (pointer: fine) { .admit:hover { transform: rotate(-2deg) translateY(-3px); } }

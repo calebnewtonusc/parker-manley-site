@@ -41,7 +41,8 @@
       set(v) { const sc = S(); if (sc) sc.on = v; },
       wake() { const sc = S(); if (sc) sc.unlock(); },
       // The real leader only pops on the 2.
-      beep(k) { if (k === 2) play("pop2"); },
+      // A pop on every number of the countdown: 3, 2, 1.
+      beep() { play("pop2"); },
       clatter(sec) { play("clatter", { dur: sec }); },
       rip() { play("rip"); },
       flap(n) { play("flap", { n }); },

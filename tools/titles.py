@@ -148,3 +148,58 @@ if __name__ == "__main__":
             meta = " · ".join(x for x in [str(f["year"]), f["genre"].replace("/", "·"), f"{f['minutes']} MIN" if f.get("minutes") else ""] if x)
             marquee(f["slug"], f["title"], meta)
     print("titles:", sorted(os.listdir(OUT)))
+
+
+def ticket(serial="573145"):
+    """ADMIT ONE on ticket cardstock, as two pieces (ticket and stub) so the
+    page can tear it along the perforation."""
+    W, H, STUB = 1200, 560, 250
+    stock = paper(W, H, tint=(240, 214, 172))
+    # A slight curl: the card catches light along one long edge.
+    a = np.asarray(stock, np.float32)
+    yy = np.linspace(0, 1, H)[:, None]
+    a *= (0.93 + 0.1 * np.sin(yy * np.pi) ** 0.6)[..., None]
+    stock = Image.fromarray(np.clip(a, 0, 255).astype("uint8"))
+    red = Image.new("L", (W, H), 0)
+    dr = ImageDraw.Draw(red)
+    wobbly_rect(dr, (28, 28, W - STUB - 8, H - 28), 4, 0.6)
+    wobbly_rect(dr, (W - STUB + 8, 28, W - 28, H - 28), 4, 0.6)
+    dr.line([(150, 30), (150, H - 30)], fill=255, width=4)
+    stock = ink(stock, red, color=(196, 40, 58), strength=0.85)
+    blk = Image.new("L", (W, H), 0)
+    db = ImageDraw.Draw(blk)
+    big = ImageFont.truetype(DIN, 190)
+    mid = ImageFont.truetype(DIN, 46)
+    small = ImageFont.truetype(COPPER, 26, index=0)
+    mono = ImageFont.truetype("/System/Library/Fonts/Supplemental/Courier New.ttf", 52)
+    cx = (150 + W - STUB) / 2
+    db.text((cx, 170), "ADMIT", font=big, fill=255, anchor="mm")
+    db.text((cx, 330), "ONE", font=big, fill=255, anchor="mm")
+    db.text((cx, 440), "A PARKER MANLEY PICTURE", font=mid, fill=255, anchor="mm")
+    db.text((cx, 492), "DIRECTOR  ·  CINEMATOGRAPHER  ·  EDITOR", font=small, fill=255, anchor="mm")
+    for x, rot in ((88, 90), (W - STUB / 2 - 10, 270)):
+        t = Image.new("L", (360, 70), 0)
+        ImageDraw.Draw(t).text((180, 35), serial, font=mono, fill=255, anchor="mm")
+        t = t.rotate(rot, expand=True)
+        blk.paste(t, (int(x - t.width / 2), int(H / 2 - t.height / 2)), t)
+    stock = ink(stock, blk, color=(52, 34, 24), strength=0.9)
+    # The perforation: a row of punched holes, each half keeps half a hole.
+    alpha = Image.new("L", (W, H), 255)
+    da = ImageDraw.Draw(alpha)
+    px = W - STUB
+    for y in range(14, H, 22):
+        da.ellipse((px - 5, y - 5, px + 5, y + 5), fill=0)
+    # Rounded die-cut corners.
+    mask = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, W - 1, H - 1), 18, fill=255)
+    alpha = ImageChops.multiply(alpha, mask)
+    stock = stock.convert("RGBA")
+    stock.putalpha(alpha)
+    stock.crop((0, 0, px, H)).save(OUT / "ticket-main.webp", "WEBP", quality=88, method=6)
+    stock.crop((px, 0, W, H)).save(OUT / "ticket-stub.webp", "WEBP", quality=88, method=6)
+    json.dump({"w": W, "h": H, "stub": STUB}, open(OUT / "ticket.json", "w"))
+
+
+if __name__ == "__main__":
+    ticket()
+    print("ticket done")

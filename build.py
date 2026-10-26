@@ -76,7 +76,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <main id="main">
 {body}
 </main>
-<footer class="foot">Parker Manley &middot; Boulder, Colorado to Los Angeles</footer>
+<footer class="foot"><img class="foot__star" src="/media/props/star/star-1000.webp" srcset="/media/props/star/star-1000.webp 1000w, /media/props/star/star-2000.webp 2000w" sizes="100vw" alt="A star on the Hollywood Walk of Fame reading Parker Manley" loading="lazy">Parker Manley &middot; Boulder, Colorado to Los Angeles</footer>
 <script src="/score.js" defer data-samples="clatter.mp3 clack.mp3 rip.mp3 shutter.mp3 flash.mp3 tapestop.mp3 crt.mp3 servo.mp3 runout.mp3 chk.mp3 stamp.mp3"></script>
 <script src="/app.js" defer></script>
 </body>
@@ -407,15 +407,8 @@ def home(films):
   <span class="leader__n">3</span>
   <div class="leader__gate">
     <button class="admit leader__roll" type="button" aria-label="Admit one: tear the ticket to roll the film, with sound">
-      <span class="admit__main">
-        <span class="admit__serial admit__serial--l">000000</span>
-        <span class="admit__body">
-          <span class="admit__big">Admit<br>One</span>
-          <span class="admit__line">A Parker Manley picture</span>
-          <span class="admit__fine">Director &middot; Cinematographer &middot; Editor</span>
-        </span>
-      </span>
-      <span class="admit__stub"><span class="admit__serial">000000</span><span class="admit__tear">Tear to roll</span></span>
+      <img class="admit__main" src="/media/titles/ticket-main.webp" alt="">
+      <img class="admit__stub" src="/media/titles/ticket-stub.webp" alt="">
     </button>
     <p class="leader__sound">Sound on &middot; scroll to skip</p>
   </div>
