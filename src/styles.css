@@ -2880,3 +2880,32 @@ body::before { display: none; }
   .irisout__pin { width: 100vw; margin-left: calc(50% - 50vw); }
   .irisout__star { inset: 0; width: auto; transform: none; }
 }
+
+/* v15: a film opens as a screening in the room you're already in. The
+   house goes dark, the screen comes up, credits sit under it. */
+html.is-screening, html.is-screening body { overflow: hidden; }
+.scr { position: fixed; inset: 0; z-index: 90; overflow-y: auto; background: var(--ground); opacity: 0; transition: opacity 450ms ease-out; padding: 0 var(--gutter) 80px; }
+.scr.is-on { opacity: 1; }
+.scr__up { position: sticky; top: 0; display: block; margin: 0 0 0 auto; padding: 22px 0 14px; background: none; border: 0; font-family: var(--font); font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(236,228,210,0.62); cursor: pointer; text-decoration: none; transition: color 120ms ease-out; z-index: 2; }
+@media (hover: hover) and (pointer: fine) { .scr__up:hover { color: #ece4d2; } }
+.scr__screen { position: relative; width: min(1180px, 100%, calc((100svh - 150px) * 16 / 9)); aspect-ratio: 16 / 9; margin: 8px auto 0; background: #000; box-shadow: 0 0 140px 10px rgba(255, 244, 220, 0.05); }
+.scr__screen img, .scr__screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; display: block; }
+.scr__play { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.25); border: 0; cursor: pointer; color: #ece4d2; }
+.scr__play span { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 50%; border: 1px solid rgba(236,228,210,0.7); font-size: 1.3rem; padding-left: 5px; transition: transform 140ms ease-out, background-color 140ms ease-out; }
+@media (hover: hover) and (pointer: fine) { .scr__play:hover span { transform: scale(1.06); background: rgba(236,228,210,0.12); } }
+.scr__under { max-width: 720px; margin: 0 auto; padding-top: 44px; text-align: center; opacity: 0; transform: translateY(16px); transition: opacity 500ms ease-out 500ms, transform 500ms var(--ease) 500ms; }
+.scr.is-on .scr__under { opacity: 1; transform: none; }
+.scr__meta { margin: 0; font-family: var(--font); font-size: 0.72rem; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(236,228,210,0.55); }
+.scr__title { margin: 10px 0 14px; font-family: var(--title); font-size: clamp(2rem, 4.4vw, 3.4rem); letter-spacing: 0.04em; color: #ece4d2; }
+.scr__syn { margin: 0 auto; max-width: 560px; color: rgba(236,228,210,0.78); line-height: 1.6; }
+.scr__fest { margin: 14px 0 0; font-size: 0.8rem; letter-spacing: 0.08em; color: rgba(236,228,210,0.6); }
+.scr__credits { margin-top: 40px; }
+.film-page .scr { position: relative; min-height: 100svh; opacity: 1; z-index: auto; padding-top: 64px; }
+.film-page .scr__under { opacity: 1; transform: none; }
+@media (max-width: 700px) {
+  .scr__screen { width: 100%; margin-top: 0; }
+  .scr__under { padding-top: 28px; }
+}
+.scr__up { width: max-content; }
+.scr__up:focus:not(:focus-visible) { outline: none; }
+.film-page .scr { padding-top: 40px; }

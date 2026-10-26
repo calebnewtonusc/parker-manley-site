@@ -900,22 +900,80 @@
   onScroll();
 
   // Film page: the YouTube player loads only when asked for.
-  const player = document.querySelector(".player[data-yt], .player[data-drive]");
-  if (player) {
-    const btn = player.querySelector("button");
-    btn.addEventListener("click", () => {
-      if (window.score) window.score.duck(true);
-      const f = document.createElement("iframe");
-      f.src = player.dataset.yt
-        ? `https://www.youtube-nocookie.com/embed/${player.dataset.yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`
-        : `https://drive.google.com/file/d/${player.dataset.drive}/preview`;
-      f.title = btn.getAttribute("aria-label");
-      f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-      f.allowFullscreen = true;
-      player.replaceChildren(f);
-    });
-  }
+// A screening. Clicking a film anywhere on the home page dims the room
+// where you are and brings the screen up; Lights up puts you back exactly
+// where you were. The film's own URL renders the same screening.
+const project = (scr) => {
+  const screen = scr.querySelector(".scr__screen");
+  if (!screen || screen.querySelector("iframe")) return;
+  if (window.score) window.score.duck(true);
+  const f = document.createElement("iframe");
+  f.src = screen.dataset.yt
+    ? `https://www.youtube-nocookie.com/embed/${screen.dataset.yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`
+    : `https://drive.google.com/file/d/${screen.dataset.drive}/preview`;
+  f.title = scr.querySelector(".scr__title").textContent;
+  f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+  f.allowFullscreen = true;
+  screen.replaceChildren(f);
+};
+document.querySelectorAll(".film-page .scr").forEach((scr) => {
+  scr.classList.add("is-on");
+  scr.querySelector(".scr__play").addEventListener("click", () => project(scr));
+});
 
+const house = document.body.classList.contains("is-home");
+let showing = null;
+let lastFocus = null;
+const lightsUp = (fromHistory) => {
+  if (!showing) return;
+  const scr = showing;
+  showing = null;
+  scr.classList.remove("is-on");
+  document.documentElement.classList.remove("is-screening");
+  if (window.score) window.score.duck(false);
+  setTimeout(() => scr.remove(), 450);
+  if (!fromHistory && location.pathname.startsWith("/films/")) history.back();
+  if (lastFocus) lastFocus.focus({ preventScroll: true });
+};
+const screenFilm = (slug, push) => {
+  const t = document.getElementById(`t-${slug}`);
+  if (!t) return false;
+  if (showing) lightsUp(true);
+  const scr = t.content.firstElementChild.cloneNode(true);
+  document.body.append(scr);
+  showing = scr;
+  lastFocus = document.activeElement;
+  document.documentElement.classList.add("is-screening");
+  if (push) history.pushState({ screening: slug }, "", `/films/${slug}/`);
+  scr
+    .querySelector(".scr__up")
+    .addEventListener("click", () => lightsUp(false));
+  scr.querySelector(".scr__play").addEventListener("click", () => project(scr));
+  requestAnimationFrame(() => scr.classList.add("is-on"));
+  sfx.clatter();
+  // The room takes a beat to go dark, then the projector starts.
+  setTimeout(() => {
+    if (showing === scr) project(scr);
+  }, 650);
+  scr.querySelector(".scr__up").focus({ preventScroll: true });
+  return true;
+};
+if (house) {
+  document.addEventListener("click", (ev) => {
+    const a = ev.target.closest && ev.target.closest('a[href^="/films/"]');
+    if (!a || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+    const slug = a.getAttribute("href").split("/")[2];
+    if (screenFilm(slug, true)) ev.preventDefault();
+  });
+  addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") lightsUp(false);
+  });
+  addEventListener("popstate", () => {
+    const m = location.pathname.match(/^\/films\/([^/]+)/);
+    if (m) screenFilm(m[1], false);
+    else lightsUp(true);
+  });
+}
   // Contact form posts to FormSubmit, which forwards to Parker's inbox.
   const form = document.querySelector(".form");
   if (form) {

@@ -515,101 +515,59 @@ def home(films):
   </div>
 </section>
 """
+    body += screenings(films)
     return page("Parker Manley, Director, Cinematographer, Editor", body, current="", path="/", image="/media/reel/reel-poster.jpg")
 
 
-def film_page(films, i):
-    f = films[i]
-    prev_f = films[i - 1] if i > 0 else None
-    next_f = films[i + 1] if i + 1 < len(films) else None
-    poster = f"/media/posters/{f['slug']}.jpg"
-
-    credits = [(f["role"] or "Written, Directed, Shot & Edited", "Parker Manley")]
+def screening(f, standalone=False):
+    """One film, shown the way a theater shows it: the room goes dark, the
+    screen comes up, the credits sit under it. The home page clones these
+    in place; /films/<slug>/ renders the same thing for shared links."""
+    credits = [(f["role"] or "Written, directed, shot & edited by", "Parker Manley")]
     credits += [(r, n) for r, n in f["crew"]]
     if f["cast"]:
         credits.append(("Starring", "<br>".join(e(n) for n in f["cast"])))
     if f["music"]:
         credits.append(("Music", "<br>".join(e(n) for n in f["music"])))
-    dl = "\n".join(
-        f"<dt>{e(r)}</dt><dd>{n if r in ('Starring', 'Music') else e(n)}</dd>" for r, n in credits
+    pairs = "".join(
+        f'<div class="roll__pair"><dt>{e(r)}</dt><dd>{n if r in ("Starring", "Music") else e(n)}</dd></div>'
+        for r, n in credits
     )
-    laurels = ""
+    fest = ""
     if f["festivals"]:
-        laurels = '<ul class="laurels" aria-label="Festivals">' + "".join(
-            f"<li>{LAUREL}{e(x)}</li>" for x in f["festivals"]
-        ) + "</ul>"
-    made = f'<p class="made-for">{e(f["made_for"])}</p>' if f["made_for"] else ""
-    sub = f'<p class="film__sub">{e(f["subtitle"])}</p>' if f.get("subtitle") else ""
-    stills = [f"/media/stills/{f['slug']}-{n}.jpg" for n in (1, 2) if exists(f"media/stills/{f['slug']}-{n}.jpg")]
-    poster_html = ""
-    if exists(f"media/art/{f['slug']}.jpg"):
-        poster_html = f'<figure class="film__poster"><img src="/media/art/{f["slug"]}.jpg" alt="{e(f["title"])} poster" loading="lazy"></figure>'
-    stills_html = ""
-    if len(stills) == 2:
-        stills_html = '<div class="stills">' + "".join(
-            f'<img src="{s}" alt="Still from {e(f["title"])}" loading="lazy">' for s in stills
-        ) + "</div>"
-
-    loop = ""
-    if f["featured"] and exists(f"media/loops/{f['slug']}.mp4"):
-        loop = (f'<video class="player__loop" muted loop playsinline autoplay preload="auto" poster="{poster}" '
-                f'data-src="/media/loops/{f["slug"]}.mp4" data-src-small="/media/loops/{f["slug"]}-720.mp4"></video>')
-    role = f["role"] or "Written, directed, shot &amp; edited"
-    role = e(f["role"]) if f["role"] else role
-    art = ""
-    if exists(f"media/art/{f['slug']}.jpg"):
-        art = f'<figure class="film__poster"><img src="/media/art/{f["slug"]}.jpg" alt="{e(f["title"])} poster" loading="lazy"></figure>'
-    strip = ""
-    if stills:
-        strip = '<div class="strip" aria-label="Stills"><div class="strip__frames">' + "".join(
-            f'<figure class="strip__frame"><img src="{s_}" alt="Still from {e(f["title"])}" loading="lazy">'
-            f'<figcaption>&#9656; {k + 1}A</figcaption></figure>' for k, s_ in enumerate(stills)
-        ) + "</div></div>"
-
-    def stub(g, label):
-        if not g:
-            return '<span class="stub stub--empty"></span>'
-        return (f'<a class="stub" href="/films/{g["slug"]}/"><span class="stub__mat"><img src="{art_src(g)}" alt="" loading="lazy"></span>'
-                f'<span class="stub__text"><small>{label}</small>{e(g["title"])}</span></a>')
-
-    body = f"""
-<article class="film">
-  <div class="player" {'data-yt="' + f['youtube'] + '"' if f.get('youtube') else 'data-drive="' + f.get('drive', '') + '"'}>
-    <img src="{poster}" alt="">
-    {loop}
-    <button type="button" aria-label="Play {e(f['title'])}"><span class="btn btn--ticket">&#9654;&nbsp; Play the film</span></button>
+        fest = '<p class="scr__fest">' + " &middot; ".join(e(x) for x in f["festivals"]) + "</p>"
+    src = (f'data-yt="{f["youtube"]}"' if f.get("youtube") else f'data-drive="{f.get("drive", "")}"')
+    up = ('<a class="scr__up" href="/">Lights up</a>' if standalone
+          else '<button type="button" class="scr__up">Lights up</button>')
+    return f"""<div class="scr" role="dialog" aria-modal="true" aria-labelledby="scr-{f['slug']}" data-slug="{f['slug']}">
+  {up}
+  <div class="scr__screen" {src}>
+    <img src="/media/posters/{f['slug']}.jpg" alt="">
+    <button type="button" class="scr__play" aria-label="Play {e(f['title'])}"><span>&#9654;</span></button>
   </div>
-  <header class="film__plate">
-    <p class="titlecard__pre">{e(meta_line(f))}</p>
-    <h1 class="titlecard__name">{e(f['title'])}</h1>
-    <p class="titlecard__role">{role}</p>
-  </header>
-  <div class="film__head">
-    {sub}
-    <p class="film__syn">{e(f['synopsis'])}</p>
-    {laurels}
-    {made}
+  <div class="scr__under">
+    <p class="scr__meta">{e(meta_line(f))}</p>
+    <h2 class="scr__title" id="scr-{f['slug']}">{e(f['title'])}</h2>
+    <p class="scr__syn">{e(f['synopsis'])}</p>
+    {fest}
+    <dl class="roll__pairs scr__credits">{pairs}</dl>
   </div>
-  <div class="film__body{' film__body--art' if art else ''}">
-    {art}
-    <div class="credits"><dl>
-{dl}
-    </dl></div>
-  </div>
-  {strip}
-  <nav class="pager" aria-label="More films">
-    {stub(prev_f, "Previous feature")}
-    <a class="pager__all" href="/#all-films">The full program</a>
-    {stub(next_f, "Next feature")}
-  </nav>
-</article>
-"""
+</div>"""
+
+
+def screenings(films):
+    return "".join(f'<template id="t-{f["slug"]}">{screening(f)}</template>' for f in films)
+
+
+def film_page(films, i):
+    f = films[i]
+    body = f"""<article class="film-page">{screening(f, standalone=True)}</article>"""
     return page(
         f"{f['title']}, a film by Parker Manley",
         body,
         current="films",
         description=f["synopsis"],
-        image=poster,
+        image=f"/media/posters/{f['slug']}.jpg",
         path=f"/films/{f['slug']}/",
     )
 
