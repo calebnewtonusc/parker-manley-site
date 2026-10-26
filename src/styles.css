@@ -2750,3 +2750,31 @@ body.is-home .mast { position: fixed; left: 0; right: 0; }
 .scene--films .scene__bg { perspective: none; }
 .scene--films .scene__bg video { visibility: visible !important; opacity: 0 !important; transform: none !important; transition: none !important; }
 .scene--films .scene__bg video.is-on { opacity: 1 !important; }
+
+/* Titles burned into the picture, the way a film credits itself:
+   white letters on the image, halation, grain, a little weave. */
+.titlecard { background: none; border: 0; outline: 0; box-shadow: none; color: #f4f0e6; padding: 0; max-width: 90vw;
+  text-shadow: 0 0 1px rgba(255, 250, 240, 0.7), 0 0 14px rgba(255, 120, 60, 0.28), 0 1px 24px rgba(0, 0, 0, 0.5);
+  filter: blur(0.25px); animation: weave 0.25s steps(2) infinite, title-flicker 4s steps(1) infinite; }
+.titlecard__pre { font-family: var(--font); font-size: clamp(0.7rem, 1.2vw, 0.85rem); letter-spacing: 0.5em; color: #f4f0e6; }
+.titlecard__name { font-weight: 400; letter-spacing: 0.24em; font-size: clamp(2rem, 6.2vw, 4.6rem); color: #f4f0e6; margin: 14px 0 12px; }
+.titlecard__role { font-size: clamp(0.62rem, 1vw, 0.78rem); letter-spacing: 0.42em; color: rgba(244, 240, 230, 0.82); }
+@keyframes title-flicker { 0%, 100% { opacity: calc(1 - var(--p, 0) * 1.6); } 37% { opacity: calc(0.94 - var(--p, 0) * 1.6); } }
+.marquee { display: none; }
+.scene--films .card__title, .scene--films .card__meta { position: static; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal; }
+.scene--films .scene__copy { position: absolute; left: clamp(20px, 5vw, 72px); bottom: clamp(64px, 11vh, 110px); width: min(36rem, calc(100% - 40px)); padding: 0; text-align: left;
+  color: #f4f0e6; text-shadow: 0 0 1px rgba(255, 250, 240, 0.6), 0 0 12px rgba(255, 120, 60, 0.22), 0 1px 22px rgba(0, 0, 0, 0.75); filter: blur(0.2px); }
+.scene--films .card__no { display: none; }
+.scene--films .card__title { font-family: var(--title); font-weight: 400; font-size: clamp(2rem, 5vw, 3.8rem); letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.05; color: #f4f0e6; }
+.scene--films .card__meta { margin: 10px 0 0; font-size: 0.72rem; letter-spacing: 0.32em; color: rgba(244, 240, 230, 0.8); }
+.scene--films .card__syn { margin: 14px 0 0; max-width: 30rem; font-size: 0.95rem; color: rgba(244, 240, 230, 0.9); }
+.scene--films .card__fest { color: rgba(244, 240, 230, 0.7); }
+.scene--films .card__laurels { justify-content: flex-start; }
+.scene--films .line .btn, .scene--films .btn--ticket { all: unset; display: inline-block; margin-top: 16px; cursor: pointer; font-size: 0.72rem; letter-spacing: 0.32em; text-transform: uppercase; color: #f4f0e6; border-bottom: 1px solid rgba(244, 240, 230, 0.6); padding-bottom: 3px; }
+@media (hover: hover) and (pointer: fine) { .scene--films .line .btn:hover { color: #fff; border-color: #fff; } }
+.scene--films .line .btn::before { display: none; }
+/* Grain over the pictures. */
+.opening__pin::after, .scene--films .scene__pin::before { content: ""; position: absolute; inset: -20%; z-index: 2; pointer-events: none; background: url("/media/grain.png"); opacity: 0.14; mix-blend-mode: overlay; animation: grain 0.42s steps(5) infinite; }
+@keyframes grain { 0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); } 60% { transform: translate(-1%, 3%); } 80% { transform: translate(3%, -1%); } }
+@media (max-width: 700px) { .scene--films .scene__copy { bottom: 56px; } .scene--films .card__syn { font-size: 0.85rem; } }
+@media (prefers-reduced-motion: reduce) { .titlecard, .opening__pin::after, .scene--films .scene__pin::before { animation: none; } }

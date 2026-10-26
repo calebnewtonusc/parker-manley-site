@@ -408,7 +408,7 @@
       bottom.textContent = metas[i];
     };
     spell(0, false);
-    scene.addEventListener("chapter", (e) => { spell(e.detail, true); sfx.flap(titles[e.detail].length); });
+    scene.addEventListener("chapter", (e) => spell(e.detail, true));
   }
 
   // Photography: the light table. Scrolling pans across every slide; the
