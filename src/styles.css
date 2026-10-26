@@ -3369,3 +3369,6 @@ html.has-leader body { overflow: hidden; }
 }
 .cam__screen.is-mapped, .cam__screen.is-mapped .cam__frame { overflow: hidden !important; }
 @media (min-width: 900px) { .cam .lens__meta { max-width: 220px; } }
+/* The camera stays in the theater: the roll-in's last frame is the room
+   behind the rig, so the cut lands on the same monitor in the same place. */
+@media (min-width: 900px) { .cam__pin { background: #000 url("/media/hall/rollin/060.webp") center / cover no-repeat !important; } }

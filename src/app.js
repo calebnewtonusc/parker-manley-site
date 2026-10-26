@@ -1690,9 +1690,9 @@ const rollin = document.querySelector(".rollin");
 if (rollin) {
   const cv = rollin.querySelector(".rollin__c");
   const cx = cv.getContext("2d");
-  // Until the 60-frame render lands, stop at 46, the frame closest to the
-  // monitor close-up the camera section opens on.
-  const N = 46;
+  // 60 frames; the last is the exact view the monitor close-up was rendered
+  // from, so the camera section picks up on the same object.
+  const N = 60;
   const frames = [];
   let quads = null;
   const load = (src) => {
@@ -1827,7 +1827,6 @@ if (rollin) {
     [".knoll__pin", "In progress", "Draft-quality render of the table. The final render is sharper."],
     [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
     [".scene--films .scene__pin", "In progress", "Draft-quality render. The final render sharpens the room, and the camera rolls in from here."],
-    [".rollin__pin", "In progress", "Draft render. The final version makes the push into the monitor smooth and lands exactly on the next shot."],
     [".cam__pin", "In progress", "Draft-quality render of the camera. The final render is sharper and matches the one that rolls in."],
     [".foot__pin", "In progress", "The credits will roll over the night sky above Hollywood Blvd, then tilt down to this star."],
   ];
