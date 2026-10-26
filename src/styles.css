@@ -3391,3 +3391,12 @@ html.has-leader body { overflow: hidden; }
 @media (min-width: 900px) {
   .knoll, #contact { padding-left: 0 !important; padding-right: 0 !important; }
 }
+
+/* Credits read in beats, the way a film's end crawl does: the title alone
+   and large, then the three Parker Manley cards, then the cast, then thanks,
+   music and locations each with room of their own. */
+.roll__pre { font-family: var(--title); font-size: clamp(1.9rem, 4.2vw, 3.4rem); letter-spacing: 0.08em; color: var(--ink); text-transform: none; margin: 0 0 clamp(120px, 22vh, 220px); }
+.roll__pairs--top { margin-bottom: clamp(200px, 34vh, 340px); }
+.roll__cols--names { margin-bottom: clamp(200px, 34vh, 340px); }
+.roll__pairs--alone { margin: 0 auto clamp(140px, 24vh, 240px); }
+.roll__pairs--alone:last-child { margin-bottom: 0; }

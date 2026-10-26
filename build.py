@@ -340,17 +340,21 @@ def end_credits(films):
     pair = lambda r, n: f'<div class="roll__pair"><dt>{r}</dt><dd>{n}</dd></div>'
     return f"""  <div class="roll"><audio class="roll__song" src="/media/music/where-is-my-mind.mp3" preload="none"></audio>
     <p class="roll__pre">A Parker Manley picture</p>
-    <dl class="roll__pairs">
+    <dl class="roll__pairs roll__pairs--top">
       {pair("Directed by", "Parker Manley")}
       {pair("Director of Photography", "Parker Manley")}
       {pair("Edited by", "Parker Manley")}
     </dl>
     <h3 class="roll__h">With</h3>
     <ul class="roll__cols roll__cols--names">{people}</ul>
-    <dl class="roll__pairs">
+    <dl class="roll__pairs roll__pairs--alone">
       {pair("Special thanks", "Jesus Christ")}
+    </dl>
+    <dl class="roll__pairs roll__pairs--alone">
       {pair("Intro music", "&ldquo;I Am Chemistry&rdquo; by Yeasayer")}
       {pair("Outro music", "&ldquo;Where Is My Mind?&rdquo; by Pixies")}
+    </dl>
+    <dl class="roll__pairs roll__pairs--alone">
       {pair("Filmed in", "Boulder, Colorado<br>Los Angeles, California")}
     </dl>
   </div>
