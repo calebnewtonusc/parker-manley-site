@@ -3276,3 +3276,11 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 html.has-leader .leader { display: grid; animation: weave 160ms steps(2) infinite; }
 html.no-leader .leader { display: none !important; }
 html.has-leader body { overflow: hidden; }
+
+/* The send line is a director's call, set like the site's title cards. */
+.end__sent { font: inherit !important; display: grid; gap: 14px; justify-items: center; }
+.end__sent b { font-family: "Cinzel", var(--title, serif); font-weight: 600; font-size: clamp(2.6rem, 5vw, 4.4rem); letter-spacing: 0.06em; line-height: 1; color: #f4efe4; }
+.end__sent span { font-family: var(--font); font-size: 0.82rem; letter-spacing: 0.32em; text-transform: uppercase; color: rgba(244,239,228,0.85); }
+.end__sent b { white-space: nowrap; font-size: clamp(2rem, 3.4vw, 3.3rem); }
+.end__sent span { white-space: nowrap; font-size: 0.78rem; }
+@media (max-width: 700px) { .end__sent span { white-space: normal; letter-spacing: 0.2em; text-align: center; padding: 0 16px; } }

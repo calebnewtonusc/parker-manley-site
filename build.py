@@ -676,7 +676,7 @@ def home(films):
             <p class="form__status" role="status"></p>
           </form>
         </div>
-        <p class="end__sent" aria-hidden="true">That's a wrap. I'll get back to you soon.</p>
+        <p class="end__sent" aria-hidden="true"><b>Cut. Print it.</b><span>Your take is in. I'll write back soon.</span></p>
         <p class="end__links"><a href="mailto:{EMAIL}">{EMAIL}</a><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></p>
       </div>
     </div>
