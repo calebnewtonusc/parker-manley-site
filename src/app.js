@@ -710,7 +710,7 @@
     const POV = 0;
     let cur = -1;
     let lastE = 0;
-    let lastServo = 0;
+    let lastServo = -1;
     let rolled = false;
     const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
     const clamp = (x) => Math.max(0, Math.min(1, x));
@@ -777,10 +777,13 @@
       const inView = r.top <= 0 && r.bottom >= innerHeight;
       if (inView && k >= 1 && !rolled) { rolled = true; sfx.rec(); }
       if (!inView) rolled = false;
-      if (inView && /focus|iris|zoom/.test(sh.kind) && Math.abs(e - lastE) > 0.01 && performance.now() - lastServo > 70) {
-        lastServo = performance.now();
+      // One lens-motor sound per adjustment, when it starts moving, not a
+      // buzz the whole way through.
+      if (inView && /focus|iris|zoom/.test(sh.kind) && e > 0 && lastE === 0 && lastServo !== i) {
+        lastServo = i;
         sfx.servo();
       }
+      if (e === 0) lastServo = lastServo === i ? -1 : lastServo;
       lastE = e;
     };
     addEventListener("resize", () => camUpdate());
