@@ -91,12 +91,13 @@ def exists(rel):
 # Frames from films Parker shot himself, each with the one adjustment the
 # monitor shows being made. The reasons describe what's visible in the frame.
 LENS = [
-    ("scar-tissue", 1, "focus", "0.9", "3.5", "Racking to her as she turns into the sun"),
+    # None of these are in Now Showing: every film appears in one section only.
     ("anthropocene", 2, "nd", "0.0", "1.2", "ND in, so the sunlit rock keeps its detail"),
     ("ripped", 2, "iris", "1.4", "5.6", "Exposing for the light behind him, so he stays a silhouette"),
-    ("the-bend", 2, "wb", "5600", "3200", "Warming the one burst of color in a black and white film"),
     ("the-pills", 2, "focus", "0.4", "1.2", "Focus on the reflection in the lens, not the face"),
-    ("abundance", 1, "zoom", "85", "24", "Going wide so the sky carries the scene"),
+    ("hot-tempered", 2, "wb", "3200", "4300", "Cooling the red room down so the skin doesn't go orange"),
+    ("dogme-oner", 2, "focus", "3.0", "1.2", "Pulling focus off the window and onto her"),
+    ("hooked-on-a-feeling", 1, "zoom", "50", "24", "Going wide so all five of them make the frame"),
 ]
 
 
@@ -199,8 +200,12 @@ def festival_program(films):
     """All Films as an edit timeline: every film a clip on V1, oldest on the
     left, its width set by its runtime. Parker's own order is kept inside
     each year."""
+    # The timeline holds the films no other section shows.
+    shown = {f["slug"] for f in films if f["featured"]} | {s_ for s_, *_ in LENS}
     by_year = {}
     for f in films:
+        if f["slug"] in shown:
+            continue
         by_year.setdefault(f["year"] or 0, []).append(f)
     clips = []
     for y in sorted(by_year):

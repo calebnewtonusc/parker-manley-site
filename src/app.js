@@ -396,6 +396,7 @@
   let scrub = null;
   if (edit) {
     const strip = edit.querySelector(".timeline__strip");
+    const playhead = edit.querySelector(".playhead");
     const win = edit.querySelector(".timeline__window");
     const ruler = edit.querySelector(".ruler");
     const lane = edit.querySelector(".fxlane");
@@ -424,6 +425,10 @@
     let half = 40;
     let video = null;
     let cur = -1;
+    // The cut the session drops a Cross Dissolve on, a little before the middle.
+    const K = Math.floor(clips.length * 0.45);
+    let cutline = null;
+    let session = false;
     const layout = () => {
       px = innerWidth < 700 ? 16 : 30;
       clips.forEach((c) => { c.style.width = `${Math.max(innerWidth < 700 ? 84 : 120, Number(c.dataset.min) * px)}px`; });
@@ -448,7 +453,7 @@
         }
         if (i < clips.length - 1) {
           const t = document.createElement("span");
-          t.className = "fxlane__tr";
+          t.className = `fxlane__tr${i === K ? " is-pending" : ""}`;
           t.textContent = KINDS[i % KINDS.length];
           // Drawn the way an NLE draws it: a narrow hatched block on the cut.
           t.style.left = `${c.offsetLeft + c.offsetWidth - 7}px`;
@@ -464,7 +469,14 @@
         t.style.left = `${m * px}px`;
         ruler.appendChild(t);
       }
-      edit.style.height = `${strip.scrollWidth + innerHeight * 1.2}px`;
+      // The razor's cut line, drawn once, shown when the razor clicks.
+      cutline = document.createElement("span");
+      cutline.className = "cutline";
+      lane.appendChild(cutline);
+      session = innerWidth >= 900 && !reduced;
+      // The session reads at about 90vh of scroll per action; the plain
+      // playthrough keeps the old one-to-one length.
+      edit.style.height = session ? `${innerHeight * 8}px` : `${strip.scrollWidth + innerHeight * 1.2}px`;
     };
     let lastK = -1;
     const setClip = (i) => {
@@ -516,14 +528,126 @@
       trLabel.textContent = kind;
       trLabel.classList.add("is-on");
     };
+    let dropped = false;
+    const kindAt = (k) => (k === K ? (dropped ? "Cross Dissolve" : "Cut") : KINDS[k % KINDS.length]);
     const pad2 = (v) => String(Math.floor(v)).padStart(2, "0");
+
+    // The editing session: one scripted pass by Parker's cursor, driven by
+    // scroll so it plays forward and backward exactly.
+    const pin = edit.querySelector(".fc");
+    const cursor = document.createElement("div");
+    cursor.className = "fc__cursor";
+    cursor.innerHTML = '<svg viewBox="0 0 16 24" aria-hidden="true"><path d="M1 1v18.5l4.6-4.3 2.9 6.9 2.8-1.2-2.9-6.7H15z" fill="#fff" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/></svg><span class="fc__ghost">Cross Dissolve</span>';
+    pin.appendChild(cursor);
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+    const seg = (T, a, b) => Math.max(0, Math.min(1, (T - a) / (b - a)));
+    const at = (el, fx = 0.5, fy = 0.5) => {
+      const r = el.getBoundingClientRect();
+      const q = pin.getBoundingClientRect();
+      return { x: r.left - q.left + r.width * fx, y: r.top - q.top + r.height * fy };
+    };
+    const tl = (x) => {
+      const r = win.getBoundingClientRect();
+      const q = pin.getBoundingClientRect();
+      const v1 = clips[0].querySelector(".clip__v").getBoundingClientRect();
+      return { x: r.left - q.left + x, y: v1.top - q.top + v1.height * 0.6 };
+    };
+    const luTrack = luTemp ? luTemp.previousElementSibling : null;
+    const luExpTrack = luExp ? luExp.previousElementSibling : null;
+    const screen = $(".monitor__screen");
+    const tools = [...edit.querySelectorAll(".fc__tools i")];
+    const fxTab = edit.querySelector(".fc__lu .fc__tabs span:nth-child(2)");
+    let lastT = 0;
+    // Click moments in the session, so a click sounds once as you pass it.
+    const CLICKS = [0.06, 0.39, 0.44, 0.475, 0.52, 0.6, 0.9];
+    const script = (T) => {
+      const c0 = clips[K - 1];
+      const cK = clips[K];
+      const cutKm1 = cK.offsetLeft;
+      const cutK = cK.offsetLeft + cK.offsetWidth;
+      const X0 = c0.offsetLeft + c0.offsetWidth * 0.2;
+      const XA = cutKm1 + half + 24;
+      const XR = cK.offsetLeft + cK.offsetWidth * 0.5;
+      const XB = cutK + half + 30;
+      const XEND = clips[Math.min(clips.length - 1, K + 3)].offsetLeft + 40;
+      let xh = X0;
+      if (T >= 0.06) xh = lerp(X0, XA, seg(T, 0.06, 0.22));
+      if (T >= 0.28) xh = lerp(XA, XR, ease(seg(T, 0.28, 0.36)));
+      if (T >= 0.6) xh = lerp(XR, XB, seg(T, 0.6, 0.7));
+      if (T >= 0.9) xh = lerp(XB, XEND, seg(T, 0.9, 1));
+      dropped = T >= 0.58;
+      // Keep the playhead in view the way Premiere pages the timeline.
+      const W = win.clientWidth;
+      const off = Math.max(c0.offsetLeft - W * 0.08, xh - W * 0.78);
+      strip.style.transform = `translateX(${-off}px)`;
+      playhead.style.left = `${xh - off}px`;
+      cutline.style.left = `${XR}px`;
+      cutline.classList.toggle("is-on", T >= 0.44);
+      lane.querySelector(".is-pending")?.classList.toggle("is-dropped", dropped);
+      tools.forEach((t, i) => t.classList.toggle("is-on", i === (T >= 0.39 && T < 0.475 ? 1 : 0)));
+      // The grade: Temperature, then Exposure, then a punch-in on Scale.
+      const temp = 18 * ease(seg(T, 0.7, 0.76));
+      const expo = 0.6 * ease(seg(T, 0.77, 0.82));
+      const scl = 100 + 12 * ease(seg(T, 0.83, 0.88));
+      if (luTemp) { luTemp.textContent = temp.toFixed(1); luTrack.firstElementChild.style.left = `${50 + temp * 2}%`; }
+      if (luExp) { luExp.textContent = expo.toFixed(1); luExpTrack.firstElementChild.style.left = `${50 + expo * 40}%`; }
+      fx.temp.textContent = temp.toFixed(1);
+      fx.exp.textContent = expo.toFixed(1);
+      screen.style.filter = `sepia(${(temp / 90).toFixed(3)}) saturate(${(1 + temp / 110).toFixed(3)}) brightness(${(1 + expo * 0.22).toFixed(3)})`;
+      A.style.scale = String(scl / 100);
+      fx.scale.textContent = scl.toFixed(1);
+      // Where the cursor is, and what it's holding.
+      const P = {
+        play: () => at(edit.querySelector(".pm__play")),
+        head: () => ({ x: tl(xh - off).x, y: at(playhead, 0.5, 0).y + 8 }),
+        razor: () => at(tools[1]),
+        select: () => at(tools[0]),
+        clip: () => tl(XR - off),
+        fx: () => at(fxTab),
+        cut: () => tl(cutK - off),
+        temp: () => at(luTrack.firstElementChild),
+        expo: () => at(luExpTrack.firstElementChild),
+        scale: () => at(fx.scale, 0.3, 0.5),
+      };
+      const off0 = { x: pin.clientWidth * 0.9, y: pin.clientHeight * 0.95 };
+      const path = [
+        [0, 0.05, () => off0, P.play], [0.05, 0.22, P.play, P.play], [0.22, 0.27, P.play, P.head], [0.27, 0.36, P.head, P.head],
+        [0.36, 0.39, P.head, P.razor], [0.39, 0.43, P.razor, P.clip], [0.43, 0.47, P.clip, P.select], [0.47, 0.51, P.select, P.fx],
+        [0.51, 0.58, P.fx, P.cut], [0.58, 0.6, P.cut, P.play], [0.6, 0.69, P.play, P.play], [0.69, 0.7, P.play, P.temp],
+        [0.7, 0.76, P.temp, P.temp], [0.76, 0.77, P.temp, P.expo], [0.77, 0.82, P.expo, P.expo], [0.82, 0.83, P.expo, P.scale],
+        [0.83, 0.88, P.scale, P.scale], [0.88, 0.9, P.scale, P.play], [0.9, 1.01, P.play, P.play],
+      ];
+      const step = path.find(([a, b]) => T >= a && T < b) || path[path.length - 1];
+      const from = step[2]();
+      const to = step[3]();
+      const k = ease(seg(T, step[0], step[1]));
+      let cx = lerp(from.x, to.x, k);
+      const cy = lerp(from.y, to.y, k);
+      if (step[0] === 0.83) cx += 60 * ease(seg(T, 0.83, 0.88));
+      cursor.style.transform = `translate(${cx.toFixed(1)}px, ${cy.toFixed(1)}px)`;
+      cursor.classList.toggle("is-down", CLICKS.some((c) => Math.abs(T - c) < 0.006) || (T > 0.27 && T < 0.36) || (T > 0.52 && T < 0.58) || (T > 0.7 && T < 0.76) || (T > 0.77 && T < 0.82) || (T > 0.83 && T < 0.88));
+      cursor.classList.toggle("is-dragging", T > 0.52 && T < 0.58);
+      cursor.classList.toggle("is-razor", T >= 0.39 && T < 0.475);
+      const crossed = CLICKS.find((c) => (lastT < c && T >= c) || (lastT > c && T <= c));
+      if (crossed !== undefined) sfx.tick();
+      lastT = T;
+      return xh;
+    };
+
     scrub = () => {
       const top = edit.getBoundingClientRect().top + scrollY;
       const span = edit.offsetHeight - innerHeight;
       const p = Math.max(0, Math.min(1, (scrollY - top) / span));
       const total = strip.scrollWidth;
-      const xh = p * (total - 1);
-      strip.style.transform = `translateX(${win.clientWidth / 2 - xh}px)`;
+      let xh;
+      if (session) {
+        xh = script(p);
+      } else {
+        xh = p * (total - 1);
+        strip.style.transform = `translateX(${win.clientWidth / 2 - xh}px)`;
+        playhead.style.left = "";
+      }
       let i = clips.findIndex((c) => xh >= c.offsetLeft && xh < c.offsetLeft + c.offsetWidth);
       if (i < 0) i = xh <= 0 ? 0 : clips.length - 1;
       // Inside a transition, the outgoing clip stays on A and the next on B.
@@ -533,12 +657,12 @@
       let t = 0;
       if (i < clips.length - 1 && xh > end - half) { k = i; t = (xh - (end - half)) / (half * 2); }
       else if (i > 0 && xh < c.offsetLeft + half) { k = i - 1; t = (xh - (c.offsetLeft - half)) / (half * 2); }
-      if (k >= 0 && k !== lastK && /Push|Iris/.test(KINDS[k % KINDS.length])) sfx.whoosh();
+      if (k >= 0 && k !== lastK && /Push|Iris/.test(kindAt(k))) sfx.whoosh();
       lastK = k;
       if (k >= 0 && !reduced) {
         setClip(k);
         if (bImg.dataset.for !== String(k + 1)) { bImg.src = clips[k + 1].dataset.still; bImg.dataset.for = String(k + 1); }
-        render(KINDS[k % KINDS.length], Math.max(0, Math.min(1, t)));
+        render(kindAt(k), Math.max(0, Math.min(1, t)));
         if (t > 0.5) { title.textContent = clips[k + 1].dataset.title; meta.textContent = clips[k + 1].dataset.meta; open.href = clips[k + 1].getAttribute("href"); }
       } else {
         setClip(i);
@@ -549,7 +673,7 @@
         fx.fill.style.width = "0";
         trLabel.classList.remove("is-on");
       }
-      fx.scale.textContent = (100 + Math.sin(xh / 90) * 4).toFixed(1);
+      if (!session) fx.scale.textContent = (100 + Math.sin(xh / 90) * 4).toFixed(1);
       // Timecode is real: Parker's runtimes, added up to the playhead.
       const mins = xh / px;
       tc.textContent = `${pad2(mins / 60)}:${pad2(mins % 60)}:${pad2((mins * 60) % 60)}:${pad2((mins * 1440) % 24)}`;

@@ -2789,3 +2789,7 @@ body.is-home .mast { position: fixed; left: 0; right: 0; }
 .scene--films .card__title, .scene--films .card__meta { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .scene--films .scene__copy { left: 50%; transform: translateX(-50%); text-align: center; bottom: clamp(56px, 9vh, 96px); }
 .scene--films .card__laurels { justify-content: center; }
+/* Camera OSD: readouts sit in one row like a real monitor's overlay, white
+   with a black edge, no bar behind them. */
+.cam__hud { background: none; text-shadow: 0 0 2px #000, 0 0 1px #000, 1px 1px 0 #000; }
+.cam__hud .vf__tc { position: static; transform: none; }
