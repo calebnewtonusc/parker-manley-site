@@ -241,12 +241,32 @@
       setReelSound(on);
       if (on) reel.play().catch(() => {});
     });
+    // The reel's music rides the scroll: it fades down over about two
+    // seconds as the reel leaves and back up as you return, then pauses only
+    // once it's silent. A hard cut here read as a mistake.
+    let level = 1;
+    let target = 1;
+    let last = 0;
+    let fading = 0;
+    const FADE_S = 2.2;
+    const step = (t) => {
+      const dt = last ? (t - last) / 1000 : 0;
+      last = t;
+      const d = target - level;
+      level += Math.sign(d) * Math.min(Math.abs(d), dt / FADE_S);
+      try { reel.volume = level; } catch (err) { /* iOS keeps volume fixed */ }
+      if (level <= 0.001 && target === 0) { reel.pause(); fading = 0; last = 0; return; }
+      if (Math.abs(target - level) < 0.001) { fading = 0; last = 0; return; }
+      fading = requestAnimationFrame(step);
+    };
+    const thresholds = Array.from({ length: 11 }, (_, i) => i / 10);
     new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) reel.play().catch(() => {});
-        else reel.pause();
+        target = Math.min(1, entry.intersectionRatio / 0.6);
+        if (target > 0 && reel.paused) reel.play().catch(() => {});
+        if (!fading) fading = requestAnimationFrame(step);
       },
-      { threshold: 0.2 },
+      { threshold: thresholds },
     ).observe(reel);
   }
 
