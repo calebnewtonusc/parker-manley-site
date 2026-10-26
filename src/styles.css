@@ -3208,3 +3208,16 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 @media (min-width: 900px) {
   .irisout__pin::after { content: ""; position: absolute; inset: 0; z-index: 60; background: var(--ground); opacity: var(--out, 0); pointer-events: none; }
 }
+
+.fc__handoff { inset: 0 !important; width: 100% !important; height: 100% !important; left: 0 !important; top: 0 !important; z-index: 6 !important; }
+.edit { overflow: clip; }
+/* The edit bay's section slides up under the camera's last screenful, so it
+   must not paint its own black over the camera while it does. */
+@media (min-width: 900px) { section.reels:has(.edit) { background: transparent !important; } }
+@media (min-width: 900px) { .edit { background: transparent !important; } }
+
+/* Skinny panels keep their content, cut off at the edge like Premiere does. */
+.fc__ec, .fc__lu, .fc .monitor, .fc__bottom > * { min-width: 0; overflow: hidden; }
+.fc__cursor.is-resize-x svg, .fc__cursor.is-resize-y svg { opacity: 0; }
+.fc__cursor.is-resize-x::after, .fc__cursor.is-resize-y::after { content: ""; position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 12l5-4v3h10V8l5 4-5 4v-3H7v3z' fill='white' stroke='black' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.fc__cursor.is-resize-y::after { transform: rotate(90deg); }

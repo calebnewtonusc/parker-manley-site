@@ -497,7 +497,16 @@
       session = innerWidth >= 900 && !reduced;
       // The session reads at about 90vh of scroll per action; the plain
       // playthrough keeps the old one-to-one length.
-      edit.style.height = session ? `${innerHeight * 9.2}px` : `${strip.scrollWidth + innerHeight * 1.2}px`;
+      edit.style.height = session ? `${innerHeight * 10.5}px` : `${strip.scrollWidth + innerHeight * 1.2}px`;
+      // Overlap the camera's last screenful exactly, measured, so the edit
+      // bay is already in place when the camera section lets go.
+      const camEl = document.querySelector(".cam");
+      edit.style.marginTop = "0px";
+      if (session && camEl) {
+        const camEnd = camEl.getBoundingClientRect().bottom + scrollY;
+        const natural = edit.getBoundingClientRect().top + scrollY;
+        edit.style.marginTop = `${(camEnd - innerHeight - natural).toFixed(0)}px`;
+      }
     };
     let lastK = -1;
     const setClip = (i) => {
@@ -663,23 +672,74 @@
     hand.alt = "";
     const lastCam = document.querySelector(".cam__strip img:last-child");
     if (lastCam) hand.src = lastCam.getAttribute("src");
-    pin.appendChild(hand);
-    // The camera's last frame starts as the whole screen, exactly where the
-    // camera section left it, and shrinks into the program monitor while the
-    // panels grow in. Then the edit takes over from it.
-    const grow = (g) => {
-      if (innerWidth < 900) { hand.style.opacity = "0"; return; }
-      fcTop.style.gridTemplateColumns = `minmax(0, ${(0.9 * g + 0.0001).toFixed(4)}fr) minmax(0, 1.6fr) minmax(0, ${(0.75 * g + 0.0001).toFixed(4)}fr)`;
-      pin.style.gridTemplateRows = `${(28 * g).toFixed(1)}px auto minmax(0, 1.05fr) minmax(0, ${(g + 0.0001).toFixed(4)}fr)`;
-      fcSide.forEach((el) => (el.style.opacity = String(g)));
+    screen.appendChild(hand);
+    // Hand-off in. Premiere opens the way an editor leaves it mid-review:
+    // the Program monitor dragged nearly full screen, every other panel
+    // squeezed skinny, the camera's last frame on it. A short pull back
+    // from full screen, then Parker's cursor grabs the panel edges and drags
+    // the layout back open: left edge, right edge, then the timeline up.
+    const fcBottom = edit.querySelector(".fc__bottom");
+    const panes = (Lf, Rf, Bf) => {
+      fcTop.style.gridTemplateColumns = `minmax(0, ${Lf.toFixed(4)}fr) minmax(0, 1.6fr) minmax(0, ${Rf.toFixed(4)}fr)`;
+      pin.style.gridTemplateRows = `28px auto minmax(0, 1.05fr) minmax(0, ${Bf.toFixed(4)}fr)`;
+    };
+    const SK = { L: 0.1, R: 0.08, B: 0.1 };
+    const FULL = { L: 0.9, R: 0.75, B: 1 };
+    let base = null;
+    const measure = () => {
+      panes(SK.L, SK.R, SK.B);
+      const prev = pin.style.transform;
+      pin.style.transform = "none";
       const q = pin.getBoundingClientRect();
       const r = screen.getBoundingClientRect();
-      const L = (a2, b2) => a2 + (b2 - a2) * g;
-      hand.style.left = `${L(0, r.left - q.left).toFixed(1)}px`;
-      hand.style.top = `${L(0, r.top - q.top).toFixed(1)}px`;
-      hand.style.width = `${L(q.width, r.width).toFixed(1)}px`;
-      hand.style.height = `${L(q.height, r.height).toFixed(1)}px`;
-      hand.style.opacity = String(1 - Math.max(0, Math.min(1, (g - 0.82) / 0.18)));
+      pin.style.transform = prev;
+      base = { cx: r.left - q.left + r.width / 2, cy: r.top - q.top + r.height / 2, s: Math.max(q.width / r.width, q.height / r.height), w: q.width, h: q.height };
+    };
+    addEventListener("resize", () => { base = null; });
+    const edgeAt = (which) => {
+      const q = pin.getBoundingClientRect();
+      const r = screen.closest(".monitor").getBoundingClientRect();
+      const bt = fcBottom.getBoundingClientRect();
+      if (which === "L") return { x: r.left - q.left - 2, y: r.top - q.top + r.height * 0.45 };
+      if (which === "R") return { x: r.right - q.left + 2, y: r.top - q.top + r.height * 0.45 };
+      return { x: r.left - q.left + r.width * 0.55, y: bt.top - q.top - 2 };
+    };
+    // Returns true while the hand-off owns the cursor.
+    const grow = (T) => {
+      if (innerWidth < 900) { pin.style.transform = ""; hand.style.opacity = "0"; panes(FULL.L, FULL.R, FULL.B); return false; }
+      if (!base) measure();
+      // 1. Pull back from full screen onto the skinny layout.
+      const z = ease(Math.max(0, Math.min(1, T / 0.22)));
+      const k = 1 - z;
+      const S = 1 + (base.s - 1) * k;
+      pin.style.transformOrigin = "0 0";
+      pin.style.transform = z >= 1 ? "" : `translate(${((base.w / 2 - base.cx * S) * k).toFixed(1)}px, ${((base.h / 2 - base.cy * S) * k).toFixed(1)}px) scale(${S.toFixed(4)})`;
+      // 2. Three drags, one edge at a time.
+      const d = (a2, b2) => ease(Math.max(0, Math.min(1, (T - a2) / (b2 - a2))));
+      const dl = d(0.34, 0.52);
+      const dr = d(0.6, 0.76);
+      const db = d(0.82, 0.96);
+      panes(SK.L + (FULL.L - SK.L) * dl, SK.R + (FULL.R - SK.R) * dr, SK.B + (FULL.B - SK.B) * db);
+      hand.style.opacity = String(1 - Math.max(0, Math.min(1, (T - 0.94) / 0.06)));
+      // The cursor: travel to an edge, press, drag it, let go, next edge.
+      const segs = [["L", 0.26, 0.34, 0.52], ["R", 0.54, 0.6, 0.76], ["B", 0.78, 0.82, 0.96]];
+      let pos = { x: pin.clientWidth * 0.92, y: pin.clientHeight * 0.92 };
+      let down = false;
+      let prev = pos;
+      for (const [w, t0, t1, t2] of segs) {
+        const e = edgeAt(w);
+        if (T < t0) { pos = prev; break; }
+        if (T < t1) { const u = ease((T - t0) / (t1 - t0)); pos = { x: prev.x + (e.x - prev.x) * u, y: prev.y + (e.y - prev.y) * u }; break; }
+        pos = e;
+        down = T < t2;
+        if (T < t2) break;
+        prev = e;
+      }
+      cursor.style.transform = `translate(${pos.x.toFixed(1)}px, ${pos.y.toFixed(1)}px)`;
+      cursor.classList.toggle("is-down", down);
+      cursor.classList.toggle("is-resize-x", down && T < 0.78);
+      cursor.classList.toggle("is-resize-y", down && T >= 0.78);
+      return T < 1;
     };
     scrub = () => {
       const top = edit.getBoundingClientRect().top + scrollY;
@@ -690,9 +750,18 @@
       if (session) {
         // Hand-off in: the same frame the camera ended on fills the program
         // monitor, and Premiere's panels grow in around it.
-        const g = reduced ? 1 : ease(Math.max(0, Math.min(1, p / 0.14)));
-        grow(g);
-        xh = script(Math.max(0, (p - 0.14) / 0.86));
+        // While the edit bay slides up under the camera's last screenful it
+        // stays invisible; it appears only once it's pinned, already in the
+        // exact frame the camera ended on.
+        pin.style.visibility = edit.getBoundingClientRect().top > 0.5 ? "hidden" : "";
+        const I = 0.22;
+        if (p < I && !reduced) {
+          xh = script(0);
+          grow(p / I);
+        } else {
+          grow(1);
+          xh = script((p - I) / (1 - I));
+        }
       } else {
         xh = p * (total - 1);
         strip.style.transform = `translateX(${win.clientWidth / 2 - xh}px)`;
