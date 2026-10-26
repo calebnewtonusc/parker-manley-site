@@ -602,7 +602,7 @@ def home(films):
       <img class="admit__main" src="/media/titles/ticket-main.webp" alt="">
       <img class="admit__stub" src="/media/titles/ticket-stub.webp" alt="">
     </button>
-    <p class="leader__sound">Sound on &middot; scroll to skip</p>
+    <p class="leader__sound">Sound on &middot; scroll to proceed</p>
   </div>
 </div>
 <div class="opening">

@@ -133,8 +133,8 @@
       document.documentElement.classList.add("has-leader");
       const done = (withSound) => {
         clearInterval(timer);
-        removeEventListener("wheel", skip);
-        removeEventListener("touchmove", skip);
+        removeEventListener("wheel", tear);
+        removeEventListener("touchmove", tear);
         document.documentElement.classList.remove("has-leader");
         // The hand-off: a black frame after the 2, then the reel comes up in
         // the same gate. The sprockets run off and the dirt thins out on the
@@ -173,18 +173,27 @@
       const ticket = leader.querySelector(".admit");
       const serial = String(Math.floor(100000 + Math.random() * 899999));
       ticket.querySelectorAll(".admit__serial").forEach((x) => { x.textContent = serial; });
-      ticket.addEventListener("click", () => {
+      // Parker, 2026-10-26: scrolling tears the ticket and plays the leader
+      // (it used to skip it). A click still works. Browsers don't count a
+      // wheel turn as permission for sound, so a scroll-start plays the
+      // countdown silent unless sound was already on.
+      let torn = false;
+      const tear = () => {
+        if (torn) return;
+        torn = true;
         sfx.wake();
         sfx.rip();
         ticket.classList.add("is-torn");
         setTimeout(roll, reduced ? 0 : 650);
-      }, { once: true });
+      };
+      ticket.addEventListener("click", tear, { once: true });
       leader.querySelector(".leader__roll").focus({ preventScroll: true });
-      addEventListener("wheel", skip, { once: true, passive: true });
-      addEventListener("touchmove", skip, { once: true, passive: true });
+      addEventListener("wheel", tear, { once: true, passive: true });
+      addEventListener("touchmove", tear, { once: true, passive: true });
       addEventListener("keydown", (e) => {
-        if (e.key === "Escape" || e.key === "ArrowDown" || e.key === "PageDown") skip();
-      }, { once: true });
+        if (e.key === "Escape") skip();
+        else if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") tear();
+      });
     }
   }
   // The masthead's projector button: sound on or off from anywhere.
