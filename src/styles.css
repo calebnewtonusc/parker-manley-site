@@ -3137,3 +3137,14 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 .draft-slate::after { content: "Clap it to send"; position: absolute; left: 0; right: 0; bottom: -46px; text-align: center; font: 500 26px/1 "Caveat", cursive; color: #ece4d2; text-shadow: 0 1px 8px rgba(0,0,0,0.85); pointer-events: none; }
 .draft-slate .form__status { bottom: -84px !important; text-align: center; color: #ece4d2; text-shadow: 0 1px 8px rgba(0,0,0,0.85); }
 .end__links { margin-top: 110px; }
+
+/* Green screen into the real shot. All three layers are the same photo
+   size with the same crop, so the cutout lands exactly on himself. */
+.end__green, .end__parker { display: none; }
+@media (min-width: 900px) {
+  .end__green, .end__parker { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 30%; pointer-events: none; }
+  .end__green { opacity: calc(1 - var(--key, 0)); }
+  .end__parker { transform: translateX(calc((1 - var(--enter, 0)) * -42%)); }
+  .irisout { height: 320vh !important; }
+}
+@media (min-width: 900px) { .irisout__card { transform: translate(calc((1 - var(--in, 0)) * 170%), -50%) rotate(calc((1 - var(--in, 0)) * 8deg - 2deg)) !important; } }

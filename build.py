@@ -639,6 +639,8 @@ def home(films):
     <div class="irisout__pin">
       <img class="irisout__img" src="/media/portraits/rock.jpg" alt="Parker framing a shot on a granite outcrop above a pine forest" loading="lazy">
       <div class="irisout__mask" aria-hidden="true"></div>
+      <img class="end__green" src="/media/props/end/greenscreen.webp" alt="" aria-hidden="true">
+      <img class="end__parker" src="/media/props/end/parker-fg.webp" alt="" aria-hidden="true">
       <div class="irisout__card">
         <h2 id="contact-h" class="sr-only">Your film</h2>
   <div class="slate draft-slate">

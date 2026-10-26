@@ -840,9 +840,18 @@
       // it comes in before a take. No masks, no circles.
       const top = iris.getBoundingClientRect().top + scrollY;
       const p = Math.max(0, Math.min(1, (scrollY - top) / (iris.offsetHeight - innerHeight)));
-      const e = reduced ? 1 : 1 - (1 - Math.min(1, p / 0.45)) ** 3;
+      // Parker walks into frame on a green screen, then the key is pulled
+      // and the green becomes the real forest he shot it in. Then the slate.
+      const ease = (x) => 1 - (1 - Math.max(0, Math.min(1, x))) ** 3;
+      const enter = reduced ? 1 : ease(p / 0.22);
+      const key = reduced ? 1 : Math.max(0, Math.min(1, (p - 0.34) / 0.05));
+      const e = reduced ? 1 : ease((p - 0.5) / 0.25);
+      iris.style.setProperty("--enter", enter.toFixed(3));
+      iris.style.setProperty("--key", key.toFixed(3));
       iris.style.setProperty("--in", e.toFixed(3));
-      if (p > 0.4 && window.score) window.score.motif("strings");
+      if (key > 0.05 && !iris.dataset.keyed) { iris.dataset.keyed = "1"; sfx.chk(); }
+      if (key === 0) delete iris.dataset.keyed;
+      if (p > 0.55 && window.score) window.score.motif("strings");
       iris.classList.toggle("is-closed", e > 0.92);
     };
   }
