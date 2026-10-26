@@ -357,6 +357,9 @@ def end_credits(films):
     <dl class="roll__pairs roll__pairs--alone">
       {pair("Filmed in", "Boulder, Colorado<br>Los Angeles, California")}
     </dl>
+    <dl class="roll__pairs roll__pairs--alone roll__reach">
+      {pair("Get in touch", f'<a href="mailto:{EMAIL}">{EMAIL}</a><br><a href="{YOUTUBE}" rel="noopener">YouTube</a> &middot; <a href="{INSTAGRAM}" rel="noopener">Instagram</a>')}
+    </dl>
   </div>
 """
 
