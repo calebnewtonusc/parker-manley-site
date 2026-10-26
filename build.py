@@ -65,6 +65,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Jost:wght@400;500&family=Oswald:wght@600;700&family=Caveat:wght@500&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/desk.css">
 </head>
 <body class="{'is-home' if path == '/' else ''}">
 <a class="skip" href="#main">Skip to content</a>
@@ -79,6 +80,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <footer class="foot"><div class="foot__pin"><img class="foot__star" src="/media/props/star/star-1000.webp" srcset="/media/props/star/star-1000.webp 1000w, /media/props/star/star-2000.webp 2000w" sizes="100vw" alt="A star on the Hollywood Walk of Fame reading Parker Manley" loading="lazy"><p class="foot__line">Parker Manley &middot; Boulder, Colorado to Los Angeles</p></div></footer>
 <script src="/score.js" defer data-samples="clatter.mp3 clack.mp3 rip.mp3 shutter.mp3 flash.mp3 tapestop.mp3 crt.mp3 servo.mp3 runout.mp3 chk.mp3 stamp.mp3"></script>
 <script src="/app.js" defer></script>
+<script src="/desk.js" defer></script>
 </body>
 </html>
 """
@@ -503,6 +505,8 @@ def preview(home_html):
 
 
 def home(films):
+    from site_desk import desk_section
+
     featured = [f for f in films if f["featured"]]
     archive = [f for f in films if not f["featured"]]
 
@@ -646,7 +650,7 @@ def home(films):
   </div>
 </section>
 
-{tv(films)}
+<div class="desk-run">{desk_section(films, json.loads((ROOT / "media/photos/photos.json").read_text()))}</div>
 <section class="contact" id="contact" aria-labelledby="contact-h">
   <div class="irisout">
     <div class="irisout__pin">
@@ -817,7 +821,7 @@ def main():
 """, path="/404"))
     (DIST / "photography").mkdir()
     (DIST / "photography/index.html").write_text(photography())
-    for name in ("styles.css", "app.js", "score.js", "topo.svg"):
+    for name in ("styles.css", "app.js", "score.js", "topo.svg", "desk.css", "desk.js"):
         shutil.copy(ROOT / "src" / name, DIST / name)
     (DIST / "favicon.svg").write_text(FAVICON)
     if (ROOT / "media").exists():

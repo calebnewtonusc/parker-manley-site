@@ -1,0 +1,266 @@
+// Item 9: Parker's Mac. The menu bar clock, the Chrome window's history and
+// its three pages, and the ManleyGram post viewer. window.desk is the hook
+// the end card uses to grow the pinned post into the frame.
+(() => {
+  const desk = document.querySelector(".desk");
+  if (!desk) return;
+
+  // The clock reads the visitor's own time, the way their menu bar does.
+  const clock = desk.querySelector(".mb__clock");
+  const narrow = matchMedia("(max-width: 760px)");
+  const tick = () => {
+    const now = new Date();
+    const time = now.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    if (narrow.matches) {
+      clock.textContent = time;
+    } else {
+      const day = now
+        .toLocaleDateString([], {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        })
+        .replace(/,/g, "");
+      clock.textContent = `${day}  ${time}`;
+    }
+    clock.dateTime = now.toISOString();
+    setTimeout(
+      tick,
+      60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 20,
+    );
+  };
+  tick();
+  narrow.addEventListener("change", tick);
+
+  // Chrome.
+  const cw = desk.querySelector(".cw");
+  const title = cw.querySelector(".cw__title");
+  const fav = cw.querySelector(".cw__fav");
+  const url = cw.querySelector(".cw__url");
+  const back = cw.querySelector(".cw__back");
+  const fwd = cw.querySelector(".cw__fwd");
+  const pages = Object.fromEntries(
+    [...cw.querySelectorAll(".cw__page")].map((p) => [p.dataset.page, p]),
+  );
+  const favs = cw.querySelector(".cw__favs").content;
+  const marks = [...cw.querySelectorAll(".cw__mark")];
+  const flix = pages.flix;
+  const billV = flix.querySelector(".mfx__bill-v");
+  const META = {
+    ntp: { title: "New Tab", url: "" },
+    flix: { title: "ManleyFlix", url: "manleyflix.com/browse" },
+    gram: {
+      title: "Parker Manley (@parkermanley) • ManleyGram photos and videos",
+      url: "manleygram.com/parkermanley/",
+    },
+  };
+  const stack = ["ntp"];
+  let at = 0;
+
+  const show = (name) => {
+    closeViewer(true);
+    cw.dataset.at = name;
+    Object.entries(pages).forEach(([k, p]) => {
+      p.hidden = k !== name;
+    });
+    pages[name].scrollTop = 0;
+    title.textContent = META[name].title;
+    fav.replaceChildren(
+      ...(favs.querySelector(`[data-for="${name}"]`)?.cloneNode(true)
+        .childNodes || []),
+    );
+    url.value = META[name].url;
+    marks.forEach((m) => m.classList.toggle("is-at", m.dataset.go === name));
+    back.disabled = at === 0;
+    fwd.disabled = at === stack.length - 1;
+    if (name === "flix") {
+      if (!billV.src) billV.src = billV.dataset.src;
+      billV.play().catch(() => {});
+    } else billV.pause();
+  };
+  const go = (name) => {
+    if (!pages[name]) return;
+    if (stack[at] === name) {
+      pages[name].scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    stack.splice(at + 1);
+    stack.push(name);
+    at = stack.length - 1;
+    show(name);
+  };
+  back.addEventListener("click", () => {
+    if (at > 0) show(stack[--at]);
+  });
+  fwd.addEventListener("click", () => {
+    if (at < stack.length - 1) show(stack[++at]);
+  });
+  cw.querySelector(".cw__reload").addEventListener("click", () =>
+    show(stack[at]),
+  );
+  desk
+    .querySelectorAll("[data-go]")
+    .forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
+
+  // Typing in the omnibox or the Manleygle box goes to whichever of the two
+  // sites the words point at.
+  const route = (q) =>
+    /gram|photo|insta|pic|parkermanley/i.test(q) ? "gram" : "flix";
+  cw.querySelector(".cw__omni").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const q = url.value.trim();
+    url.blur();
+    if (q) go(route(q));
+    else show(stack[at]);
+  });
+  url.addEventListener("focus", () => url.select());
+  url.addEventListener("blur", () => {
+    url.value = META[stack[at]].url;
+  });
+  const ntpQ = pages.ntp.querySelector(".ntp__q");
+  pages.ntp.querySelector(".ntp__box").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const q = ntpQ.value.trim();
+    ntpQ.value = "";
+    ntpQ.blur();
+    go(route(q || "flix"));
+  });
+
+  // Netflix darkens its header once the billboard scrolls under it.
+  flix.addEventListener(
+    "scroll",
+    () => flix.classList.toggle("is-scrolled", flix.scrollTop > 8),
+    { passive: true },
+  );
+
+  // ManleyGram post viewer.
+  const gram = pages.gram;
+  const tiles = [...gram.querySelectorAll(".ig-tile")];
+  const pinned = gram.querySelector(".ig-tile--pin");
+  const viewer = cw.querySelector(".igv");
+  const vImg = viewer.querySelector(".igv__img");
+  const vMedia = viewer.querySelector(".igv__media");
+  const like = viewer.querySelector(".igv__like");
+  const save = viewer.querySelector(".igv__save");
+  let cur = -1;
+  let opener = null;
+
+  const paint = (i) => {
+    cur = (i + tiles.length) % tiles.length;
+    const t = tiles[cur];
+    vMedia.style.setProperty("--ar", `${t.dataset.w} / ${t.dataset.h}`);
+    viewer.style.setProperty("--arn", String(t.dataset.w / t.dataset.h));
+    vImg.src = t.dataset.full;
+    like.setAttribute("aria-pressed", "false");
+    save.setAttribute("aria-pressed", "false");
+    [-1, 1].forEach((d) => {
+      const n = tiles[(cur + d + tiles.length) % tiles.length];
+      new Image().src = n.dataset.full;
+    });
+  };
+  const openViewer = (i) => {
+    opener = tiles[i];
+    paint(i);
+    viewer.hidden = false;
+    viewer.scrollTop = 0;
+    requestAnimationFrame(() => viewer.classList.add("is-on"));
+    viewer.querySelector(".igv__x").focus({ preventScroll: true });
+  };
+  function closeViewer(now) {
+    if (viewer.hidden) return;
+    viewer.classList.remove("is-on");
+    const done = () => {
+      viewer.hidden = true;
+      vImg.removeAttribute("src");
+    };
+    if (now === true) done();
+    else setTimeout(done, 170);
+    if (opener && now !== true) opener.focus({ preventScroll: true });
+  }
+
+  // The pinned post belongs to the end card: announce it, and only open it
+  // here if nobody takes it.
+  const firePinned = () => {
+    const img = pinned.querySelector("img");
+    const ev = new CustomEvent("desk:pinned", {
+      cancelable: true,
+      detail: {
+        tile: pinned,
+        rect: img.getBoundingClientRect(),
+        src: pinned.dataset.full,
+      },
+    });
+    return document.dispatchEvent(ev);
+  };
+  tiles.forEach((t, i) =>
+    t.addEventListener("click", () => {
+      if (t === pinned && !firePinned()) return;
+      openViewer(i);
+    }),
+  );
+  viewer.querySelector(".igv__x").addEventListener("click", closeViewer);
+  viewer.querySelector(".igv__back").addEventListener("click", closeViewer);
+  viewer
+    .querySelector(".igv__nav--p")
+    .addEventListener("click", () => paint(cur - 1));
+  viewer
+    .querySelector(".igv__nav--n")
+    .addEventListener("click", () => paint(cur + 1));
+  viewer.addEventListener("click", (ev) => {
+    if (ev.target === viewer) closeViewer();
+  });
+  like.addEventListener("click", () => {
+    const on = like.getAttribute("aria-pressed") !== "true";
+    like.setAttribute("aria-pressed", String(on));
+    like.classList.remove("is-pop");
+    if (on) requestAnimationFrame(() => like.classList.add("is-pop"));
+  });
+  vImg.addEventListener("dblclick", () => {
+    if (like.getAttribute("aria-pressed") !== "true") like.click();
+  });
+  save.addEventListener("click", () =>
+    save.setAttribute(
+      "aria-pressed",
+      String(save.getAttribute("aria-pressed") !== "true"),
+    ),
+  );
+  addEventListener("keydown", (ev) => {
+    if (viewer.hidden) return;
+    if (ev.key === "ArrowLeft") paint(cur - 1);
+    else if (ev.key === "ArrowRight") paint(cur + 1);
+    else if (ev.key === "Escape") {
+      ev.stopImmediatePropagation();
+      closeViewer();
+    }
+  });
+  // A swipe on the photo steps through the posts on a phone.
+  let sx = null;
+  vMedia.addEventListener("pointerdown", (ev) => {
+    if (ev.pointerType !== "mouse") sx = ev.clientX;
+  });
+  vMedia.addEventListener("pointerup", (ev) => {
+    if (sx === null) return;
+    const dx = ev.clientX - sx;
+    sx = null;
+    if (Math.abs(dx) > 40) paint(cur + (dx < 0 ? 1 : -1));
+  });
+
+  show("ntp");
+
+  window.desk = {
+    el: desk,
+    open: go,
+    // Opens ManleyGram at the top and hands the pinned post to whoever is
+    // listening for desk:pinned. Returns the tile so its box can be measured.
+    openPinned() {
+      if (stack[at] !== "gram") go("gram");
+      gram.scrollTop = 0;
+      if (firePinned()) openViewer(0);
+      return pinned;
+    },
+    pinnedRect: () => pinned.querySelector("img").getBoundingClientRect(),
+  };
+})();

@@ -760,7 +760,21 @@
           grow(p / I);
         } else {
           grow(1);
-          xh = script((p - I) / (1 - I));
+          // The session runs to 88%; the rest is Premiere leaving full
+          // screen: the window shrinks onto the Mac and slides off it.
+          // The exit fits the last screenful, the part the Mac sits under.
+          const X0 = 1 - innerHeight / Math.max(1, edit.offsetHeight - innerHeight);
+          xh = script(Math.min(1, (p - I) / (X0 - I)));
+          if (p > X0 && !reduced) {
+            const x = (p - X0) / (1 - X0);
+            const sc = 1 - 0.3 * ease(Math.min(1, x / 0.45));
+            const sl = ease(Math.max(0, (x - 0.5) / 0.5));
+            pin.style.transformOrigin = "50% 50%";
+            pin.style.transform = `translateX(${(-sl * 130).toFixed(2)}%) scale(${sc.toFixed(4)})`;
+            pin.classList.add("is-windowed");
+          } else {
+            pin.classList.remove("is-windowed");
+          }
         }
       } else {
         xh = p * (total - 1);
@@ -960,9 +974,9 @@
       // Parker walks into frame on a green screen, then the key is pulled
       // and the green becomes the real forest he shot it in. Then the slate.
       const ease = (x) => 1 - (1 - Math.max(0, Math.min(1, x))) ** 3;
-      const enter = reduced ? 1 : ease(p / 0.22);
-      const key = reduced ? 1 : Math.max(0, Math.min(1, (p - 0.34) / 0.05));
-      const e = reduced ? 1 : ease((p - 0.5) / 0.25);
+      const enter = 1;
+      const key = reduced ? 1 : Math.max(0, Math.min(1, (p - 0.2) / 0.05));
+      const e = reduced ? 1 : ease((p - 0.34) / 0.25);
       iris.style.setProperty("--enter", enter.toFixed(3));
       iris.style.setProperty("--key", key.toFixed(3));
       iris.style.setProperty("--in", e.toFixed(3));
@@ -1516,5 +1530,114 @@ if (tvEl) {
     clearTimeout(hintT);
     hintT = setTimeout(() => aer.classList.remove("is-moved"), 1800);
   });
+}
+// The back half of the take, as one strip of film. Each section slides up
+// under the last screenful of the one before it (measured, so it lines up
+// at any window size) and shows itself only once it's pinned in place.
+//   edit bay  ->  the window leaves full screen onto Parker's Mac
+//   the Mac   ->  his pinned ManleyGram post grows into the end card
+const overlapUnder = (prev, next, screens = 1) => {
+    if (!prev || !next) return;
+    next.style.marginTop = "0px";
+    if (innerWidth < 900) return;
+    const end = prev.getBoundingClientRect().bottom + scrollY;
+    const natural = next.getBoundingClientRect().top + scrollY;
+    next.style.marginTop = `${(end - innerHeight * screens - natural).toFixed(0)}px`;
+  };
+const deskRun = document.querySelector(".desk-run");
+const editEl = document.querySelector(".edit");
+const irisEl = document.querySelector(".irisout");
+if (
+  deskRun &&
+  editEl &&
+  irisEl &&
+  document.body.classList.contains("is-home")
+) {
+  const grow = document.createElement("img");
+  grow.className = "desk__grow";
+  grow.alt = "";
+  grow.src = "/media/desk/pinned.jpg";
+  document.body.appendChild(grow);
+  let gramOpened = false;
+  const lay = () => {
+    overlapUnder(editEl, deskRun, 2);
+    overlapUnder(deskRun, irisEl);
+  };
+  // The desk's own stretch: browse, then the pinned post takes the screen.
+  const deskTick = () => {
+    if (innerWidth < 900) {
+      grow.style.opacity = "0";
+      return;
+    }
+    const top = deskRun.getBoundingClientRect().top + scrollY;
+    const span = deskRun.offsetHeight - innerHeight;
+    const p = Math.max(0, Math.min(1, (scrollY - top) / span));
+    if (p > 0.45 && !gramOpened && window.desk) {
+      gramOpened = true;
+      window.desk.open("gram");
+    }
+    if (p < 0.35 && gramOpened) gramOpened = false;
+    const g = Math.max(0, Math.min(1, (p - 0.72) / 0.28));
+    if (g <= 0 || !window.desk) {
+      grow.style.opacity = "0";
+      return;
+    }
+    const r = window.desk.pinnedRect();
+    const e = 1 - (1 - g) ** 3;
+    // Cover the screen with the same 4:3 frame the end card opens on.
+    const ar = 4 / 3;
+    let W = innerWidth;
+    let H = W / ar;
+    if (H < innerHeight) {
+      H = innerHeight;
+      W = H * ar;
+    }
+    const L = (a, b) => a + (b - a) * e;
+    grow.style.left = `${L(r.left, (innerWidth - W) * 0.3)}px`;
+    grow.style.top = `${L(r.top, (innerHeight - H) * 0.3)}px`;
+    grow.style.width = `${L(r.width, W)}px`;
+    grow.style.height = `${L(r.height, H)}px`;
+    grow.style.opacity = "1";
+    grow.style.visibility =
+      irisEl.getBoundingClientRect().top <= 0.5 ? "hidden" : "";
+  };
+  addEventListener("scroll", deskTick, { passive: true });
+  addEventListener("resize", () => {
+    lay();
+    deskTick();
+  });
+  // Measure after the edit bay has set its own height.
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      lay();
+      deskTick();
+    }),
+  );
+  setTimeout(() => {
+    lay();
+    deskTick();
+  }, 600);
+  // A click on the pinned post jumps to the same hand-off.
+  document.addEventListener("desk:pinned", (ev) => {
+    if (innerWidth < 900) return;
+    ev.preventDefault();
+    const top = deskRun.getBoundingClientRect().top + scrollY;
+    scrollTo({
+      top: top + (deskRun.offsetHeight - innerHeight),
+      behavior: reduced ? "auto" : "smooth",
+    });
+  });
+  // The end card hides until it's pinned, then it is the grown post.
+  const irisPin = irisEl.querySelector(".irisout__pin");
+  const irisShow = () => {
+    if (innerWidth < 900) {
+      irisPin.style.visibility = "";
+      return;
+    }
+    irisPin.style.visibility =
+      irisEl.getBoundingClientRect().top > 0.5 ? "hidden" : "";
+  };
+  addEventListener("scroll", irisShow, { passive: true });
+  irisShow();
 }
 })();

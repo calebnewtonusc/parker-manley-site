@@ -3223,3 +3223,14 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 .fc__cursor.is-resize-y::after { transform: rotate(90deg); }
 /* The camera's pin is full bleed, so its last frame can grow edge to edge. */
 @media (min-width: 900px) { .lens { padding-left: 0 !important; padding-right: 0 !important; } }
+
+/* v21 chain: edit bay -> Mac -> end card. */
+.desk__grow { position: fixed; z-index: 5; object-fit: cover; object-position: 30% 30%; pointer-events: none; opacity: 0; border-radius: 2px; }
+.fc.is-windowed { border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 40px 80px rgba(0,0,0,0.6); }
+@media (min-width: 900px) {
+  .desk-run { position: relative; z-index: 1; height: 260vh; }
+  .desk-run > .desk { position: sticky; top: 0; }
+  .edit { z-index: 3; }
+  section.contact { background: transparent !important; position: relative; z-index: 4; }
+  .irisout { position: relative; z-index: 4; }
+}
