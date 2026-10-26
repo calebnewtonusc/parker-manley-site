@@ -3179,3 +3179,13 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 
 .end__sent { position: absolute; left: 0; right: 0; top: 40%; margin: 0; text-align: center; font: 600 40px/1.15 "Caveat", cursive; color: #f4efe4; opacity: 0; transition: opacity 500ms ease-out 900ms; pointer-events: none; text-shadow: 0 0 2px rgba(0,0,0,0.9), 0 2px 14px rgba(0,0,0,0.95), 0 0 30px rgba(0,0,0,0.7); }
 .draft-slate.is-pulled ~ .end__sent { opacity: 1; }
+
+/* No header on the home take (Caleb, 2026-10-25: "I don't think we need a
+   header"). The one control that stays is sound, as a small projector
+   button in the corner. */
+.is-home .mast { background: none !important; border: 0 !important; pointer-events: none; height: 0; padding: 0 !important; }
+.is-home .mast > :not(.mast__sound) { display: none !important; }
+.is-home .mast__sound { position: fixed !important; right: 18px; bottom: 18px; top: auto !important; pointer-events: auto; z-index: 70; }
+.is-home .mast { transform: none !important; opacity: 1 !important; visibility: visible !important; filter: none !important; }
+.is-home .mast { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+.is-home .mast__sound { transform: none !important; }
