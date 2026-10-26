@@ -1824,10 +1824,7 @@ if (rollin) {
   // Work in progress, marked for Parker: a red frame on each part that's
   // still being built or needs his input, saying what it will become.
   const WIP = [
-    [".knoll__pin", "In progress", "Draft-quality render of the table. The final render is sharper."],
     [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
-    [".scene--films .scene__pin", "In progress", "Draft-quality render. The final render sharpens the room, and the camera rolls in from here."],
-    [".cam__pin", "In progress", "Draft-quality render of the camera. The final render is sharper and matches the one that rolls in."],
     [".foot__pin", "In progress", "The credits will roll over the night sky above Hollywood Blvd, then tilt down to this star."],
   ];
   WIP.forEach(([sel, kind, text]) => {

@@ -120,7 +120,7 @@ def lens_scene(films):
   </ol>
   <div class="cam">
     <div class="cam__pin">
-      <img class="rig__base" src="/media/rig/monitor_base.png" alt="" aria-hidden="true">
+      <img class="rig__base" src="/media/rig/monitor_base.webp" alt="" aria-hidden="true">
       <div class="cam__body">
         <span class="cam__tally" aria-hidden="true"></span>
         <div class="cam__screen">
@@ -141,7 +141,7 @@ def lens_scene(films):
         </div>
         <div class="cam__buttons" aria-hidden="true"><i>Menu</i><i>Disp</i><i>Peak</i><i>Zoom</i><i>Rec</i></div>
       </div>
-      <img class="rig__glass" src="/media/rig/monitor_glass.png" alt="" aria-hidden="true">
+      <img class="rig__glass" src="/media/rig/monitor_glass.webp" alt="" aria-hidden="true">
       <p class="pan__cap"><a class="lens__title" href="/films/{first['slug']}/">{e(first['title'])}</a><a class="cam__watch" href="/films/{first['slug']}/">&#9654;&nbsp; Watch this film</a>
         <span class="lens__meta">{first['year']} &middot; Cinematography by Parker Manley</span></p>
     </div>
