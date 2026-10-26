@@ -3451,3 +3451,6 @@ html.has-leader body { overflow: hidden; }
    sky on every frame of the roll; a tight one reads the same on a still sky. */
 .sky[data-frames]:not([data-frames="0"]) .sky__roll .roll { text-shadow: 0 1px 2px rgba(0,0,0,0.85); }
 .sky__roll { will-change: transform; }
+/* The edit bay sits above the Mac while its window leaves (the Mac's run is
+   raised over the credits, so the edit bay has to be raised over it). */
+@media (min-width: 900px) { .edit { z-index: 6 !important; } }

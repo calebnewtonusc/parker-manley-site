@@ -1681,3 +1681,11 @@
   80% { transform: translateY(-10%); }
 }
 @media (prefers-reduced-motion: reduce) { .dock__app--credits.is-bouncing { animation: none; } }
+
+/* A hovered tile grows 1.32x and lifts 12%; the track scrolls sideways, so
+   it clips vertically, and the top of the grown tile (its M badge) was cut
+   off. Room above, paid back with a negative margin so rows don't move. */
+.desk .mfx-row__track { padding-top: 6cqw; margin-top: -5cqw; padding-bottom: 11cqw; margin-bottom: -10cqw; }
+/* The row being hovered sits over the row below, so its card isn't covered. */
+.desk .mfx-row { position: relative; z-index: 0; }
+.desk .mfx-row:hover { z-index: 5; }
