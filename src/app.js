@@ -897,6 +897,8 @@
       iris.style.setProperty("--enter", enter.toFixed(3));
       iris.style.setProperty("--key", key.toFixed(3));
       iris.style.setProperty("--in", e.toFixed(3));
+      // The end of the take: the shot fades to black under the first credits.
+      iris.style.setProperty("--out", reduced ? "0" : Math.max(0, Math.min(1, (p - 0.86) / 0.14)).toFixed(3));
       if (key > 0.05 && !iris.dataset.keyed) { iris.dataset.keyed = "1"; sfx.chk(); }
       if (key === 0) delete iris.dataset.keyed;
       if (p > 0.55 && window.score) window.score.motif("strings");

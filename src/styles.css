@@ -3204,3 +3204,7 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
   .lens { padding-bottom: 0 !important; }
   .fc { top: 0 !important; height: 100svh !important; }
 }
+
+@media (min-width: 900px) {
+  .irisout__pin::after { content: ""; position: absolute; inset: 0; z-index: 60; background: var(--ground); opacity: var(--out, 0); pointer-events: none; }
+}
