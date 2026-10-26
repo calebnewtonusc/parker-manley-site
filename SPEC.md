@@ -43,6 +43,7 @@ Phone: same order, simpler. The end card is its own section there, and the credi
 ## Open, waiting on someone
 
 - Parker: the flight story beats (item 5), checking film titles, years and credits, and whether he likes the overall take.
+- Parker: click FormSubmit's activation email in prmanley@usc.edu (sent by Caleb's test on 2026-10-26). Until then contact messages don't reach him. FormSubmit answers in 17 to 26 s, so the slate waits up to 45 s.
 - Renders, after Parker signs off: the roll-in polish and the realistic street. Notes are in tools/nalana/PENDING-RENDERS.md and tools/nalana/SKYTILT-STREET-NOTES.md.
 
 ## Checks to run after any change
