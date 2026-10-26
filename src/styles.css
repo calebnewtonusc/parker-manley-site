@@ -3414,3 +3414,5 @@ html.has-leader body { overflow: hidden; }
 @media (hover: hover) and (pointer: fine) { .roll__reach a:hover { border-color: currentColor; } }
 .cam__live { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; pointer-events: none; }
 @media (max-width: 899px) { .cam__live { display: none; } }
+/* The credits roll down the middle of the sky, so its draft tag sits low. */
+.sky__pin .wip__tag { top: auto !important; bottom: 14px; }

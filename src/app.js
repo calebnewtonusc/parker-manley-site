@@ -1860,7 +1860,7 @@ if (rollin) {
   // still being built or needs his input, saying what it will become.
   const WIP = [
     [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
-    [".foot__pin", "In progress", "The credits will roll over the night sky above Hollywood Blvd, then tilt down to this star."],
+    [".sky__pin", "Draft render", "Low poly preview of the move. Once you like it, the street renders as the real Hollywood Blvd: lit storefronts, neon and streetlights."],
   ];
   WIP.forEach(([sel, kind, text]) => {
     const el = document.querySelector(sel);
