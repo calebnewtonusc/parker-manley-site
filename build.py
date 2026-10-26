@@ -344,7 +344,7 @@ def end_credits(films):
     <ul class="roll__cols roll__cols--names">{people}</ul>
     <dl class="roll__pairs">
       {pair("Special thanks", "Jesus Christ")}
-      {pair("Reel music", "&ldquo;I Am Chemistry&rdquo; by Yeasayer")}
+      {pair("Intro music", "&ldquo;I Am Chemistry&rdquo; by Yeasayer")}
       {pair("Outro music", "&ldquo;Where Is My Mind?&rdquo; by Pixies")}
       {pair("Filmed in", "Boulder, Colorado<br>Los Angeles, California")}
     </dl>

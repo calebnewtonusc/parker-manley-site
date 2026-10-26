@@ -497,7 +497,7 @@
       session = innerWidth >= 900 && !reduced;
       // The session reads at about 90vh of scroll per action; the plain
       // playthrough keeps the old one-to-one length.
-      edit.style.height = session ? `${innerHeight * 8}px` : `${strip.scrollWidth + innerHeight * 1.2}px`;
+      edit.style.height = session ? `${innerHeight * 9.2}px` : `${strip.scrollWidth + innerHeight * 1.2}px`;
     };
     let lastK = -1;
     const setClip = (i) => {
@@ -656,6 +656,31 @@
       return xh;
     };
 
+    const fcTop = edit.querySelector(".fc__top");
+    const fcSide = [...edit.querySelectorAll(".fc__ec, .fc__lu, .fc__bottom, .fc__bar, .fc__note, .monitor .fc__tabs, .pm__row, .pm__transport")];
+    const hand = document.createElement("img");
+    hand.className = "fc__handoff";
+    hand.alt = "";
+    const lastCam = document.querySelector(".cam__strip img:last-child");
+    if (lastCam) hand.src = lastCam.getAttribute("src");
+    pin.appendChild(hand);
+    // The camera's last frame starts as the whole screen, exactly where the
+    // camera section left it, and shrinks into the program monitor while the
+    // panels grow in. Then the edit takes over from it.
+    const grow = (g) => {
+      if (innerWidth < 900) { hand.style.opacity = "0"; return; }
+      fcTop.style.gridTemplateColumns = `minmax(0, ${(0.9 * g + 0.0001).toFixed(4)}fr) minmax(0, 1.6fr) minmax(0, ${(0.75 * g + 0.0001).toFixed(4)}fr)`;
+      pin.style.gridTemplateRows = `${(28 * g).toFixed(1)}px auto minmax(0, 1.05fr) minmax(0, ${(g + 0.0001).toFixed(4)}fr)`;
+      fcSide.forEach((el) => (el.style.opacity = String(g)));
+      const q = pin.getBoundingClientRect();
+      const r = screen.getBoundingClientRect();
+      const L = (a2, b2) => a2 + (b2 - a2) * g;
+      hand.style.left = `${L(0, r.left - q.left).toFixed(1)}px`;
+      hand.style.top = `${L(0, r.top - q.top).toFixed(1)}px`;
+      hand.style.width = `${L(q.width, r.width).toFixed(1)}px`;
+      hand.style.height = `${L(q.height, r.height).toFixed(1)}px`;
+      hand.style.opacity = String(1 - Math.max(0, Math.min(1, (g - 0.82) / 0.18)));
+    };
     scrub = () => {
       const top = edit.getBoundingClientRect().top + scrollY;
       const span = edit.offsetHeight - innerHeight;
@@ -663,7 +688,11 @@
       const total = strip.scrollWidth;
       let xh;
       if (session) {
-        xh = script(p);
+        // Hand-off in: the same frame the camera ended on fills the program
+        // monitor, and Premiere's panels grow in around it.
+        const g = reduced ? 1 : ease(Math.max(0, Math.min(1, p / 0.14)));
+        grow(g);
+        xh = script(Math.max(0, (p - 0.14) / 0.86));
       } else {
         xh = p * (total - 1);
         strip.style.transform = `translateX(${win.clientWidth / 2 - xh}px)`;
@@ -734,11 +763,30 @@
     let rolled = false;
     const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
     const clamp = (x) => Math.max(0, Math.min(1, x));
+    const camFrame = cam.querySelector(".cam__frame");
+    const camChrome = [...cam.querySelectorAll(".cam__hud, .vf, .cam__call, .cam__buttons, .pan__cap, .lens__title, .lens__meta, .cam__tally, .draft-mon, .draft-tag")];
+    const handoff = (z) => {
+      if (!camFrame) return;
+      const scr = camFrame.parentElement;
+      if (z <= 0) { camFrame.style.transform = ""; camFrame.style.zIndex = ""; scr.style.overflow = ""; camChrome.forEach((el) => (el.style.opacity = "")); return; }
+      scr.style.overflow = "visible";
+      camFrame.style.transform = "";
+      const r = camFrame.getBoundingClientRect();
+      const sc = Math.max(innerWidth / r.width, innerHeight / r.height);
+      const dx = innerWidth / 2 - (r.left + r.width / 2);
+      const dy = innerHeight / 2 - (r.top + r.height / 2);
+      camFrame.style.transform = `translate(${(dx * z).toFixed(1)}px, ${(dy * z).toFixed(1)}px) scale(${(1 + (sc - 1) * z).toFixed(4)})`;
+      camFrame.style.zIndex = "40";
+      camChrome.forEach((el) => (el.style.opacity = String(1 - Math.min(1, z * 2.5))));
+    };
     camUpdate = () => {
       const top = cam.getBoundingClientRect().top + scrollY;
-      const p = Math.max(0, Math.min(0.9999, (scrollY - top) / (cam.offsetHeight - innerHeight)));
-      // The push: the photo scales in on the camera's top monitor and gives
-      // way to the monitor itself.
+      const p0 = Math.max(0, Math.min(0.9999, (scrollY - top) / (cam.offsetHeight - innerHeight)));
+      // The shots play over the first 86%; the rest is the hand-off, where
+      // the last frame on the monitor grows until it is the whole screen.
+      const p = Math.min(0.9999, p0 / 0.86);
+      const zoom = reduced ? 0 : ease(clamp((p0 - 0.88) / 0.12));
+      handoff(zoom);
       const k = 1;
       const q = clamp((p - POV) / (1 - POV));
       const i = Math.min(shots.length - 1, Math.floor(q * shots.length));

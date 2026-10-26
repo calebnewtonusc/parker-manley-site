@@ -3189,3 +3189,18 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 .is-home .mast { transform: none !important; opacity: 1 !important; visibility: visible !important; filter: none !important; }
 .is-home .mast { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 .is-home .mast__sound { transform: none !important; }
+
+/* Hand-off from the camera: the last shot sits on top of the program
+   monitor until Premiere's panels have grown in. */
+.fc__handoff { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 3; pointer-events: none; }
+.monitor__screen { position: relative; }
+.cam__frame { transform-origin: 50% 50%; will-change: transform; }
+
+.fc__handoff { inset: auto !important; z-index: 50 !important; }
+/* The edit bay rides in under the camera's last 100vh, so the hand-off frame
+   is already in place when the camera section lets go. */
+@media (min-width: 900px) { .edit { margin-top: -100svh; position: relative; z-index: 3; } }
+@media (min-width: 900px) {
+  .lens { padding-bottom: 0 !important; }
+  .fc { top: 0 !important; height: 100svh !important; }
+}
