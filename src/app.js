@@ -2083,8 +2083,13 @@ if (knoll && openingEl) {
     const sw = sheet.offsetWidth,
       sh = sheet.offsetHeight;
     // Below the clip and the polaroid tucked under it.
-    const k = Math.min((pp.w * 0.94) / sw, (pp.h * 0.72) / sh);
-    sheet.style.transform = `translate(${((pp.w - sw * k) / 2).toFixed(1)}px, ${(pp.h * 0.22).toFixed(1)}px) scale(${k.toFixed(4)})`;
+    // The headshot clipped to the board is part of the render; start the
+    // printed sheet just under it so nothing prints over his photo
+    // (Caleb, 2026-10-26, "What the tweak?" at text over the photo).
+    const ph = K.objects && K.objects.polaroid_set;
+    const top = ph ? Math.max(pp.h * 0.06, ph[3] - pp.y + pp.h * 0.02) : pp.h * 0.22;
+    const k = Math.min((pp.w * 0.94) / sw, (pp.h - top - pp.h * 0.03) / sh);
+    sheet.style.transform = `translate(${((pp.w - sw * k) / 2).toFixed(1)}px, ${top.toFixed(1)}px) scale(${k.toFixed(4)})`;
   };
   // Parker, 2026-10-26: every photo on the table opens big when clicked.
   // The render exports each print's and polaroid's box in table pixels.
