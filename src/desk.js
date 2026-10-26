@@ -51,7 +51,7 @@
     flix: { title: "ManleyFlix", url: "manleyflix.com/browse" },
     contact: { title: "Contact Parker Manley", url: "contactparkermanley.com" },
     gram: {
-      title: "Parker Manley (@parkermanley) • ManleyGram photos and videos",
+      title: "Photography",
       url: "manleygram.com/parkermanley/",
     },
   };

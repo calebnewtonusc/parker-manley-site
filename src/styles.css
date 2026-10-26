@@ -3517,3 +3517,25 @@ html.has-leader body { overflow: hidden; }
 .where__list button { display: block; width: 100%; padding: 8px 14px; border: 0; background: none; color: rgba(236,228,210,0.8); font: 500 12px/1.2 var(--font); letter-spacing: 0.14em; text-transform: uppercase; text-align: right; cursor: pointer; transition: color 120ms ease-out, background-color 120ms ease-out; }
 @media (hover: hover) and (pointer: fine) { .where__list button:hover { color: #fff; background: rgba(236,228,210,0.06); } }
 @media (max-width: 700px) { .where__now { font-size: 10px; letter-spacing: 0.16em; } }
+
+/* Parker, 2026-10-26: "Have the clap it to send a little more noticeable",
+   "Can you include link to my youtube". The sticks themselves nudge open
+   every few seconds until the slate is clapped, and the hint is bigger. */
+@media (min-width: 900px) {
+  .cpm--end .draft-slate::after { font-size: clamp(22px, 2.8cqw, 34px) !important; color: #fff6e6 !important; bottom: -52px !important; }
+  .cpm--end .draft-slate:not(.is-clap):not(.is-pulled) .sl__stick { animation: stick-nudge 4.2s ease-in-out 2.4s infinite; }
+  .cpm--end .irisout__card .end__links { display: flex !important; justify-content: flex-end; gap: 0; margin: 64px 0 0 !important; }
+  .cpm--end .irisout__card .end__links a:not([href*="youtube"]) { display: none; }
+  .cpm--end .irisout__card .end__links a { font-size: clamp(13px, 1.4cqw, 16px); }
+}
+@keyframes stick-nudge { 0%, 70%, 100% { transform: rotate(0deg); } 78% { transform: rotate(-9deg); } 86% { transform: rotate(0deg); } 91% { transform: rotate(-4deg); } }
+@media (prefers-reduced-motion: reduce) { .cpm--end .draft-slate .sl__stick { animation: none !important; } }
+
+/* Parker, 2026-10-26: the title card holds a steady ~80% over the reel. The
+   flicker made it read as changing through the video; it only fades as you
+   scroll away now. */
+.opening .titlecard { animation: weave 0.25s steps(2) infinite !important; opacity: max(0, calc(0.8 - var(--p, 0) * 1.6)) !important; }
+@media (prefers-reduced-motion: reduce) { .opening .titlecard { animation: none !important; } }
+/* Parker, 2026-10-26: "There's a weird glare on the monitor, could you remove
+   that". The glass layer was the glare. */
+.rig__glass { display: none !important; }

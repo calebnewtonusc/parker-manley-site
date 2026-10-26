@@ -328,7 +328,7 @@ def desk_section(films, photos):
       <div class="cw__strip">
         <span class="cw__lights" aria-hidden="true"><i></i><i></i><i></i></span>
         <div class="cw__tabs" role="tablist">
-          <button type="button" role="tab" class="cw__tab" data-go="gram"><span class="cw__fav">{GRAM_FAV}</span><span class="cw__title">Parker Manley (@parkermanley)</span>{_svg(I_CLOSE, "cw__tabx")}</button>
+          <button type="button" role="tab" class="cw__tab" data-go="gram"><span class="cw__fav">{GRAM_FAV}</span><span class="cw__title">Photography</span>{_svg(I_CLOSE, "cw__tabx")}</button>
           <button type="button" role="tab" class="cw__tab is-on" data-go="flix"><span class="cw__fav">{M_ICON}</span><span class="cw__title">ManleyFlix</span>{_svg(I_CLOSE, "cw__tabx")}</button>
           <button type="button" role="tab" class="cw__tab" data-go="contact"><span class="cw__fav cw__fav--pm">P</span><span class="cw__title">Contact Parker Manley</span>{_svg(I_CLOSE, "cw__tabx")}</button>
         </div>

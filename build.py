@@ -78,7 +78,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <main id="main">
 {body}
 </main>
-<footer class="foot"><div class="foot__pin"><img class="foot__star" src="/media/props/star/star-1000.webp" srcset="/media/props/star/star-1000.webp 1000w, /media/props/star/star-2000.webp 2000w" sizes="100vw" alt="A star on the Hollywood Walk of Fame reading Parker Manley" loading="lazy"><p class="foot__line">Parker Manley &middot; Boulder, Colorado to Los Angeles</p></div></footer>
+<footer class="foot"><div class="foot__pin"><img class="foot__star" src="/media/props/star/star-1000.webp" srcset="/media/props/star/star-1000.webp 1000w, /media/props/star/star-2000.webp 2000w" sizes="100vw" alt="A star on the Hollywood Walk of Fame reading Parker Manley" loading="lazy"><p class="foot__line">Parker Manley &middot; Lafayette, Colorado to Los Angeles</p></div></footer>
 <script src="/score.js" defer data-samples="clatter.mp3 clack.mp3 rip.mp3 shutter.mp3 flash.mp3 tapestop.mp3 crt.mp3 servo.mp3 runout.mp3 chk.mp3 stamp.mp3"></script>
 <script src="/app.js" defer></script>
 <script src="/desk.js" defer></script>
@@ -205,29 +205,27 @@ def festival_program(films):
     """All Films as an edit timeline: every film a clip on V1, oldest on the
     left, its width set by its runtime. Parker's own order is kept inside
     each year."""
-    # The timeline holds the films no other section shows.
-    shown = {f["slug"] for f in films if f["featured"]} | {s_ for s_, *_ in LENS}
-    by_year = {}
-    for f in films:
-        if f["slug"] in shown:
-            continue
-        by_year.setdefault(f["year"] or 0, []).append(f)
+    # Parker's six, in his order, each shown by a still from his old site
+    # rather than its poster (his notes, 2026-10-26).
+    by = {f["slug"]: f for f in films}
+    picks = [by[x] for x in ("wonderland", "the-best-worst-day-of-my-life", "somnambulist", "reflect",
+                             "as-we-are-you-shall-be", "the-perfect-hill") if x in by]
     clips = []
-    for y in sorted(by_year):
-        for f in by_year[y]:
-            still = f"/media/stills/{f['slug']}-1.jpg"
-            if not exists(still[1:]):
-                still = f"/media/posters/{f['slug']}.jpg"
-            loop = f"media/loops/{f['slug']}-720.mp4"
-            loop_attr = f' data-loop="/{loop}"' if f["featured"] and exists(loop) else ""
-            role = e(f["role"]) if f["role"] else "Written, directed, shot &amp; edited"
-            clips.append(
-                f'<a class="clip clip--y{y % 4}" href="/films/{f["slug"]}/" data-year="{y}" data-min="{f["minutes"] or 3}" '
-                f'data-still="{still}"{loop_attr} data-title="{e(f["title"])}" data-meta="{e(meta_line(f))}" data-role="{role}">'
-                f'<span class="clip__v"><img src="{art_src(f)}" alt="" loading="lazy"><span class="clip__name">{e(f["title"])}</span></span>'
-                f'<span class="clip__a" aria-hidden="true"></span></a>'
-            )
-    first = by_year[sorted(by_year)[0]][0]
+    for f in picks:
+        y = f["year"] or 0
+        still = f"/media/stills/{f['slug']}-1.jpg"
+        if not exists(still[1:]):
+            still = f"/media/posters/{f['slug']}.jpg"
+        loop = f"media/loops/{f['slug']}-720.mp4"
+        loop_attr = f' data-loop="/{loop}"' if exists(loop) else ""
+        role = e(f["role"]) if f["role"] else "Written, directed, shot &amp; edited"
+        clips.append(
+            f'<a class="clip clip--y{y % 4}" href="/films/{f["slug"]}/" data-year="{y}" data-min="{f["minutes"] or 3}" '
+            f'data-still="{still}"{loop_attr} data-title="{e(f["title"])}" data-meta="{e(meta_line(f))}" data-role="{role}">'
+            f'<span class="clip__v"><img src="{still}" alt="" loading="lazy"><span class="clip__name">{e(f["title"])}</span></span>'
+            f'<span class="clip__a" aria-hidden="true"></span></a>'
+        )
+    first = picks[0]
     def ec_row(label, cls, val, key=False):
         k = '<span class="ec__k"><i>&#9666;</i><b>&#9670;</b><i>&#9656;</i></span>' if key else '<span class="ec__k"></span>'
         return f'<div class="ec__row"><span class="ec__sw">&#9201;</span><span class="ec__l">{label}</span><span class="ec__v {cls}">{val}</span>{k}</div>'
@@ -355,7 +353,7 @@ def end_credits(films):
       {pair("Outro music", "&ldquo;Where Is My Mind?&rdquo; by Pixies")}
     </dl>
     <dl class="roll__pairs roll__pairs--alone">
-      {pair("Filmed in", "Boulder, Colorado<br>Los Angeles, California")}
+      {pair("Filmed in", "Lafayette, Colorado<br>Los Angeles, California")}
     </dl>
     <dl class="roll__pairs roll__pairs--alone roll__reach">
       {pair("Get in touch", f'<a href="mailto:{EMAIL}">{EMAIL}</a><br><a href="{YOUTUBE}" rel="noopener">YouTube</a> &middot; <a href="{INSTAGRAM}" rel="noopener">Instagram</a>')}
@@ -381,30 +379,33 @@ def tv_rows(films):
     """ManleyFlix rows. Every film once in Top 10 or a genre shelf; a film
     can sit on two shelves the way Netflix shelves overlap."""
     by = {f["slug"]: f for f in films}
-    top = [f for f in films if f["featured"]][:10]
-    # Parker on the 2026-10-26 call: A Moment is #9 and the old #9 moves to #10.
-    if "a-moment" in by and by["a-moment"] not in top:
-        top = (top[:8] + [by["a-moment"]] + top[8:])[:10]
-    # "USC Class Projects": Beneath the Surface was his application video to
-    # SCA, not a class project (Parker, 2026-10-26).
+    pick = lambda slugs: [by[x] for x in slugs if x in by]
+    # Every list below is Parker's own, from his notes of 2026-10-26
+    # (research/parker-notes-2026-10-26.md). Change them there first.
+    top = pick(["scar-tissue", "abundance", "the-bend", "reflect", "as-we-are-you-shall-be", "anthropocene",
+                "the-five-stages-of-wasabi", "the-perfect-hill", "a-moment", "wonderland"])
+    # Beneath the Surface was his SCA application video, not a class project.
     usc = [f for f in films if f["made_for"] and ("USC" in f["made_for"] or "Trojan" in f["made_for"])
-           and not f["made_for"].startswith("Accepted")]
+           and "Application" not in f["made_for"]]
     scary = [f for f in films if any(k in f["genre"] for k in ("Horror", "Thriller"))]
     funny = [f for f in films if "Comedy" in f["genre"]]
     drama = [f for f in films if any(k in f["genre"] for k in ("Drama", "Romance", "Coming of Age")) and f not in scary]
-    early = sorted([f for f in films if (f["year"] or 0) <= 2024], key=lambda f: f["year"] or 0)
-    # Music videos, plus the game show (Parker: "maybe just add the game show here").
     mv = [f for f in films if f["genre"] in ("Music Video", "Game Show")]
-    # Every film, newest first, so nobody has to hunt the shelves.
-    every = sorted(films, key=lambda f: -(f["year"] or 0))
+    every = pick(["scar-tissue", "hot-tempered", "anthropocene", "everybody", "the-runaround",
+                  "emergency-contact-1", "emergency-contact-3", "reflect", "as-we-are-you-shall-be",
+                  "the-best-worst-day-of-my-life", "a-moment", "the-teeth-deal", "dogme-oner",
+                  "the-ultimate-trojan", "the-bend", "wither-and-bloom", "the-brawn-identity", "the-pills",
+                  "abundance", "ripped", "the-perfect-hill", "bye-bye-bye", "austin-ringgold",
+                  "the-five-stages-of-wasabi", "hooked-on-a-feeling", "always-yours", "mad",
+                  "beneath-the-surface", "wonderland", "somnambulist", "keeping-up-with-the-olympians",
+                  "falling", "moments-from-my-life"])
     rows = [
         ("USC Class Projects", usc),
         ("Horror &amp; Thrillers", scary),
         ("Comedies", funny),
         ("Dramas", drama),
-        ("Music Videos", mv),
-        ("Where It Started", early),
-        ("All Films", every),
+        ("Music Videos and More", mv),
+        ("All Films Chronologically", every),
     ]
     return top, [(t, r) for t, r in rows if r]
 
@@ -525,7 +526,8 @@ def preview(home_html):
     return h
 
 
-HALL = ["scar-tissue", "abundance", "beneath-the-surface", "somnambulist", "the-five-stages-of-wasabi"]
+# Parker, 2026-10-26: The Bend replaces Somnambulist (its hall still is a draft render for now).
+HALL = ["scar-tissue", "abundance", "beneath-the-surface", "the-bend", "the-five-stages-of-wasabi"]
 
 
 def sky_frames():
@@ -624,17 +626,17 @@ def home(films):
       <header class="cs__head">
         <div><p class="cs__label">Production</p><p class="cs__val">Parker Manley</p></div>
         <h2 class="cs__title">Call Sheet</h2>
-        <div class="cs__right"><p class="cs__label">Base camp</p><p class="cs__val">Boulder, Colorado</p></div>
+        <div class="cs__right"><p class="cs__label">Base camp</p><p class="cs__val">Lafayette, Colorado</p></div>
       </header>
       <div class="cs__strip">
         <div><p class="cs__label">Crew</p><p>Director &middot; Cinematographer &middot; Editor</p></div>
-        <div><p class="cs__label">School</p><p>USC, Film &amp; Television Production</p></div>
+        <div><p class="cs__label">School</p><p>University of Southern California, Film &amp; Television Production</p></div>
         <div><p class="cs__label">Shorts since 2023</p><p>25+</p></div>
       </div>
       <table class="cs__sched">
         <thead><tr><th>Sc.</th><th>Set / Description</th><th>Location</th></tr></thead>
         <tbody>
-          <tr><td class="cs__sc">1</td><td><b>Storytelling.</b> I'm a storyteller from Boulder, Colorado, studying Film and Television Production at USC. On set or at the Dungeons &amp; Dragons table. Most of my shorts I wrote, directed, shot and edited myself.</td><td class="cs__loc">INT. Set / D&amp;D table</td></tr>
+          <tr><td class="cs__sc">1</td><td><b>Storytelling.</b> I'm a storyteller from Colorado, studying Film at USC. I love being creative, whether on set, playing D&amp;D, taking photos, or wherever! Most of my shorts here I wrote, directed, produced, shot and edited myself.</td><td class="cs__loc">INT. Set</td></tr>
           <tr><td class="cs__sc">2</td><td><b>Outdoors.</b> I'm a big hiker and camper. I grew up at the foot of the Rockies. At USC: SC Outfitters, fencing, the Trojan Stunt Team and EscapeSC.</td><td class="cs__loc">EXT. Rocky Mountains</td></tr>
           <tr><td class="cs__sc">3</td><td><b>Faith.</b> I lay all my work before Jesus. &ldquo;So, whether you eat or drink, or whatever you do, do all to the glory of God.&rdquo; 1 Corinthians 10:31</td><td class="cs__loc">Every location</td></tr>
         </tbody>
@@ -657,17 +659,17 @@ def home(films):
       <header class="cs__head">
         <div><p class="cs__label">Production</p><p class="cs__val">Parker Manley</p></div>
         <h2 class="cs__title">Call Sheet</h2>
-        <div class="cs__right"><p class="cs__label">Base camp</p><p class="cs__val">Boulder, Colorado</p></div>
+        <div class="cs__right"><p class="cs__label">Base camp</p><p class="cs__val">Lafayette, Colorado</p></div>
       </header>
       <div class="cs__strip">
         <div><p class="cs__label">Crew</p><p>Director &middot; Cinematographer &middot; Editor</p></div>
-        <div><p class="cs__label">School</p><p>USC, Film &amp; Television Production</p></div>
+        <div><p class="cs__label">School</p><p>University of Southern California, Film &amp; Television Production</p></div>
         <div><p class="cs__label">Shorts since 2023</p><p>25+</p></div>
       </div>
       <table class="cs__sched">
         <thead><tr><th>Sc.</th><th>Set / Description</th><th>Location</th></tr></thead>
         <tbody>
-          <tr><td class="cs__sc">1</td><td><b>Storytelling.</b> I'm a storyteller from Boulder, Colorado, studying Film and Television Production at USC. On set or at the Dungeons &amp; Dragons table. Most of my shorts I wrote, directed, shot and edited myself.</td><td class="cs__loc">INT. Set / D&amp;D table</td></tr>
+          <tr><td class="cs__sc">1</td><td><b>Storytelling.</b> I'm a storyteller from Colorado, studying Film at USC. I love being creative, whether on set, playing D&amp;D, taking photos, or wherever! Most of my shorts here I wrote, directed, produced, shot and edited myself.</td><td class="cs__loc">INT. Set</td></tr>
           <tr><td class="cs__sc">2</td><td><b>Outdoors.</b> I'm a big hiker and camper. I grew up at the foot of the Rockies. At USC: SC Outfitters, fencing, the Trojan Stunt Team and EscapeSC.</td><td class="cs__loc">EXT. Rocky Mountains</td></tr>
           <tr><td class="cs__sc">3</td><td><b>Faith.</b> I lay all my work before Jesus. &ldquo;So, whether you eat or drink, or whatever you do, do all to the glory of God.&rdquo; 1 Corinthians 10:31</td><td class="cs__loc">Every location</td></tr>
         </tbody>
@@ -678,9 +680,9 @@ def home(films):
   </div>
 </section>
 
-<section class="flight-todo" aria-label="Boulder to Los Angeles, coming soon">
+<section class="flight-todo" aria-label="Lafayette to Los Angeles, coming soon">
   <div class="flight-todo__card">
-    <p class="ft__h">Boulder &rarr; Los Angeles</p>
+    <p class="ft__h">Lafayette &rarr; Los Angeles</p>
     <p class="ft__what">One unbroken flight from where Parker started filming to where he is now, his films along the way. Coming soon.</p>
     <p class="ft__ask">Parker, for this part:</p>
     <ol class="ft__qs">

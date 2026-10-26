@@ -794,6 +794,11 @@
         setClip(k);
         if (bImg.dataset.for !== String(k + 1)) { bImg.src = clips[k + 1].dataset.still; bImg.dataset.for = String(k + 1); }
         render(kindAt(k), Math.max(0, Math.min(1, t)));
+        // Past the middle of a transition the incoming clip owns the monitor,
+        // so the timeline's highlight moves with it; "Open film" and the
+        // highlight never disagree (Parker, 2026-10-26).
+        const shown = t > 0.5 ? k + 1 : k;
+        clips.forEach((x, kk) => x.classList.toggle("is-on", kk === shown));
         if (t > 0.5) { title.textContent = clips[k + 1].dataset.title; meta.textContent = clips[k + 1].dataset.meta; open.href = clips[k + 1].getAttribute("href"); }
       } else {
         setClip(i);
@@ -987,6 +992,21 @@
       }
       img.style.filter = filter;
       img.style.transform = `scale(${scale.toFixed(3)})`;
+      // The next shot slides in already in its "before" state (soft, too
+      // bright, too warm, too tight), so it never flashes the finished look
+      // and then jumps back (Parker, 2026-10-26).
+      const nx = shots[i + 1], nimg = imgs[i + 1];
+      if (nx && nimg) {
+        const pre = {
+          focus: ["blur(9px)", 1],
+          nd: ["brightness(2.1) contrast(0.65)", 1],
+          iris: ["brightness(1.75) contrast(0.75)", 1],
+          wb: ["sepia(0.45) saturate(1.25) hue-rotate(-12deg)", 1],
+          zoom: ["", 1.9],
+        }[nx.kind] || ["", 1];
+        nimg.style.filter = pre[0];
+        nimg.style.transform = `scale(${pre[1]})`;
+      }
       frame.classList.toggle("is-adjusting", e > 0 && e < 1);
       const r = cam.getBoundingClientRect();
       const inView = r.top <= 0 && r.bottom >= innerHeight;
@@ -2201,26 +2221,28 @@ if (knoll && openingEl) {
   const sound = document.querySelector(".mast__sound");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!sound) return;
+  // Parker's own menu, 2026-10-26: Home, About Me, Featured Films, All Films,
+  // Photography, Contact me. The last three are tabs on his Mac.
   const PARTS = [
-    [".opening", "Reel"], [".knoll", "Call sheet"], [".flight-todo", "Boulder to LA"],
-    [".scene--films", "Director"], [".cam", "Cinematographer"], [".edit", "Editor"],
-    [".desk-run", "His Mac"], [".sky", "End credits"],
-  ].map(([sel, name]) => [document.querySelector(sel), name]).filter(([el]) => el);
+    [".opening", "Home"], [".knoll", "About Me"], [".scene--films", "Featured Films"],
+    [".desk-run", "All Films", "flix"], [".desk-run", "Photography", "gram"], [".desk-run", "Contact me", "contact"],
+  ].map(([sel, name, tab]) => [document.querySelector(sel), name, tab]).filter(([el]) => el);
   const wrap = document.createElement("div");
   wrap.className = "where";
   wrap.innerHTML = '<button class="where__now" type="button" aria-expanded="false" aria-haspopup="true"></button><ol class="where__list" hidden></ol>';
   const now = wrap.querySelector(".where__now");
   const list = wrap.querySelector(".where__list");
-  PARTS.forEach(([el, name]) => {
-    if (el.classList.contains("sky") && innerWidth < 900) return;
+  PARTS.forEach(([el, name, tab]) => {
     const li = document.createElement("li");
     const b = document.createElement("button");
     b.type = "button";
     b.textContent = name;
     b.addEventListener("click", () => {
       close();
-      if (el.classList.contains("sky")) { document.querySelector(".dock__app--credits")?.click(); return; }
-      scrollTo({ top: el.getBoundingClientRect().top + scrollY + 2, behavior: reduced ? "auto" : "smooth" });
+      // Tabs on the Mac: land in the middle of the Mac and bring that tab up.
+      const y = tab ? el.getBoundingClientRect().top + scrollY + (el.offsetHeight - innerHeight) * 0.5 : el.getBoundingClientRect().top + scrollY + 2;
+      scrollTo({ top: y, behavior: reduced ? "auto" : "smooth" });
+      if (tab && window.desk) setTimeout(() => window.desk.open(tab), reduced ? 0 : 700);
     });
     li.append(b);
     list.append(li);
@@ -2239,9 +2261,11 @@ if (knoll && openingEl) {
     wrap.style.right = `${Math.round(innerWidth - r.left + 12)}px`;
     wrap.style.top = `${Math.round(r.top + r.height / 2)}px`;
     let cur = PARTS[0][1];
-    for (const [el, name] of PARTS) {
+    const page = window.desk && window.desk.page ? window.desk.page() : "flix";
+    for (const [el, name, tab] of PARTS) {
       const r = el.getBoundingClientRect();
-      if (!r.height) continue; // hidden, like the credits before End Credits
+      if (!r.height) continue;
+      if (tab && tab !== page) continue; // on the Mac, the open tab names where you are
       if (r.top <= innerHeight * 0.5) cur = name;
     }
     if (now.textContent !== cur) now.textContent = cur;
