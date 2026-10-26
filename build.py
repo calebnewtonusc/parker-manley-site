@@ -63,7 +63,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Jost:wght@400;500&family=Oswald:wght@600;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Jost:wght@400;500&family=Oswald:wght@600;700&family=Caveat:wght@500&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body class="{'is-home' if path == '/' else ''}">
@@ -76,7 +76,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <main id="main">
 {body}
 </main>
-<footer class="foot"><img class="foot__star" src="/media/props/star/star-1000.webp" srcset="/media/props/star/star-1000.webp 1000w, /media/props/star/star-2000.webp 2000w" sizes="100vw" alt="A star on the Hollywood Walk of Fame reading Parker Manley" loading="lazy"><p class="foot__line">Parker Manley &middot; Boulder, Colorado to Los Angeles</p></footer>
+<footer class="foot"><div class="foot__pin"><img class="foot__star" src="/media/props/star/star-1000.webp" srcset="/media/props/star/star-1000.webp 1000w, /media/props/star/star-2000.webp 2000w" sizes="100vw" alt="A star on the Hollywood Walk of Fame reading Parker Manley" loading="lazy"><p class="foot__line">Parker Manley &middot; Boulder, Colorado to Los Angeles</p></div></footer>
 <script src="/score.js" defer data-samples="clatter.mp3 clack.mp3 rip.mp3 shutter.mp3 flash.mp3 tapestop.mp3 crt.mp3 servo.mp3 runout.mp3 chk.mp3 stamp.mp3"></script>
 <script src="/app.js" defer></script>
 </body>
@@ -351,6 +351,119 @@ def end_credits(films):
 """
 
 
+M_ICON = (
+    '<svg class="mfx-m" viewBox="0 0 100 100" aria-hidden="true">'
+    '<defs><linearGradient id="mfx-shade" x1="0" y1="0" x2="0" y2="1">'
+    '<stop offset="0" stop-color="#b1060f"/><stop offset="0.55" stop-color="#b1060f"/>'
+    '<stop offset="1" stop-color="#5e0207"/></linearGradient></defs>'
+    '<path d="M16 6h15v88l-15 3z" fill="url(#mfx-shade)"/>'
+    '<path d="M69 6h15v91l-15-3z" fill="url(#mfx-shade)"/>'
+    '<path d="M16 6h15l26 66h-15z" fill="#e50914"/>'
+    '<path d="M84 6h-15l-26 66h15z" fill="#e50914"/>'
+    "</svg>"
+)
+
+
+def tv_rows(films):
+    """ManleyFlix rows. Every film once in Top 10 or a genre shelf; a film
+    can sit on two shelves the way Netflix shelves overlap."""
+    top = [f for f in films if f["featured"]][:10]
+    usc = [f for f in films if f["made_for"] and ("USC" in f["made_for"] or "Trojan" in f["made_for"])]
+    scary = [f for f in films if any(k in f["genre"] for k in ("Horror", "Thriller"))]
+    funny = [f for f in films if "Comedy" in f["genre"]]
+    drama = [f for f in films if any(k in f["genre"] for k in ("Drama", "Romance", "Coming of Age")) and f not in scary]
+    early = sorted([f for f in films if (f["year"] or 0) <= 2024], key=lambda f: f["year"] or 0)
+    placed = {f["slug"] for row in (top, usc, scary, funny, drama, early) for f in row}
+    mv = [f for f in films if f["genre"] == "Music Video"]
+    more = mv + [f for f in films if f["slug"] not in placed and f not in mv]
+    rows = [
+        ("Made at USC", usc),
+        ("Horror &amp; Thrillers", scary),
+        ("Comedies", funny),
+        ("Dramas", drama),
+        ("Music Videos, Game Shows &amp; More", more),
+        ("Where It Started", early),
+    ]
+    return top, [(t, r) for t, r in rows if r]
+
+
+def tv_tile(f):
+    meta = " &middot; ".join(e(x) for x in [str(f.get("year") or ""), f["genre"], f"{f['minutes']} min" if f.get("minutes") else ""] if x)
+    return (
+        f'<a class="mfx-tile" href="/films/{f["slug"]}/">'
+        f'<span class="mfx-tile__img"><img src="/media/posters/{f["slug"]}.jpg" alt="" loading="lazy">'
+        f'{M_ICON}<span class="mfx-tile__name">{e(f["title"])}</span></span>'
+        f'<span class="mfx-tile__card"><span class="mfx-tile__play" aria-hidden="true">&#9654;</span>'
+        f'<span class="mfx-tile__meta">{meta}</span><span class="mfx-tile__syn">{e(f["synopsis"])}</span></span>'
+        "</a>"
+    )
+
+
+def tv(films):
+    """The last room before the contact card: Parker's Apple TV, with two
+    apps. ManleyFlix holds every film; Aerials plays his photographs the way
+    the TV plays its screensaver."""
+    top, rows = tv_rows(films)
+    bill = next((f for f in films if f["slug"] == "scar-tissue"), films[0])
+    photos_json = ROOT / "media/photos/photos.json"
+    photos = json.loads(photos_json.read_text()) if photos_json.exists() else []
+    photo_list = json.dumps([p["file"] for p in photos])
+    shelf_photo = photos[57]["file"] if len(photos) > 57 else (photos[0]["file"] if photos else "")
+    top10 = "".join(
+        f'<a class="mfx-top" href="/films/{f["slug"]}/"><span class="mfx-top__n" aria-hidden="true">{i + 1}</span>'
+        f'<span class="mfx-top__img"><img src="{art_src(f)}" alt="" loading="lazy"></span>'
+        f'<span class="sr-only">{e(f["title"])}</span></a>'
+        for i, f in enumerate(top)
+    )
+    shelves = "".join(
+        f'<section class="mfx-row" aria-label="{t}"><h3 class="mfx-row__h">{t}</h3>'
+        f'<div class="mfx-row__track">{"".join(tv_tile(f) for f in r)}</div></section>'
+        for t, r in rows
+    )
+    loop = f'/media/loops/{bill["slug"]}.mp4'
+    return f"""
+<section class="tv" aria-label="Parker's Apple TV">
+  <div class="tv__set">
+    <div class="tv__screen">
+      <div class="tvos" data-focus="mfx">
+        <div class="tvos__shelf tvos__shelf--mfx" aria-hidden="true"><img src="/media/posters/{bill['slug']}.jpg" alt=""></div>
+        <div class="tvos__shelf tvos__shelf--aer" aria-hidden="true"><img src="/media/photos/{shelf_photo}" alt=""></div>
+        <div class="tvos__dock">
+          <button type="button" class="tvos__app tvos__app--mfx" data-app="mfx" aria-label="Open ManleyFlix, every film">
+            <span class="tvos__icon">{M_ICON}<i class="tvos__gloss"></i></span><span class="tvos__label">ManleyFlix</span>
+          </button>
+          <button type="button" class="tvos__app tvos__app--aer" data-app="aer" aria-label="Open Aerials, Parker's photographs">
+            <span class="tvos__icon"><img src="/media/photos/thumb/{shelf_photo}" alt=""><b>Aerials</b><i class="tvos__gloss"></i></span><span class="tvos__label">Aerials</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mfx" hidden aria-label="ManleyFlix">
+    <header class="mfx__bar"><button type="button" class="mfx__back" aria-label="Back to the TV">&#8249;</button>
+      <span class="mfx__word" aria-label="ManleyFlix">MANLEYFLIX</span></header>
+    <div class="mfx__bill">
+      <video class="mfx__bill-v" muted loop playsinline preload="none" poster="/media/posters/{bill['slug']}.jpg" data-src="{loop}"></video>
+      <div class="mfx__bill-copy">
+        <p class="mfx__kind">{M_ICON}<span>Film</span></p>
+        <h2 class="mfx__bill-t">{e(bill['title'])}</h2>
+        <p class="mfx__bill-s">{e(bill['synopsis'])}</p>
+        <p class="mfx__btns"><a class="mfx__play" href="/films/{bill['slug']}/">&#9654;&nbsp; Play</a></p>
+      </div>
+    </div>
+    <section class="mfx-row mfx-row--top" aria-label="Top 10 on ManleyFlix today"><h3 class="mfx-row__h">Top 10 on ManleyFlix Today</h3>
+      <div class="mfx-row__track">{top10}</div></section>
+    {shelves}
+  </div>
+  <div class="aer" hidden aria-label="Aerials, photographs by Parker Manley" data-photos='{photo_list}'>
+    <img class="aer__a" alt=""><img class="aer__b" alt="">
+    <p class="aer__cap">Photographed by Parker Manley</p>
+    <p class="aer__hint">Click to go back</p>
+  </div>
+</section>
+"""
+
+
 def home(films):
     featured = [f for f in films if f["featured"]]
     archive = [f for f in films if not f["featured"]]
@@ -481,13 +594,12 @@ def home(films):
   </div>
 </section>
 
+{tv(films)}
 <section class="contact" id="contact" aria-labelledby="contact-h">
-{end_credits(films)}
   <div class="irisout">
     <div class="irisout__pin">
       <img class="irisout__img" src="/media/portraits/rock.jpg" alt="Parker framing a shot on a granite outcrop above a pine forest" loading="lazy">
       <div class="irisout__mask" aria-hidden="true"></div>
-      <div class="irisout__star" aria-hidden="true"><img src="/media/props/star/star-2000.webp" alt="" loading="lazy"><p class="foot__line">Parker Manley &middot; Boulder, Colorado to Los Angeles</p></div>
       <div class="irisout__card">
         <p class="card__no">Coming soon</p>
         <h2 id="contact-h" class="nextup__title">Your film</h2>
@@ -513,6 +625,7 @@ def home(films):
       </div>
     </div>
   </div>
+{end_credits(films)}
 </section>
 """
     body += screenings(films)

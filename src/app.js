@@ -837,17 +837,28 @@
     irisUpdate = () => {
       const top = iris.getBoundingClientRect().top + scrollY;
       const p = Math.max(0, Math.min(1, (scrollY - top) / (iris.offsetHeight - innerHeight)));
-      const e = reduced ? 1 : 1 - (1 - Math.min(1, p / 0.5)) ** 3;
+      const e = reduced ? 1 : 1 - (1 - Math.min(1, p / 0.6)) ** 3;
       // The last beat is a hard cut inside the same frame: Parker and the
       // card are gone and the star is there. No section edge to scroll past.
-      const star = p > 0.86 && innerWidth >= 900;
-      iris.classList.toggle("is-star", star);
+
       iris.style.setProperty("--r", `${(140 - e * (140 - (innerWidth < 700 ? 30 : 22))).toFixed(2)}vmax`);
       if (p > 0.55 && window.score) window.score.motif("strings");
       const closed = e > 0.92;
       if (closed && !iris.classList.contains("is-closed")) sfx.runout();
       iris.classList.toggle("is-closed", closed);
     };
+  }
+
+  // The last frame: after the credits, the star fades up out of black.
+  const foot = document.querySelector(".foot");
+  if (foot && document.body.classList.contains("is-home")) {
+    const upd = () => {
+      const r = foot.getBoundingClientRect();
+      const p = Math.max(0, Math.min(1, (innerHeight - r.top) / (foot.offsetHeight - innerHeight * 0.2)));
+      foot.style.setProperty("--fade", reduced ? 1 : Math.max(0, Math.min(1, (p - 0.25) / 0.45)).toFixed(3));
+    };
+    addEventListener("scroll", upd, { passive: true });
+    upd();
   }
 
   // Viewfinder: the timecode runs at 24 frames a second while it's on screen.
@@ -1178,4 +1189,165 @@ if (house) {
       sfx.clack();
     });
   }
+// Parker's Apple TV. Hovering an app focuses it the way the Siri Remote
+// does: it lifts, tilts toward the pointer and catches the light, and the
+// top shelf behind it changes. Opening one grows it out of the TV to fill
+// the screen; Back, Esc or a click on the screensaver shrinks it home.
+const tvEl = document.querySelector(".tv");
+if (tvEl) {
+  const home = tvEl.querySelector(".tvos");
+  const screenBox = tvEl.querySelector(".tv__screen");
+  const apps = [...tvEl.querySelectorAll(".tvos__app")];
+  const focusApp = (btn) => {
+    if (btn.classList.contains("is-focus")) return;
+    apps.forEach((a) => a.classList.toggle("is-focus", a === btn));
+    home.dataset.focus = btn.dataset.app;
+    tvEl.dataset.glow = btn.dataset.app;
+    sfx.tick();
+  };
+  apps[0].classList.add("is-focus");
+  apps.forEach((btn) => {
+    const icon = btn.querySelector(".tvos__icon");
+    btn.addEventListener("pointerenter", () => focusApp(btn));
+    btn.addEventListener("focus", () => focusApp(btn));
+    btn.addEventListener("pointermove", (ev) => {
+      const r = icon.getBoundingClientRect();
+      const x = (ev.clientX - r.left) / r.width;
+      const y = (ev.clientY - r.top) / r.height;
+      icon.style.setProperty("--ry", `${((x - 0.5) * 14).toFixed(2)}deg`);
+      icon.style.setProperty("--rx", `${((0.5 - y) * 12).toFixed(2)}deg`);
+      icon.style.setProperty("--gx", `${(x * 100).toFixed(1)}%`);
+      icon.style.setProperty("--gy", `${(y * 100).toFixed(1)}%`);
+    });
+    btn.addEventListener("pointerleave", () => {
+      icon.style.setProperty("--rx", "0deg");
+      icon.style.setProperty("--ry", "0deg");
+    });
+    btn.addEventListener("click", () => openApp(btn.dataset.app));
+  });
+
+  const mfx = tvEl.querySelector(".mfx");
+  const aer = tvEl.querySelector(".aer");
+  const billV = mfx.querySelector(".mfx__bill-v");
+  let current = null;
+
+  // FLIP: the app is laid out full screen, then drawn back down onto the
+  // TV's glass and released, so it grows out of the TV.
+  const fromTV = (el) => {
+    const r = screenBox.getBoundingClientRect();
+    return `translate(${r.left}px, ${r.top}px) scale(${r.width / innerWidth}, ${r.height / innerHeight})`;
+  };
+  const openApp = (name) => {
+    if (current) return;
+    const el = name === "mfx" ? mfx : aer;
+    current = el;
+    el.hidden = false;
+    document.documentElement.classList.add("is-app");
+    if (window.score) window.score.duck(true);
+    sfx.whoosh();
+    if (!reduced) {
+      el.animate(
+        [
+          { transform: fromTV(el), borderRadius: "6px" },
+          { transform: "none", borderRadius: "0" },
+        ],
+        { duration: 620, easing: "cubic-bezier(.2,.75,.1,1)" },
+      );
+    }
+    if (el === mfx) {
+      mfx.scrollTop = 0;
+      if (!billV.src) billV.src = billV.dataset.src;
+      billV.play().catch(() => {});
+      mfx.querySelector(".mfx__back").focus({ preventScroll: true });
+    } else startAerials();
+  };
+  const closeApp = () => {
+    if (!current) return;
+    const el = current;
+    current = null;
+    const done = () => {
+      el.hidden = true;
+      document.documentElement.classList.remove("is-app");
+      if (el === mfx) billV.pause();
+      else stopAerials();
+      if (window.score) window.score.duck(false);
+      home.querySelector(".tvos__app.is-focus").focus({ preventScroll: true });
+    };
+    if (reduced) return done();
+    el.animate(
+      [
+        { transform: "none", borderRadius: "0" },
+        { transform: fromTV(el), borderRadius: "6px" },
+      ],
+      { duration: 480, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" },
+    ).onfinish = (a) => {
+      done();
+      a.target.effect.target.getAnimations().forEach((x) => x.cancel());
+    };
+  };
+  mfx.querySelector(".mfx__back").addEventListener("click", closeApp);
+  addEventListener("keydown", (ev) => {
+    if (ev.key !== "Escape" || !current) return;
+    if (document.documentElement.classList.contains("is-screening")) return;
+    closeApp();
+  });
+
+  // Aerials. Shuffled, eleven seconds a photo, two seconds of dissolve,
+  // each one drifting and pushing in slightly like the real screensaver.
+  let files = [];
+  try {
+    files = JSON.parse(aer.dataset.photos || "[]");
+  } catch (err) {
+    files = [];
+  }
+  const layers = [...aer.querySelectorAll("img")];
+  let order = [];
+  let idx = 0;
+  let flip = 0;
+  let timer = 0;
+  let hintT = 0;
+  const show = () => {
+    if (!order.length) return;
+    const img = layers[flip];
+    const other = layers[1 - flip];
+    const f = order[idx % order.length];
+    idx += 1;
+    img.onload = () => {
+      img.classList.add("is-on");
+      other.classList.remove("is-on");
+      if (!reduced) {
+        const dx = (Math.random() - 0.5) * 4;
+        const dy = (Math.random() - 0.5) * 3;
+        img.animate(
+          [
+            { transform: `scale(1.03) translate(${-dx}%, ${-dy}%)` },
+            { transform: `scale(1.15) translate(${dx}%, ${dy}%)` },
+          ],
+          { duration: 14000, easing: "linear", fill: "forwards" },
+        );
+      }
+    };
+    img.src = `/media/photos/${f}`;
+    flip = 1 - flip;
+    timer = setTimeout(show, 11000);
+  };
+  const startAerials = () => {
+    order = files.slice().sort(() => Math.random() - 0.5);
+    idx = 0;
+    show();
+  };
+  const stopAerials = () => {
+    clearTimeout(timer);
+    layers.forEach((l) => {
+      l.classList.remove("is-on");
+      l.getAnimations().forEach((a) => a.cancel());
+    });
+  };
+  aer.addEventListener("click", closeApp);
+  aer.addEventListener("pointermove", () => {
+    aer.classList.add("is-moved");
+    clearTimeout(hintT);
+    hintT = setTimeout(() => aer.classList.remove("is-moved"), 1800);
+  });
+}
 })();
