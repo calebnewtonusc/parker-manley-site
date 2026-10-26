@@ -142,7 +142,7 @@ def lens_scene(films):
         <div class="cam__buttons" aria-hidden="true"><i>Menu</i><i>Disp</i><i>Peak</i><i>Zoom</i><i>Rec</i></div>
       </div>
       <img class="rig__glass" src="/media/rig/monitor_glass.png" alt="" aria-hidden="true">
-      <p class="pan__cap"><a class="lens__title" href="/films/{first['slug']}/">{e(first['title'])}</a>
+      <p class="pan__cap"><a class="lens__title" href="/films/{first['slug']}/">{e(first['title'])}</a><a class="cam__watch" href="/films/{first['slug']}/">&#9654;&nbsp; Watch this film</a>
         <span class="lens__meta">{first['year']} &middot; Cinematography by Parker Manley</span></p>
     </div>
   </div>
@@ -672,7 +672,7 @@ def home(films):
 <section class="reels" id="films" aria-label="Featured films">
   <div class="scene scene--films">
     <div class="scene__pin">
-      <div class="hall__stack" aria-hidden="true">{hall_stills}</div>
+      <div class="hall__stack" aria-hidden="true">{hall_stills}<a class="hall__screen" href="/films/{featured[0]["slug"]}/" tabindex="-1"><span>&#9654;&nbsp; Watch</span></a></div>
       <div class="scene__bg" aria-hidden="true">
 {layers}
       </div>

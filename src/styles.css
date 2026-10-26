@@ -3349,3 +3349,23 @@ html.has-leader body { overflow: hidden; }
 
 @media (min-width: 900px) { .rollin { position: relative; z-index: 2; background: transparent !important; } }
 .rollin { padding: 0 !important; margin-left: 0 !important; margin-right: 0 !important; }
+
+/* The hall's screen and the camera's monitor both open the film. */
+.hall__screen { position: absolute; left: 33.4%; top: 26%; width: 33.2%; height: 32.5%; display: grid; place-items: center; pointer-events: auto; cursor: pointer; text-decoration: none; }
+.hall__screen span { padding: 9px 18px; border-radius: 999px; background: rgba(0,0,0,0.55); color: #fff; font: 600 13px/1 "Inter", var(--font); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0; transform: scale(0.96); transition: opacity 140ms ease-out, transform 140ms ease-out; }
+@media (hover: hover) and (pointer: fine) { .hall__screen:hover span { opacity: 1; transform: none; } }
+.hall__stack { pointer-events: none; }
+.cam__watch { display: inline-block; margin-top: 10px; padding: 9px 18px; border: 1px solid rgba(236,228,210,0.6); border-radius: 999px; color: #ece4d2; text-decoration: none; font: 600 12px/1 "Inter", var(--font); letter-spacing: 0.12em; text-transform: uppercase; transition: background-color 120ms ease-out, color 120ms ease-out; pointer-events: auto; }
+@media (hover: hover) and (pointer: fine) { .cam__watch:hover { background: #ece4d2; color: #111; } }
+.pan__cap { display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.pan__cap a { pointer-events: auto; }
+.cam__screen.is-mapped { cursor: pointer; pointer-events: auto; }
+/* Camera: the film's title and its Watch button sit to the left of the rig,
+   the way the hall puts the film's card beside the chair. */
+@media (min-width: 900px) {
+  .cam .pan__cap { top: auto !important; bottom: 8vh !important; left: 4vw !important; right: auto !important; width: min(300px, 22vw); align-items: flex-start; text-align: left; }
+  .cam .lens__title { font-size: clamp(1.4rem, 2vw, 2rem) !important; text-shadow: 0 2px 12px rgba(0,0,0,0.9); }
+  .cam .lens__meta { text-align: left; }
+}
+.cam__screen.is-mapped, .cam__screen.is-mapped .cam__frame { overflow: hidden !important; }
+@media (min-width: 900px) { .cam .lens__meta { max-width: 220px; } }

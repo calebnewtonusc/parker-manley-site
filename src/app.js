@@ -851,6 +851,7 @@
     // the hand-offs the same quad slides between the glass and the whole
     // screen, so nothing ever jumps.
     const rig = cam.querySelector(".rig__base");
+    cam.querySelector(".cam__screen")?.addEventListener("click", () => cam.querySelector(".cam__watch")?.click());
     const scr = cam.querySelector(".cam__screen");
     let RIG = null;
     fetch("/media/rig/monitor.json").then((r) => r.json()).then((j) => { RIG = j; handoff(lastZ); }).catch(() => {});
@@ -910,6 +911,8 @@
         why.textContent = sh.why;
         cap.textContent = sh.title;
         cap.href = sh.href;
+        const watch = cam.querySelector(".cam__watch");
+        if (watch) watch.href = sh.href;
         capMeta.textContent = `${sh.year} \u00b7 Cinematography by Parker Manley`;
         cam.dataset.kind = sh.kind;
         hud("wb").textContent = "5600K"; hud("iris").textContent = "T2.8"; hud("nd").textContent = "ND Clear"; hud("zoom").textContent = "35 mm";
@@ -1673,6 +1676,9 @@ if (hallStack) {
   const fs = [...hallStack.querySelectorAll(".hall__f")];
   hallStack.closest(".scene").addEventListener("chapter", (e) => {
     fs.forEach((f, k) => f.classList.toggle("is-on", k === e.detail));
+    const line = hallStack.closest(".scene").querySelectorAll(".line")[e.detail];
+    const go = line && line.querySelector("a.btn");
+    if (go) hallStack.querySelector(".hall__screen").href = go.getAttribute("href");
   });
 }
 
