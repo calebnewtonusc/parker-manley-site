@@ -3539,3 +3539,11 @@ html.has-leader body { overflow: hidden; }
 /* Parker, 2026-10-26: "There's a weird glare on the monitor, could you remove
    that". The glass layer was the glare. */
 .rig__glass { display: none !important; }
+
+/* Photos on the table open big on click (Parker, 2026-10-26). */
+.knoll__photo { position: absolute; z-index: 3; padding: 0; border: 0; background: none; cursor: zoom-in; pointer-events: auto; }
+.knoll__pin, .knoll__world { pointer-events: auto; }
+.photo-open { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: rgba(8,7,6,0.86); opacity: 0; transition: opacity 200ms ease-out; cursor: zoom-out; }
+.photo-open.is-on { opacity: 1; }
+.photo-open img { max-width: min(88vw, 1400px); max-height: 86vh; object-fit: contain; box-shadow: 0 30px 80px rgba(0,0,0,0.6); transform: scale(0.97); transition: transform 220ms ease-out; }
+.photo-open.is-on img { transform: none; }

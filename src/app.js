@@ -2022,6 +2022,7 @@ if (knoll && openingEl) {
       K = j;
       place();
       tick();
+      prints();
     })
     .catch(() => {});
   const box = (q) => {
@@ -2056,6 +2057,34 @@ if (knoll && openingEl) {
     // Below the clip and the polaroid tucked under it.
     const k = Math.min((pp.w * 0.94) / sw, (pp.h * 0.72) / sh);
     sheet.style.transform = `translate(${((pp.w - sw * k) / 2).toFixed(1)}px, ${(pp.h * 0.22).toFixed(1)}px) scale(${k.toFixed(4)})`;
+  };
+  // Parker, 2026-10-26: every photo on the table opens big when clicked.
+  // The render exports each print's and polaroid's box in table pixels.
+  const prints = () => {
+    if (!K || !K.objects || world.querySelector(".knoll__photo")) return;
+    Object.entries(K.objects).forEach(([name, [x0, y0, x1, y1]]) => {
+      const m = name.match(/^print_(desk-\d+)$/) || name.match(/^polaroid_(\w+)$/);
+      if (!m) return;
+      const src = name.startsWith("print_") ? `/media/desk/parker/${m[1]}.jpg` : `/media/desk/polaroids/${m[1]}.webp`;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "knoll__photo";
+      b.setAttribute("aria-label", "Open photo");
+      Object.assign(b.style, { left: `${x0}px`, top: `${y0}px`, width: `${x1 - x0}px`, height: `${y1 - y0}px` });
+      b.addEventListener("click", () => openPhoto(src));
+      world.append(b);
+    });
+  };
+  const openPhoto = (src) => {
+    const box = document.createElement("div");
+    box.className = "photo-open";
+    box.innerHTML = `<img src="${src}" alt="">`;
+    const shut = () => { box.classList.remove("is-on"); setTimeout(() => box.remove(), 220); removeEventListener("keydown", esc); };
+    const esc = (ev) => { if (ev.key === "Escape") shut(); };
+    box.addEventListener("click", shut);
+    addEventListener("keydown", esc);
+    document.body.append(box);
+    requestAnimationFrame(() => box.classList.add("is-on"));
   };
   // A view is a world rectangle fitted to the screen.
   const view = (r, cover) => {
