@@ -77,9 +77,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <main id="main">
 {body}
 </main>
-<footer class="foot"><div class="walk" aria-label="A Hollywood Walk of Fame star for Parker Manley">
-  <div class="walk__star"><span class="walk__name">Parker Manley</span><svg class="walk__emblem" viewBox="0 0 40 26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="7" r="5.5"/><circle cx="21" cy="7" r="5.5"/><rect x="4" y="13" width="22" height="11" rx="1.5"/><path d="M26 16l9-4v14l-9-4z"/></g></svg></div>
-</div><span class="foot__edge">Parker Manley &nbsp;&#9656;&nbsp; Boulder, Colorado to Los Angeles &nbsp;&#9656;&nbsp; Tail</span></footer>
+<footer class="foot">Parker Manley &middot; Boulder, Colorado to Los Angeles</footer>
 <script src="/score.js" defer></script>
 <script src="/app.js" defer></script>
 </body>
@@ -119,7 +117,6 @@ def lens_scene(films):
   </ol>
   <div class="cam">
     <div class="cam__pin">
-      <img class="cam__pov" src="/media/portraits/set.jpg" alt="Parker on set behind a Sony cinema camera, hand on the rig" loading="lazy">
       <div class="cam__body">
         <span class="cam__tally" aria-hidden="true"></span>
         <div class="cam__screen">
@@ -293,8 +290,6 @@ def end_credits(films):
       {pair("Director of Photography", "Parker Manley")}
       {pair("Edited by", "Parker Manley")}
     </dl>
-    <h3 class="roll__h">The films</h3>
-    <ul class="roll__cols">{titles}</ul>
     <h3 class="roll__h">With</h3>
     <ul class="roll__cols roll__cols--names">{people}</ul>
     <dl class="roll__pairs">
@@ -317,6 +312,7 @@ def home(films):
             "synopsis": f["synopsis"],
             "festivals": " · ".join(f["festivals"]) or (f["made_for"] if f["made_for"] else ""),
             "href": f"/films/{f['slug']}/",
+            "laurels": f["festivals"],
         }
         for f in featured
     ]
@@ -333,7 +329,7 @@ def home(films):
         f'<h3 class="card__title">{e(s["title"])}</h3>'
         f'<p class="card__meta">{e(s["meta"])}</p>'
         f'<p class="card__syn">{e(s["synopsis"])}</p>'
-        + (f'<p class="card__fest">{e(s["festivals"])}</p>' if s["festivals"] else "")
+        + (f'<p class="card__laurels">' + "".join(f'<span>{LAUREL}{e(x)}{LAUREL}</span>' for x in s["laurels"]) + '</p>' if s["laurels"] else (f'<p class="card__fest">{e(s["festivals"])}</p>' if s["festivals"] else ""))
         + f'<a class="btn btn--ticket" href="{s["href"]}"{"" if i == 0 else " tabindex=\"-1\""}>Watch the film</a></div>'
         for i, s in enumerate(showing)
     )
@@ -390,9 +386,6 @@ def home(films):
   </div>
 </div>
 
-{splice(2, "Part I, The Director")}
-{chair("On the festival circuit, then now showing")}
-{circuit(films)}
 <section class="reels" id="films" aria-label="Featured films">
   <div class="scene scene--films">
     <div class="scene__pin">
@@ -407,25 +400,17 @@ def home(films):
       <div class="scene__copy">
 {cards}
       </div>
-      <nav class="scene__nav tickets" aria-label="Featured films"><ol>
-{tickets}
-      </ol></nav>
       <div class="scene__ticks" aria-hidden="true">{ticks}</div>
     </div>
   </div>
 </section>
-{splice(3, "Part II, The Cinematographer")}
-{intertitle("Part II", "The Cinematographer", "Frames I shot")}
 {lens_scene(films)}
-{splice(4, "Part III, The Editor")}
 <section class="reels" aria-label="Every film">
-{intertitle("Part III", "The Editor", "Every cut since 2023, on one timeline")}
   <div class="lobby" id="all-films">
 {program}
   </div>
 </section>
 
-{splice(5, "Call sheet")}
 <section class="about" id="about" aria-label="About Parker">
   <div class="callsheet-wrap">
     <article class="callsheet">
@@ -456,7 +441,6 @@ def home(films):
   </div>
 </section>
 
-{splice(6, "End credits")}
 <section class="contact" id="contact" aria-labelledby="contact-h">
 {end_credits(films)}
   <div class="irisout">
@@ -469,8 +453,8 @@ def home(films):
         <p class="contact__lede">Looking for a director, a DP or an editor? I'd love to hear about it.</p>
         <a class="contact__mail" href="mailto:{EMAIL}">{EMAIL}</a>
   <div class="slate">
-          <div class="slate__art" aria-hidden="true"><img class="slate__board-img" src="/media/props/clapper/board-520.webp" srcset="/media/props/clapper/board-520.webp 520w, /media/props/clapper/board-1000.webp 1000w" sizes="240px" alt="" loading="lazy"><img class="slate__stick-img" src="/media/props/clapper/stick-520.webp" srcset="/media/props/clapper/stick-520.webp 520w, /media/props/clapper/stick-1000.webp 1000w" sizes="240px" alt="" loading="lazy"><span class="slate__chalk slate__chalk--prod">Your next film</span><span class="slate__chalk slate__chalk--dir">P. Manley</span><span class="slate__chalk slate__chalk--take">1</span></div>
-          <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST">
+          
+          <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST" novalidate>
             <input type="hidden" name="_subject" value="New message from parkermanley.com">
             <input type="hidden" name="_template" value="table">
             <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
@@ -480,7 +464,7 @@ def home(films):
               <label>Email<input name="email" type="email" autocomplete="email" required></label>
             </div>
             <label>Message<textarea name="message" required></textarea></label>
-            <button class="btn btn--ember" type="submit">Action</button>
+            <button class="btn btn--ember" type="submit">Send</button>
             <p class="form__status" role="status"></p>
           </form>
         </div>

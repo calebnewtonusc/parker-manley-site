@@ -608,8 +608,6 @@
   let camUpdate = null;
   if (cam) {
     const shots = [...document.querySelectorAll(".cam__shots li")].map((li) => ({ ...li.dataset }));
-    const pov = cam.querySelector(".cam__pov");
-    const body = cam.querySelector(".cam__body");
     const frame = cam.querySelector(".cam__frame");
     const strip = cam.querySelector(".cam__strip");
     const imgs = [...strip.querySelectorAll("img")];
@@ -625,7 +623,7 @@
     const NAMES = { focus: "Pulling focus", nd: "Adding ND", iris: "Stopping down", wb: "White balance", zoom: "Zooming out" };
     const STOPS = [1.4, 2, 2.8, 4, 5.6, 8];
     // The first 16% of the scroll is the push into the monitor.
-    const POV = 0.16;
+    const POV = 0;
     let cur = -1;
     let lastE = 0;
     let lastServo = 0;
@@ -637,11 +635,7 @@
       const p = Math.max(0, Math.min(0.9999, (scrollY - top) / (cam.offsetHeight - innerHeight)));
       // The push: the photo scales in on the camera's top monitor and gives
       // way to the monitor itself.
-      const k = reduced ? 1 : ease(clamp(p / POV));
-      pov.style.transform = `scale(${(1 + k * 7).toFixed(3)})`;
-      pov.style.opacity = String(clamp(1 - (k - 0.72) / 0.28));
-      body.style.transform = `scale(${(0.35 + 0.65 * clamp((k - 0.55) / 0.45)).toFixed(3)})`;
-      body.style.opacity = String(clamp((k - 0.6) / 0.3));
+      const k = 1;
       const q = clamp((p - POV) / (1 - POV));
       const i = Math.min(shots.length - 1, Math.floor(q * shots.length));
       const u = q * shots.length - i;
@@ -705,21 +699,7 @@
       }
       lastE = e;
     };
-    // Aim the push at the camera's top monitor, wherever object-fit put it.
-    // It sits at 31% across and 16.5% down the 1350x1800 photo.
-    const aim = () => {
-      const W = pov.clientWidth;
-      const H = pov.clientHeight;
-      const cover = getComputedStyle(pov).objectFit === "cover";
-      const sc = cover ? Math.max(W / 1350, H / 1800) : Math.min(W / 1350, H / 1800);
-      const dw = 1350 * sc;
-      const dh = 1800 * sc;
-      const x0 = (W - dw) * 0.3;
-      const y0 = (H - dh) * 0.18;
-      pov.style.transformOrigin = `${(x0 + 0.31 * dw).toFixed(1)}px ${(y0 + 0.165 * dh).toFixed(1)}px`;
-    };
-    aim();
-    addEventListener("resize", () => { aim(); camUpdate(); });
+    addEventListener("resize", () => camUpdate());
   }
 
   // Director: the festival circuit. Laurels stamp onto the poster as you
@@ -849,6 +829,17 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (form.querySelector(".hp input").value) return;
+      // Our own validation, in the page's voice, instead of the browser bubble.
+      const bad = [...form.querySelectorAll("input[required], textarea[required]")].filter((f) => !f.checkValidity());
+      form.querySelectorAll(".is-invalid").forEach((f) => f.classList.remove("is-invalid"));
+      if (bad.length) {
+        bad.forEach((f) => f.classList.add("is-invalid"));
+        const email = bad.find((f) => f.type === "email" && f.value);
+        status.dataset.state = "err";
+        status.textContent = email ? "That email doesn't look right." : `Add your ${bad.map((f) => f.name).join(" and ")} so I can write back.`;
+        bad[0].focus();
+        return;
+      }
       button.disabled = true;
       status.dataset.state = "";
       status.textContent = "Sending...";

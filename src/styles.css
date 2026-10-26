@@ -2488,3 +2488,17 @@ main { overflow-x: clip; }
 .leader__gate { z-index: 3; }
 .leader__sound { color: rgba(34, 33, 29, 0.75); }
 @media (prefers-reduced-motion: reduce) { .leader__sprockets { animation: none; } }
+
+/* v12: props out. A quiet form, a quiet footer. */
+.walk { display: none; }
+.foot { padding: 28px var(--gutter) 40px; text-align: center; font-family: var(--font); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); background: none; }
+.irisout__card .slate { margin-top: 26px; }
+.form.slate__board { background: none; border: 0; padding: 0; }
+.slate__board .btn { border-radius: 2px; padding: 10px 28px; min-height: 42px; background: var(--paper); color: var(--paper-ink); font-family: var(--font); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.8rem; }
+@media (hover: hover) and (pointer: fine) { .slate__board .btn:hover { background: var(--ember); } }
+.scene--films .card__laurels { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin: 14px 0 0; font-family: var(--title); font-size: 0.78rem; letter-spacing: 0.04em; color: #e2bd6e; }
+.card__laurels span { display: inline-flex; align-items: center; gap: 5px; }
+.card__laurels svg { width: 9px; height: 16px; }
+.card__laurels span svg:last-child { transform: scaleX(-1); }
+.slate__board .is-invalid { border-bottom-color: var(--ember) !important; }
+.slate__board .form__status { margin-top: 12px; min-height: 1.4em; font-size: 0.85rem; text-align: left; }
