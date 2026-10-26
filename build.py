@@ -66,12 +66,11 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Jost:wght@400;500&family=Oswald:wght@600;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
+<body class="{'is-home' if path == '/' else ''}">
 <a class="skip" href="#main">Skip to content</a>
 <header class="mast">
-  <nav class="mast__side mast__side--l" aria-label="Work">{nav("/#all-films", "Films", "films")}{nav("/photography/", "Photography", "photos")}</nav>
   <a class="mast__name" href="/">Parker Manley</a>
-  <nav class="mast__side mast__side--r" aria-label="About">{nav("/#about", "About", "about")}{nav("/#contact", "Contact", "contact")}</nav>
+  <nav class="mast__side mast__side--r" aria-label="Pages">{nav("/photography/", "Photography", "photos")}{nav("/#contact", "Contact", "contact")}</nav>
   <button class="mast__sound" type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="8" r="4"/><circle cx="16" cy="8" r="4"/><rect x="4" y="13" width="12" height="7" rx="1"/><path d="M16 15l5-2.5v8L16 18"/></g></svg><span class="mast__sound-off" aria-hidden="true"></span></button>
 </header>
 <main id="main">

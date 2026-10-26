@@ -135,8 +135,11 @@
         removeEventListener("wheel", skip);
         removeEventListener("touchmove", skip);
         document.documentElement.classList.remove("has-leader");
-        leader.classList.add("is-done");
-        setTimeout(() => leader.remove(), 500);
+        // The hand-off: a black frame after the 2, then the reel comes up in
+        // the same gate. The sprockets run off and the dirt thins out on the
+        // picture, so it reads as one strip of film, not a page loading.
+        leader.classList.add(withSound ? "is-handoff" : "is-done");
+        setTimeout(() => leader.remove(), withSound ? 2600 : 500);
         if (withSound && sfx.on) {
           setReelSound(true);
           if (reelEl) { reelEl.currentTime = 0; reelEl.play().catch(() => {}); }
@@ -807,6 +810,9 @@
   let queued = false;
   const onScroll = () => {
     queued = false;
+    // The header stays off the picture while the reel plays and comes in
+    // once the reel is behind you.
+    if (opening) document.documentElement.classList.toggle("at-opening", scrollY < opening.offsetHeight - innerHeight * 0.6);
     if (opening) {
       const p = Math.max(0, Math.min(1, scrollY / (opening.offsetHeight - innerHeight)));
       opening.style.setProperty("--p", reduced ? 0 : p.toFixed(3));

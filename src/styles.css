@@ -2715,3 +2715,32 @@ main { overflow-x: clip; }
 .fc .fxc__clip { font-family: "Inter", sans-serif; font-weight: 400; font-size: 11px; text-transform: none; letter-spacing: 0; margin: 0; }
 .fc .meters { height: 100%; }
 .fc .fxlane__tr { top: 91px; height: 46px; }
+
+/* Leader to reel: one strip of film. */
+.leader.is-handoff { animation: handoff-frame 2.6s linear forwards; pointer-events: none; }
+.leader.is-handoff .leader__dial, .leader.is-handoff .leader__sweep, .leader.is-handoff .leader__n, .leader.is-handoff .leader__gate { display: none; }
+.leader.is-handoff .leader__sprockets--l { animation: run 0.42s steps(10) infinite, off-l 1.4s cubic-bezier(0.6, 0, 0.8, 0.4) 1s forwards; }
+.leader.is-handoff .leader__sprockets--r { animation: run 0.42s steps(10) infinite, off-r 1.4s cubic-bezier(0.6, 0, 0.8, 0.4) 1s forwards; }
+.leader.is-handoff .leader__dirt { mix-blend-mode: overlay; animation: thin 2.6s linear forwards; }
+/* 0 to 3%: black frame. Then the picture comes up through the gate. */
+@keyframes handoff-frame { 0% { background: #000; } 3% { background: #000; } 40% { background: transparent; } 100% { background: transparent; } }
+@keyframes off-l { to { transform: translateX(-110%); } }
+@keyframes off-r { to { transform: translateX(110%); } }
+@keyframes thin { 0% { opacity: 1; } 70% { opacity: 0.5; } 100% { opacity: 0; } }
+.leader.is-handoff::after { animation: thin 2.6s linear forwards; }
+
+/* The header waits until the reel is behind you. */
+.mast { transition: opacity 400ms ease-out, transform 400ms var(--ease); }
+html.at-opening .mast, html.has-leader .mast { opacity: 0; transform: translateY(-100%); pointer-events: none; }
+.mast__side--r { margin-left: auto; }
+/* Header: his name on the left, the two pages that aren't this one on the right, the sound. */
+.mast { grid-template-columns: auto 1fr auto; padding-right: calc(var(--gutter) + 52px); }
+.mast__name { justify-self: start; padding-left: 0; }
+.mast__side--r { justify-content: flex-end; }
+body.is-home .mast { position: fixed; left: 0; right: 0; }
+@media (max-width: 560px) {
+  .mast { grid-template-columns: auto 1fr; padding-right: calc(var(--gutter) + 42px); }
+  .mast__name { grid-column: 1; justify-self: start; font-size: 0.78rem; letter-spacing: 0.24em; }
+  .mast__side--r { grid-row: 1; grid-column: 2; gap: 14px; font-size: 0.8rem; }
+  .mast__sound { top: 50%; transform: translateY(-50%); }
+}
