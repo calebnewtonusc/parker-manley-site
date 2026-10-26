@@ -11,3 +11,7 @@ Parker Manley's film portfolio. Static site built by `build.py` from `data/films
 Run `python3 build.py` to preview locally in `dist/`.
 
 All glory to God! ✝️❤️
+
+## Credits
+
+The edit bay on the home page copies its look from FilmCraft (https://github.com/storytold/filmcraft, MIT OR Apache-2.0): colors from `crates/ui-egui/src/theme.rs`, layout from its screenshots. Sound recordings are CC0, sources in `media/sfx/SOURCES.md`.

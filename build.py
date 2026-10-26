@@ -78,7 +78,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 {body}
 </main>
 <footer class="foot">Parker Manley &middot; Boulder, Colorado to Los Angeles</footer>
-<script src="/score.js" defer></script>
+<script src="/score.js" defer data-samples="clatter.mp3 clack.mp3 rip.mp3 shutter.mp3 flash.mp3 tapestop.mp3 crt.mp3 servo.mp3 runout.mp3 chk.mp3 stamp.mp3"></script>
 <script src="/app.js" defer></script>
 </body>
 </html>
