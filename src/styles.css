@@ -3148,3 +3148,12 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
   .irisout { height: 320vh !important; }
 }
 @media (min-width: 900px) { .irisout__card { transform: translate(calc((1 - var(--in, 0)) * 170%), -50%) rotate(calc((1 - var(--in, 0)) * 8deg - 2deg)) !important; } }
+
+/* Boulder to LA, until Parker answers: an index card on the black. */
+.flight-todo { padding: clamp(80px, 12vw, 160px) var(--gutter); background: var(--ground); }
+.flight-todo__card { position: relative; width: min(560px, 100%); margin: 0 auto; padding: 34px 38px 30px; color: #232220; transform: rotate(-1.2deg); background: url("/media/paper/printer.jpg") center / 520px, #f3efe6; background-blend-mode: multiply; box-shadow: 0 1px 1px rgba(0,0,0,0.3), 0 18px 34px rgba(0,0,0,0.5); background-image: repeating-linear-gradient(transparent 0 33px, rgba(70,110,170,0.28) 33px 34px), url("/media/paper/printer.jpg"); background-position: 0 58px, center; }
+.flight-todo__card::before { content: ""; position: absolute; top: 0; bottom: 0; left: 26px; width: 1px; background: rgba(200,60,70,0.45); }
+.ft__h { margin: 0 0 10px; font: 600 30px/1.1 "Caveat", cursive; }
+.ft__what, .ft__ask, .ft__qs { font: 500 23px/34px "Caveat", cursive; margin: 0; }
+.ft__ask { margin-top: 8px; }
+.ft__qs { padding-left: 22px; }

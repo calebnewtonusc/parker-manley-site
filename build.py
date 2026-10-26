@@ -494,10 +494,8 @@ def preview(home_html):
     after_about = (
         '<figure class="draft-frame"><img src="/media/draft/knolling.webp" alt="Parker\'s kit laid out on a desk" loading="lazy">'
         '<span class="draft-tag">Knolling, draft render</span></figure>'
-        '<section class="fl" aria-label="Boulder to Los Angeles"><span class="draft-tag">Flight, storyboard. One continuous take, dawn to dusk, films pinned where they happened</span>'
-        f'<ol class="fl__beats">{beats}</ol></section>'
     )
-    i = h.index('<section class="reels" id="films"')
+    i = h.index('<section class="flight-todo"')
     h = h[:i] + after_about + h[i:]
     h = h.replace('<div class="slate draft-slate">', '<div class="slate draft-slate"><span class="draft-tag">Slate, draft render</span>', 1)
     return h
@@ -610,6 +608,20 @@ def home(films):
   </div>
 </section>
 
+<section class="flight-todo" aria-label="Boulder to Los Angeles, coming soon">
+  <div class="flight-todo__card">
+    <p class="ft__h">Boulder &rarr; Los Angeles</p>
+    <p class="ft__what">One unbroken flight from where Parker started filming to where he is now, his films along the way. Coming soon.</p>
+    <p class="ft__ask">Parker, for this part:</p>
+    <ol class="ft__qs">
+      <li>What made you start filming in Boulder?</li>
+      <li>One real moment from high school in Boulder</li>
+      <li>One from the summer you made Somnambulist</li>
+      <li>One from getting into USC</li>
+      <li>One from your first semester in LA</li>
+    </ol>
+  </div>
+</section>
 <section class="reels" id="films" aria-label="Featured films">
   <div class="scene scene--films">
     <div class="scene__pin">
