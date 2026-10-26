@@ -3270,3 +3270,9 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 /* One sound control: the speaker in the corner. */
 .opening .sound { display: none !important; }
 .mast__sound[aria-pressed="false"] .mast__wave { opacity: 0; }
+
+/* The leader is up from the very first paint (an inline script decides
+   before CSS paints), so the page never flashes before the 3 2 1. */
+html.has-leader .leader { display: grid; animation: weave 160ms steps(2) infinite; }
+html.no-leader .leader { display: none !important; }
+html.has-leader body { overflow: hidden; }
