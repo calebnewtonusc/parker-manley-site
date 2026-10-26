@@ -762,8 +762,10 @@
             pin.style.transformOrigin = "50% 50%";
             pin.style.transform = `translateX(${(-sl * 130).toFixed(2)}%) scale(${sc.toFixed(4)})`;
             pin.classList.add("is-windowed");
+            pin.style.pointerEvents = x > 0.5 ? "none" : "";
           } else {
             pin.classList.remove("is-windowed");
+            pin.style.pointerEvents = "";
           }
         }
       } else {
@@ -1001,7 +1003,10 @@
     const set = (on) => {
       goal = on && sfx.on ? 1 : 0;
       if (window.score) window.score.duck(goal === 1);
-      if (goal === 1 && song.paused) song.play().catch(() => {});
+      if (goal === 1 && song.paused) {
+        if (song.currentTime < 14.9) song.currentTime = 14.9;
+        song.play().catch(() => {});
+      }
       if (!raf) raf = requestAnimationFrame(tick);
     };
     const end = [roll, document.querySelector(".foot")].filter(Boolean);
@@ -1563,12 +1568,8 @@ if (
     const top = deskRun.getBoundingClientRect().top + scrollY;
     const span = deskRun.offsetHeight - innerHeight;
     const p = Math.max(0, Math.min(1, (scrollY - top) / span));
-    if (p > 0.45 && !gramOpened && window.desk) {
-      gramOpened = true;
-      window.desk.open("gram");
-    }
-    if (p < 0.35 && gramOpened) gramOpened = false;
-    const g = Math.max(0, Math.min(1, (p - 0.72) / 0.28));
+    const onGram = window.desk && window.desk.page && window.desk.page() === "gram";
+    const g = onGram ? Math.max(0, Math.min(1, (p - 0.86) / 0.14)) : 0;
     if (g <= 0 || !window.desk) {
       grow.style.opacity = "0";
       return;
@@ -1625,8 +1626,8 @@ if (
       irisPin.style.visibility = "";
       return;
     }
-    irisPin.style.visibility =
-      irisEl.getBoundingClientRect().top > 0.5 ? "hidden" : "";
+    const growing = grow.style.opacity === "1";
+    irisPin.style.visibility = growing && irisEl.getBoundingClientRect().top > 0.5 ? "hidden" : "";
   };
   addEventListener("scroll", irisShow, { passive: true });
   irisShow();
@@ -1693,37 +1694,26 @@ if (rollin) {
     { rootMargin: "200% 0px" },
   ).observe(rollin);
   // Affine fit of an image onto a quad (tl, tr, bl), cover-cropped.
+  // Clip to the quad (so no green shows at its edges) and cover its box.
   const fit = (img, q, s, ox, oy) => {
     if (!img.complete || !img.naturalWidth) return;
-    const [tl, tr, br, bl] = q;
-    const P = (p) => [ox + p[0] * s, oy + p[1] * s];
-    const a = P(tl),
-      b = P(tr),
-      d = P(bl);
-    const qw = Math.hypot(b[0] - a[0], b[1] - a[1]);
-    const qh = Math.hypot(d[0] - a[0], d[1] - a[1]);
+    const pts = q.map((p) => [ox + p[0] * s, oy + p[1] * s]);
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const x0 = Math.min(...xs) - 2, y0 = Math.min(...ys) - 2;
+    const w = Math.max(...xs) - x0 + 2, h = Math.max(...ys) - y0 + 2;
     const ir = img.naturalWidth / img.naturalHeight;
-    let sw = img.naturalWidth,
-      sh = img.naturalHeight,
-      sx = 0,
-      sy = 0;
-    if (ir > qw / qh) {
-      sw = sh * (qw / qh);
-      sx = (img.naturalWidth - sw) / 2;
-    } else {
-      sh = sw / (qw / qh);
-      sy = (img.naturalHeight - sh) / 2;
-    }
+    let dw = w, dh = w / ir;
+    if (dh < h) { dh = h; dw = h * ir; }
+    const c = pts.reduce((m, p) => [m[0] + p[0] / 4, m[1] + p[1] / 4], [0, 0]);
     cx.save();
-    cx.setTransform(
-      (b[0] - a[0]) / sw,
-      (b[1] - a[1]) / sw,
-      (d[0] - a[0]) / sh,
-      (d[1] - a[1]) / sh,
-      a[0],
-      a[1],
-    );
-    cx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+    cx.beginPath();
+    pts.forEach((p, k) => {
+      const e2 = [p[0] + Math.sign(p[0] - c[0]) * 1.5, p[1] + Math.sign(p[1] - c[1]) * 1.5];
+      if (k) cx.lineTo(e2[0], e2[1]); else cx.moveTo(e2[0], e2[1]);
+    });
+    cx.closePath();
+    cx.clip();
+    cx.drawImage(img, x0 + (w - dw) / 2, y0 + (h - dh) / 2, dw, dh);
     cx.restore();
   };
   const order = (q) => {
@@ -1757,6 +1747,21 @@ if (rollin) {
     const ox = (cv.width - fw * s) / 2,
       oy = (cv.height - fh * s) / 2;
     cx.drawImage(f, ox, oy, fw * s, fh * s);
+    // The last frames: the monitor fills the lens, so it ends on the
+    // picture fit to the screen in black, where the camera section starts.
+    if (i >= N - 2 && monImg.complete && monImg.naturalWidth) {
+      cx.fillStyle = "#000";
+      cx.fillRect(0, 0, cv.width, cv.height);
+      const vw = cv.width, vh = cv.height;
+      let dw = vw, dh = vw * 9 / 16;
+      if (dh > vh) { dh = vh; dw = vh * 16 / 9; }
+      const ir = monImg.naturalWidth / monImg.naturalHeight;
+      let sw, sh, sx, sy;
+      if (ir > 16 / 9) { sh = monImg.naturalHeight; sw = sh * 16 / 9; sx = (monImg.naturalWidth - sw) / 2; sy = 0; }
+      else { sw = monImg.naturalWidth; sh = sw * 9 / 16; sx = 0; sy = (monImg.naturalHeight - sh) / 2; }
+      cx.drawImage(monImg, sx, sy, sw, sh, (vw - dw) / 2, (vh - dh) / 2, dw, dh);
+      return;
+    }
     if (quads) {
       if (quads.corners[i]) fit(filmImg, quads.corners[i], s, ox, oy);
       if (quads.monitor[i]) fit(monImg, order(quads.monitor[i]), s, ox, oy);

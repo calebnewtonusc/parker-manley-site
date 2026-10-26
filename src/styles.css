@@ -3258,3 +3258,7 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 .fc.is-handin { background: #000 !important; }
 .fc__handoff { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; object-fit: contain !important; background: #000; z-index: 6 !important; }
 .cam__pin { background: #000 !important; }
+
+/* The Mac stays on screen long enough to actually use: two screens under
+   the edit bay's exit, then three to browse. */
+@media (min-width: 900px) { .desk-run { height: 600vh !important; } }

@@ -1612,3 +1612,8 @@
     animation: none !important;
   }
 }
+
+/* ManleyGram: five across, and the grid scrolls inside the tab. */
+.ig-grid { grid-template-columns: repeat(5, 1fr) !important; gap: 3px !important; }
+@container vp (max-width: 700px) { .ig-grid { grid-template-columns: repeat(3, 1fr) !important; } }
+

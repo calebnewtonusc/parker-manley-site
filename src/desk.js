@@ -253,6 +253,7 @@
   window.desk = {
     el: desk,
     open: go,
+    page: () => stack[at],
     // Opens ManleyGram at the top and hands the pinned post to whoever is
     // listening for desk:pinned. Returns the tile so its box can be measured.
     openPinned() {
