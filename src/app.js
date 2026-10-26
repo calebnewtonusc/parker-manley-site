@@ -255,7 +255,13 @@
       const d = target - level;
       level += Math.sign(d) * Math.min(Math.abs(d), dt / FADE_S);
       try { reel.volume = level; } catch (err) { /* iOS keeps volume fixed */ }
-      if (level <= 0.001 && target === 0) { reel.pause(); fading = 0; last = 0; return; }
+      if (level <= 0.001 && target === 0) {
+        // Silent, but it keeps rolling while it's on the camera's flip screen.
+        const kn = document.querySelector(".knoll");
+        const kr = kn && kn.getBoundingClientRect();
+        if (!(kr && kr.top < innerHeight && kr.bottom > 0 && innerWidth >= 900)) reel.pause();
+        fading = 0; last = 0; return;
+      }
       if (Math.abs(target - level) < 0.001) { fading = 0; last = 0; return; }
       fading = requestAnimationFrame(step);
     };
@@ -1834,8 +1840,7 @@ if (rollin) {
   // Work in progress, marked for Parker: a red frame on each part that's
   // still being built or needs his input, saying what it will become.
   const WIP = [
-    [".opening__pin", "In progress", "The reel will shrink down into the flip screen of Parker's camera, sitting on his production table."],
-    [".about", "In progress", "Becomes one top-down 3D shot of Parker's kit on a production table, with this call sheet clipped to a real clipboard and the polaroids loose beside it."],
+    [".knoll__pin", "In progress", "Draft-quality render of the table. The final render is sharper."],
     [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
     [".scene--films .scene__pin", "In progress", "Draft-quality render. The final render sharpens the room, and the camera rolls in from here."],
     [".rollin__pin", "In progress", "Re-rendering: the camera rolls up in front of the chair, its monitor turns on, and we push into it."],
@@ -1852,4 +1857,158 @@ if (rollin) {
     f.innerHTML = `<p class="wip__tag"><b>${kind}</b><span>${text}</span></p>`;
     el.appendChild(f);
   });
+// Parker's table. The reel never cuts: it keeps playing on the flip
+// screen of his camera, and we pull back from that screen until we're
+// looking down at the whole table, then lean in to read the call sheet
+// clipped to the board. One camera, one take, all of it the render's.
+const knoll = document.querySelector(".knoll");
+const openingEl = document.querySelector(".opening");
+if (knoll && openingEl) {
+  const pin = knoll.querySelector(".knoll__pin");
+  const world = knoll.querySelector(".knoll__world");
+  const lcd = knoll.querySelector(".knoll__lcd");
+  const paper = knoll.querySelector(".knoll__paper");
+  const sheet = paper.querySelector(".callsheet");
+  const lctx = lcd.getContext("2d");
+  const reelV = document.querySelector("#reel");
+  let K = null;
+  fetch("/media/rig/knoll.json")
+    .then((r) => r.json())
+    .then((j) => {
+      K = j;
+      place();
+      tick();
+    })
+    .catch(() => {});
+  const box = (q) => {
+    const xs = q.map((p) => p[0]),
+      ys = q.map((p) => p[1]);
+    return {
+      x: Math.min(...xs),
+      y: Math.min(...ys),
+      w: Math.max(...xs) - Math.min(...xs),
+      h: Math.max(...ys) - Math.min(...ys),
+    };
+  };
+  const place = () => {
+    if (!K) return;
+    const l = box(K.lcd),
+      pp = box(K.paper);
+    Object.assign(lcd.style, {
+      left: `${l.x}px`,
+      top: `${l.y}px`,
+      width: `${l.w}px`,
+      height: `${l.h}px`,
+    });
+    Object.assign(paper.style, {
+      left: `${pp.x}px`,
+      top: `${pp.y}px`,
+      width: `${pp.w}px`,
+      height: `${pp.h}px`,
+    });
+    sheet.style.transform = "none";
+    const sw = sheet.offsetWidth,
+      sh = sheet.offsetHeight;
+    // Below the clip and the polaroid tucked under it.
+    const k = Math.min((pp.w * 0.94) / sw, (pp.h * 0.72) / sh);
+    sheet.style.transform = `translate(${((pp.w - sw * k) / 2).toFixed(1)}px, ${(pp.h * 0.22).toFixed(1)}px) scale(${k.toFixed(4)})`;
+  };
+  // A view is a world rectangle fitted to the screen.
+  const view = (r, cover) => {
+    const s = cover
+      ? Math.max(innerWidth / r.w, innerHeight / r.h)
+      : Math.min(innerWidth / r.w, innerHeight / r.h);
+    return { s, cx: r.x + r.w / 2, cy: r.y + r.h / 2 };
+  };
+  const mix = (a, b, t) => {
+    // Zoom in log space so the move reads like a dolly, not a scale.
+    const s = Math.exp(Math.log(a.s) + (Math.log(b.s) - Math.log(a.s)) * t);
+    const u = (1 / s - 1 / a.s) / (1 / b.s - 1 / a.s || 1);
+    const w = Math.abs(b.s - a.s) < 1e-6 ? t : Math.max(0, Math.min(1, u));
+    return { s, cx: a.cx + (b.cx - a.cx) * w, cy: a.cy + (b.cy - a.cy) * w };
+  };
+  const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+  const seg = (p, a, b) => ease(Math.max(0, Math.min(1, (p - a) / (b - a))));
+  const lay = () => {
+    knoll.style.marginTop = "0px";
+    if (innerWidth < 900) return;
+    const end = openingEl.getBoundingClientRect().bottom + scrollY;
+    const natural = knoll.getBoundingClientRect().top + scrollY;
+    knoll.style.marginTop = `${(end - innerHeight - natural).toFixed(0)}px`;
+  };
+  const tick = () => {
+    if (!K || innerWidth < 900) return;
+    const top = knoll.getBoundingClientRect().top + scrollY;
+    const span = knoll.offsetHeight - innerHeight;
+    const p = Math.max(0, Math.min(1, (scrollY - top) / span));
+    pin.style.visibility =
+      knoll.getBoundingClientRect().top > 0.5 ? "hidden" : "";
+    // A hair inside the flip screen's glass, so its bezel never shows at the cut.
+    const lb = box(K.lcd);
+    const L = view({ x: lb.x + lb.w * 0.03, y: lb.y + lb.h * 0.03, w: lb.w * 0.94, h: lb.h * 0.94 }, true);
+    const A = view({ x: 0, y: 0, w: K.size[0], h: K.size[1] }, true);
+    const pb = box(K.paper);
+    const P = view(
+      {
+        x: pb.x - pb.w * 0.04,
+        y: pb.y - pb.h * 0.04,
+        w: pb.w * 1.08,
+        h: pb.h * 1.08,
+      },
+      false,
+    );
+    let v;
+    if (reduced) v = p < 0.4 ? A : P;
+    else if (p < 0.3) v = mix(L, A, seg(p, 0.02, 0.3));
+    else if (p < 0.55) v = mix(A, P, seg(p, 0.36, 0.55));
+    else v = mix(P, A, seg(p, 0.86, 1));
+    world.style.transform = `translate(${(innerWidth / 2 - v.cx * v.s).toFixed(2)}px, ${(innerHeight / 2 - v.cy * v.s).toFixed(2)}px) scale(${v.s.toFixed(5)})`;
+  };
+  // The flip screen shows the reel live, cropped the way the reel is.
+  const draw = () => {
+    requestAnimationFrame(draw);
+    if (!reelV || reelV.readyState < 2) return;
+    const r = knoll.getBoundingClientRect();
+    if (r.top > innerHeight || r.bottom < 0) return;
+    const vw = reelV.videoWidth,
+      vh = reelV.videoHeight;
+    const cr = lcd.width / lcd.height;
+    let sw = vw,
+      sh = vw / cr;
+    if (sh > vh) {
+      sh = vh;
+      sw = vh * cr;
+    }
+    lctx.drawImage(
+      reelV,
+      (vw - sw) / 2,
+      (vh - sh) / 2,
+      sw,
+      sh,
+      0,
+      0,
+      lcd.width,
+      lcd.height,
+    );
+  };
+  requestAnimationFrame(draw);
+  addEventListener("scroll", tick, { passive: true });
+  addEventListener("resize", () => {
+    lay();
+    place();
+    tick();
+  });
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      lay();
+      place();
+      tick();
+    }),
+  );
+  setTimeout(() => {
+    lay();
+    place();
+    tick();
+  }, 700);
+}
 })();

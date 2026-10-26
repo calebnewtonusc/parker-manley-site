@@ -3330,3 +3330,19 @@ html.has-leader body { overflow: hidden; }
 }
 @media (min-width: 900px) { .cam__body { will-change: auto !important; transform: none !important; contain: none !important; filter: none !important; } }
 @media (min-width: 900px) { .cam .pan__cap { top: 2.5vh; bottom: auto !important; } .cam .lens__title { font-size: clamp(1.6rem, 2.4vw, 2.4rem) !important; } }
+
+/* v25: the reel lives on Parker's camera, on his table. */
+.knoll { display: none; }
+@media (min-width: 900px) {
+  .about { display: none !important; }
+  .knoll { display: block; position: relative; height: 520vh; background: var(--ground); z-index: 1; }
+  .knoll__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; background: #1c120d; }
+  .knoll__world { position: absolute; left: 0; top: 0; width: 1920px; height: 1200px; transform-origin: 0 0; will-change: transform; }
+  .knoll__table { position: absolute; inset: 0; width: 1920px; height: 1200px; }
+  .knoll__lcd { position: absolute; background: #000; }
+  .knoll__paper { position: absolute; overflow: visible; }
+  .knoll .callsheet { position: absolute; left: 0; top: 0; width: 700px; transform-origin: 0 0; background: none !important; box-shadow: none !important; border: 0 !important; mix-blend-mode: multiply; rotate: none !important; padding: 28px 30px !important; }
+  .knoll .callsheet::before, .knoll .callsheet::after { display: none !important; }
+}
+
+@media (min-width: 900px) { .knoll { background: transparent !important; } }

@@ -624,6 +624,36 @@ def home(films):
     </div>
   </div>
 </section>
+<section class="knoll" aria-label="Parker's production table">
+  <div class="knoll__pin">
+    <div class="knoll__world">
+      <img class="knoll__table" src="/media/rig/knoll_table.webp" alt="Parker's kit laid out on a production table: camera, lenses, film reel, a Bible, a compass, a slate, polaroids and the call sheet on a clipboard">
+      <canvas class="knoll__lcd" width="480" height="270" aria-hidden="true"></canvas>
+      <div class="knoll__paper">
+    <article class="callsheet">
+      <header class="cs__head">
+        <div><p class="cs__label">Production</p><p class="cs__val">Parker Manley</p></div>
+        <h2 class="cs__title">Call Sheet</h2>
+        <div class="cs__right"><p class="cs__label">Base camp</p><p class="cs__val">Boulder, Colorado</p></div>
+      </header>
+      <div class="cs__strip">
+        <div><p class="cs__label">Crew</p><p>Director &middot; Cinematographer &middot; Editor</p></div>
+        <div><p class="cs__label">School</p><p>USC, Film &amp; Television Production</p></div>
+        <div><p class="cs__label">Shorts since 2023</p><p>25+</p></div>
+      </div>
+      <table class="cs__sched">
+        <thead><tr><th>Sc.</th><th>Set / Description</th><th>Location</th></tr></thead>
+        <tbody>
+          <tr><td class="cs__sc">1</td><td><b>Storytelling.</b> I'm a storyteller from Boulder, Colorado, studying Film and Television Production at USC. On set or at the Dungeons &amp; Dragons table. Most of my shorts I wrote, directed, shot and edited myself.</td><td class="cs__loc">INT. Set / D&amp;D table</td></tr>
+          <tr><td class="cs__sc">2</td><td><b>Outdoors.</b> I'm a big hiker and camper. I grew up at the foot of the Rockies. At USC: SC Outfitters, fencing, the Trojan Stunt Team and EscapeSC.</td><td class="cs__loc">EXT. Rocky Mountains</td></tr>
+          <tr><td class="cs__sc">3</td><td><b>Faith.</b> I lay all my work before Jesus. &ldquo;So, whether you eat or drink, or whatever you do, do all to the glory of God.&rdquo; 1 Corinthians 10:31</td><td class="cs__loc">Every location</td></tr>
+        </tbody>
+      </table>
+    </article>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="flight-todo" aria-label="Boulder to Los Angeles, coming soon">
   <div class="flight-todo__card">
