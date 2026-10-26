@@ -3221,3 +3221,5 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
 .fc__cursor.is-resize-x svg, .fc__cursor.is-resize-y svg { opacity: 0; }
 .fc__cursor.is-resize-x::after, .fc__cursor.is-resize-y::after { content: ""; position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 12l5-4v3h10V8l5 4-5 4v-3H7v3z' fill='white' stroke='black' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 .fc__cursor.is-resize-y::after { transform: rotate(90deg); }
+/* The camera's pin is full bleed, so its last frame can grow edge to edge. */
+@media (min-width: 900px) { .lens { padding-left: 0 !important; padding-right: 0 !important; } }
