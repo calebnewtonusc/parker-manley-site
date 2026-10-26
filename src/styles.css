@@ -3346,3 +3346,6 @@ html.has-leader body { overflow: hidden; }
 }
 
 @media (min-width: 900px) { .knoll { background: transparent !important; } }
+
+@media (min-width: 900px) { .rollin { position: relative; z-index: 2; background: transparent !important; } }
+.rollin { padding: 0 !important; margin-left: 0 !important; margin-right: 0 !important; }

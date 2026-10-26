@@ -894,7 +894,7 @@
       // the last frame on the monitor grows until it is the whole screen.
       const p = Math.min(0.9999, p0 / 0.86);
       const zoomOut = reduced ? 0 : ease(clamp((p0 - 0.88) / 0.12));
-      const zoomIn = reduced || innerWidth < 900 ? 0 : 1 - ease(clamp(p0 / 0.07));
+      const zoomIn = 0;
       handoff(Math.max(zoomOut, zoomIn));
       const k = 1;
       const q = clamp((p - POV) / (1 - POV));
@@ -1684,7 +1684,9 @@ const rollin = document.querySelector(".rollin");
 if (rollin) {
   const cv = rollin.querySelector(".rollin__c");
   const cx = cv.getContext("2d");
-  const N = 36;
+  // Until the 60-frame render lands, stop at 46, the frame closest to the
+  // monitor close-up the camera section opens on.
+  const N = 46;
   const frames = [];
   let quads = null;
   const load = (src) => {
@@ -1772,42 +1774,7 @@ if (rollin) {
     const ox = (cv.width - fw * s) / 2,
       oy = (cv.height - fh * s) / 2;
     cx.drawImage(f, ox, oy, fw * s, fh * s);
-    // The last frames: the monitor fills the lens, so it ends on the
-    // picture fit to the screen in black, where the camera section starts.
-    if (i >= N - 2 && monImg.complete && monImg.naturalWidth) {
-      cx.fillStyle = "#000";
-      cx.fillRect(0, 0, cv.width, cv.height);
-      const vw = cv.width, vh = cv.height;
-      let dw = vw, dh = vw * 9 / 16;
-      if (dh > vh) { dh = vh; dw = vh * 16 / 9; }
-      const ir = monImg.naturalWidth / monImg.naturalHeight;
-      let sw, sh, sx, sy;
-      if (ir > 16 / 9) { sh = monImg.naturalHeight; sw = sh * 16 / 9; sx = (monImg.naturalWidth - sw) / 2; sy = 0; }
-      else { sw = monImg.naturalWidth; sh = sw * 9 / 16; sx = 0; sy = (monImg.naturalHeight - sh) / 2; }
-      cx.drawImage(monImg, sx, sy, sw, sh, (vw - dw) / 2, (vh - dh) / 2, dw, dh);
-      return;
-    }
-    if (quads) {
-      if (quads.corners[i]) fit(filmImg, quads.corners[i], s, ox, oy);
-      if (quads.monitor[i]) fit(monImg, order(quads.monitor[i]), s, ox, oy);
-      const bq = quads.banner[i];
-      if (bq) {
-        const xs = bq.map((v) => v[0]),
-          ys = bq.map((v) => v[1]);
-        const bx = ox + ((Math.min(...xs) + Math.max(...xs)) / 2) * s;
-        const by = oy + ((Math.min(...ys) + Math.max(...ys)) / 2) * s;
-        const bh = (Math.max(...ys) - Math.min(...ys)) * s;
-        cx.save();
-        cx.font = `600 ${Math.max(8, bh * 0.42)}px Oswald, sans-serif`;
-        cx.textAlign = "center";
-        cx.textBaseline = "middle";
-        cx.fillStyle = "#f3e6c4";
-        cx.shadowColor = "rgba(255,210,140,0.6)";
-        cx.shadowBlur = bh * 0.3;
-        cx.fillText(banner.split("").join(" "), bx, by);
-        cx.restore();
-      }
-    }
+    // The film, the monitor's picture and the letterboard are in the render.
   };
   addEventListener("scroll", draw, { passive: true });
   addEventListener("resize", draw);
@@ -1823,6 +1790,17 @@ if (rollin) {
 
   // The camera section slides in under the roll-in's last screenful and
   // shows itself once pinned, starting on the monitor's picture full screen.
+  // The roll-in starts on the hall's last frame: overlap it, show it once pinned.
+  const hallSec = document.querySelector("#films");
+  if (rollin && hallSec) {
+    const rpin = rollin.querySelector(".rollin__pin");
+    const layR = () => overlapUnder(hallSec, rollin);
+    const showR = () => { rpin.style.visibility = innerWidth >= 900 && rollin.getBoundingClientRect().top > 0.5 ? "hidden" : ""; };
+    addEventListener("scroll", showR, { passive: true });
+    addEventListener("resize", () => { layR(); showR(); });
+    requestAnimationFrame(() => requestAnimationFrame(() => { layR(); showR(); }));
+    setTimeout(() => { layR(); showR(); }, 650);
+  }
   const camSec = document.querySelector(".cam");
   if (rollin && camSec) {
     const camPinEl = camSec.querySelector(".cam__pin");
@@ -1843,7 +1821,7 @@ if (rollin) {
     [".knoll__pin", "In progress", "Draft-quality render of the table. The final render is sharper."],
     [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
     [".scene--films .scene__pin", "In progress", "Draft-quality render. The final render sharpens the room, and the camera rolls in from here."],
-    [".rollin__pin", "In progress", "Re-rendering: the camera rolls up in front of the chair, its monitor turns on, and we push into it."],
+    [".rollin__pin", "In progress", "Draft render. The final version makes the push into the monitor smooth and lands exactly on the next shot."],
     [".cam__pin", "In progress", "Draft-quality render of the camera. The final render is sharper and matches the one that rolls in."],
     [".foot__pin", "In progress", "The credits will roll over the night sky above Hollywood Blvd, then tilt down to this star."],
   ];
