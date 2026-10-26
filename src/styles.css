@@ -2851,3 +2851,32 @@ body::before { display: none; }
 .admit__main, .admit__stub { background: none !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; }
 .admit__main::before, .admit__stub::before { display: none !important; }
 @media (hover: hover) and (pointer: fine) { .admit:hover { transform: rotate(-2deg) translateY(-3px); } }
+
+/* v13: no dead air between the last two frames. The links ride in the
+   card, the contact section ends where its pinned frame ends, and the star
+   is a whole frame of its own, so scrolling into it reads as a cut. */
+.contact { padding-bottom: 0 !important; }
+.irisout__card .elsewhere { display: flex; gap: 22px; justify-content: flex-start; margin: 10px 0 0; padding: 0; }
+.irisout__card .elsewhere a { font-size: 0.95rem; }
+.foot { position: relative; padding: 0 !important; margin: 0; }
+.foot__star { height: 100svh; max-height: none; width: 100%; object-fit: cover; margin: 0; }
+.foot__line { position: absolute; left: 0; right: 0; bottom: 22px; margin: 0; text-align: center; color: rgba(236,228,210,0.82); text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+
+/* v14: the ending is one frame. Iris closes on Parker, the card holds, then
+   a straight cut to the star. Desktop only; phones keep the stacked star. */
+.irisout__star { display: none; }
+@media (min-width: 900px) {
+  .irisout { height: 380vh; }
+  .irisout__star { display: block; position: absolute; inset: 0; z-index: 3; visibility: hidden; }
+  .irisout__star img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .irisout.is-star .irisout__star { visibility: visible; }
+  .foot { display: none; }
+}
+@media (min-width: 900px) {
+  .irisout__star { inset: 0 auto 0 50%; width: 100vw; transform: translateX(-50%); }
+  .irisout__star .foot__line { font-family: var(--font); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; }
+}
+@media (min-width: 900px) {
+  .irisout__pin { width: 100vw; margin-left: calc(50% - 50vw); }
+  .irisout__star { inset: 0; width: auto; transform: none; }
+}

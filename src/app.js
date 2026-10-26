@@ -817,7 +817,11 @@
     irisUpdate = () => {
       const top = iris.getBoundingClientRect().top + scrollY;
       const p = Math.max(0, Math.min(1, (scrollY - top) / (iris.offsetHeight - innerHeight)));
-      const e = reduced ? 1 : 1 - (1 - Math.min(1, p / 0.7)) ** 3;
+      const e = reduced ? 1 : 1 - (1 - Math.min(1, p / 0.5)) ** 3;
+      // The last beat is a hard cut inside the same frame: Parker and the
+      // card are gone and the star is there. No section edge to scroll past.
+      const star = p > 0.86 && innerWidth >= 900;
+      iris.classList.toggle("is-star", star);
       iris.style.setProperty("--r", `${(140 - e * (140 - (innerWidth < 700 ? 30 : 22))).toFixed(2)}vmax`);
       if (p > 0.55 && window.score) window.score.motif("strings");
       const closed = e > 0.92;

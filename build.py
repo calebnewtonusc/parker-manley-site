@@ -76,7 +76,7 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <main id="main">
 {body}
 </main>
-<footer class="foot"><img class="foot__star" src="/media/props/star/star-1000.webp" srcset="/media/props/star/star-1000.webp 1000w, /media/props/star/star-2000.webp 2000w" sizes="100vw" alt="A star on the Hollywood Walk of Fame reading Parker Manley" loading="lazy">Parker Manley &middot; Boulder, Colorado to Los Angeles</footer>
+<footer class="foot"><img class="foot__star" src="/media/props/star/star-1000.webp" srcset="/media/props/star/star-1000.webp 1000w, /media/props/star/star-2000.webp 2000w" sizes="100vw" alt="A star on the Hollywood Walk of Fame reading Parker Manley" loading="lazy"><p class="foot__line">Parker Manley &middot; Boulder, Colorado to Los Angeles</p></footer>
 <script src="/score.js" defer data-samples="clatter.mp3 clack.mp3 rip.mp3 shutter.mp3 flash.mp3 tapestop.mp3 crt.mp3 servo.mp3 runout.mp3 chk.mp3 stamp.mp3"></script>
 <script src="/app.js" defer></script>
 </body>
@@ -487,11 +487,13 @@ def home(films):
     <div class="irisout__pin">
       <img class="irisout__img" src="/media/portraits/rock.jpg" alt="Parker framing a shot on a granite outcrop above a pine forest" loading="lazy">
       <div class="irisout__mask" aria-hidden="true"></div>
+      <div class="irisout__star" aria-hidden="true"><img src="/media/props/star/star-2000.webp" alt="" loading="lazy"><p class="foot__line">Parker Manley &middot; Boulder, Colorado to Los Angeles</p></div>
       <div class="irisout__card">
         <p class="card__no">Coming soon</p>
         <h2 id="contact-h" class="nextup__title">Your film</h2>
         <p class="contact__lede">Looking for a director, a DP or an editor? I'd love to hear about it.</p>
         <a class="contact__mail" href="mailto:{EMAIL}">{EMAIL}</a>
+        <p class="elsewhere"><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></p>
   <div class="slate">
           
           <form class="form slate__board" action="https://formsubmit.co/ajax/{EMAIL}" method="POST" novalidate>
@@ -511,7 +513,6 @@ def home(films):
       </div>
     </div>
   </div>
-  <div class="elsewhere"><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></div>
 </section>
 """
     return page("Parker Manley, Director, Cinematographer, Editor", body, current="", path="/", image="/media/reel/reel-poster.jpg")
