@@ -380,30 +380,41 @@ M_ICON = (
 def tv_rows(films):
     """ManleyFlix rows. Every film once in Top 10 or a genre shelf; a film
     can sit on two shelves the way Netflix shelves overlap."""
+    by = {f["slug"]: f for f in films}
     top = [f for f in films if f["featured"]][:10]
-    usc = [f for f in films if f["made_for"] and ("USC" in f["made_for"] or "Trojan" in f["made_for"])]
+    # Parker on the 2026-10-26 call: A Moment is #9 and the old #9 moves to #10.
+    if "a-moment" in by and by["a-moment"] not in top:
+        top = (top[:8] + [by["a-moment"]] + top[8:])[:10]
+    # "USC Class Projects": Beneath the Surface was his application video to
+    # SCA, not a class project (Parker, 2026-10-26).
+    usc = [f for f in films if f["made_for"] and ("USC" in f["made_for"] or "Trojan" in f["made_for"])
+           and not f["made_for"].startswith("Accepted")]
     scary = [f for f in films if any(k in f["genre"] for k in ("Horror", "Thriller"))]
     funny = [f for f in films if "Comedy" in f["genre"]]
     drama = [f for f in films if any(k in f["genre"] for k in ("Drama", "Romance", "Coming of Age")) and f not in scary]
     early = sorted([f for f in films if (f["year"] or 0) <= 2024], key=lambda f: f["year"] or 0)
-    placed = {f["slug"] for row in (top, usc, scary, funny, drama, early) for f in row}
-    mv = [f for f in films if f["genre"] == "Music Video"]
-    more = mv + [f for f in films if f["slug"] not in placed and f not in mv]
+    # Music videos, plus the game show (Parker: "maybe just add the game show here").
+    mv = [f for f in films if f["genre"] in ("Music Video", "Game Show")]
+    # Every film, newest first, so nobody has to hunt the shelves.
+    every = sorted(films, key=lambda f: -(f["year"] or 0))
     rows = [
-        ("Made at USC", usc),
+        ("USC Class Projects", usc),
         ("Horror &amp; Thrillers", scary),
         ("Comedies", funny),
         ("Dramas", drama),
-        ("Music Videos, Game Shows &amp; More", more),
+        ("Music Videos", mv),
         ("Where It Started", early),
+        ("All Films", every),
     ]
     return top, [(t, r) for t, r in rows if r]
 
 
 def tv_tile(f):
+    loop = f"media/loops/{f['slug']}-720.mp4"
+    loop_attr = f' data-loop="/{loop}"' if (ROOT / loop).exists() else ""
     meta = " &middot; ".join(e(x) for x in [str(f.get("year") or ""), f["genre"], f"{f['minutes']} min" if f.get("minutes") else ""] if x)
     return (
-        f'<a class="mfx-tile" href="/films/{f["slug"]}/">'
+        f'<a class="mfx-tile" href="/films/{f["slug"]}/"{loop_attr}>'
         f'<span class="mfx-tile__img"><img src="/media/posters/{f["slug"]}.jpg" alt="" loading="lazy">'
         f'{M_ICON}<span class="mfx-tile__name">{e(f["title"])}</span></span>'
         f'<span class="mfx-tile__card"><span class="mfx-tile__play" aria-hidden="true">&#9654;</span>'

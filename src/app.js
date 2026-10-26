@@ -1224,6 +1224,12 @@ const screenFilm = (slug, push) => {
   scr
     .querySelector(".scr__up")
     .addEventListener("click", () => lightsUp(false));
+  // Click anywhere around the film to go back (Parker, 2026-10-26). The
+  // screen itself, links and buttons keep their own clicks.
+  scr.addEventListener("click", (ev) => {
+    if (ev.target.closest(".scr__screen, a, button, iframe, video")) return;
+    lightsUp(false);
+  });
   scr.querySelector(".scr__play").addEventListener("click", () => project(scr));
   requestAnimationFrame(() => scr.classList.add("is-on"));
   sfx.clatter();
@@ -1750,6 +1756,62 @@ if (
   requestAnimationFrame(() => requestAnimationFrame(() => { lay(); deskTick(); }));
   setTimeout(() => { lay(); deskTick(); }, 600);
 }
+// Hovering a film plays a short muted loop of it, the way his old site and
+// Netflix do; a click still opens the whole film (Parker, 2026-10-26).
+const hoverLoop = (host, src, place) => {
+  let v = null, timer = 0;
+  host.addEventListener("mouseenter", () => {
+    timer = setTimeout(() => {
+      const url = typeof src === "function" ? src() : src;
+      if (!url) return;
+      v = document.createElement("video");
+      Object.assign(v, { muted: true, loop: true, playsInline: true, autoplay: true, src: url });
+      v.className = "hover-loop";
+      v.setAttribute("aria-hidden", "true");
+      v.addEventListener("loadeddata", () => v && v.classList.add("is-on"));
+      place(v);
+      v.play().catch(() => {});
+    }, 380);
+  });
+  host.addEventListener("mouseleave", () => {
+    clearTimeout(timer);
+    if (!v) return;
+    const old = v; v = null;
+    old.classList.remove("is-on");
+    setTimeout(() => old.remove(), 220);
+  });
+};
+if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  document.querySelectorAll(".mfx-tile[data-loop]").forEach((t) =>
+    hoverLoop(t, t.dataset.loop, (v) => t.querySelector(".mfx-tile__img").append(v)));
+  // The hall: the loop is projected into the screen's quad from the render,
+  // in perspective, under the hall's own light.
+  const hs = document.querySelector(".hall__stack");
+  const link = hs && hs.querySelector(".hall__screen");
+  if (hs && link) {
+    let H = null;
+    fetch("/media/hall/hall.json").then((r) => r.json()).then((j) => { H = j; }).catch(() => {});
+    const homog = (q, SW, SH) => {
+      const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = q;
+      const dx1 = x1 - x2, dx2 = x3 - x2, sx = x0 - x1 + x2 - x3;
+      const dy1 = y1 - y2, dy2 = y3 - y2, sy = y0 - y1 + y2 - y3;
+      const den = dx1 * dy2 - dx2 * dy1;
+      const g = (sx * dy2 - dx2 * sy) / den, h = (dx1 * sy - sx * dy1) / den;
+      const A = x1 - x0 + g * x1, B = x3 - x0 + h * x3, D = y1 - y0 + g * y1, E = y3 - y0 + h * y3;
+      return `matrix3d(${A / SW},${D / SW},0,${g / SW},${B / SH},${E / SH},0,${h / SH},0,0,1,0,${x0},${y0},0,1)`;
+    };
+    const slug = () => (link.getAttribute("href").split("/")[2] || "");
+    hoverLoop(link, () => `/media/loops/${slug()}-720.mp4`, (v) => {
+      const q = H && H[slug()] && H[slug()].screen;
+      if (!q) return;
+      const k = hs.offsetWidth / H.size[0];
+      v.classList.add("hover-loop--hall");
+      v.style.transform = homog(q.map(([x, y]) => [x * k, y * k]), 960, 540);
+      hs.insertBefore(v, link);
+    });
+  }
+}
+
 // Director: the premiere. Each film is its own render of the hall with
 // that film projected and its title on the letterboard; changing film is a
 // projector change, a quick dip through the dark.
@@ -2129,4 +2191,64 @@ if (knoll && openingEl) {
     const ft = document.querySelector(".foot");
     if (ft) ft.classList.add("is-landed");
   }
+})();
+
+// Where you are, faintly, beside the sound button, and a way to jump if you
+// don't want to scroll the whole take (Parker, 2026-10-26: "non-intrusive
+// visually", "just in case somebody doesn't want to scroll through").
+(() => {
+  if (!document.body.classList.contains("is-home")) return;
+  const sound = document.querySelector(".mast__sound");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!sound) return;
+  const PARTS = [
+    [".opening", "Reel"], [".knoll", "Call sheet"], [".flight-todo", "Boulder to LA"],
+    [".scene--films", "Director"], [".cam", "Cinematographer"], [".edit", "Editor"],
+    [".desk-run", "His Mac"], [".sky", "End credits"],
+  ].map(([sel, name]) => [document.querySelector(sel), name]).filter(([el]) => el);
+  const wrap = document.createElement("div");
+  wrap.className = "where";
+  wrap.innerHTML = '<button class="where__now" type="button" aria-expanded="false" aria-haspopup="true"></button><ol class="where__list" hidden></ol>';
+  const now = wrap.querySelector(".where__now");
+  const list = wrap.querySelector(".where__list");
+  PARTS.forEach(([el, name]) => {
+    if (el.classList.contains("sky") && innerWidth < 900) return;
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = name;
+    b.addEventListener("click", () => {
+      close();
+      if (el.classList.contains("sky")) { document.querySelector(".dock__app--credits")?.click(); return; }
+      scrollTo({ top: el.getBoundingClientRect().top + scrollY + 2, behavior: reduced ? "auto" : "smooth" });
+    });
+    li.append(b);
+    list.append(li);
+  });
+  document.body.append(wrap);
+  const close = () => { list.hidden = true; now.setAttribute("aria-expanded", "false"); };
+  now.addEventListener("click", () => {
+    const open = list.hidden;
+    list.hidden = !open;
+    now.setAttribute("aria-expanded", String(open));
+  });
+  document.addEventListener("click", (ev) => { if (!wrap.contains(ev.target)) close(); });
+  addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });
+  const place = () => {
+    const r = sound.getBoundingClientRect();
+    wrap.style.right = `${Math.round(innerWidth - r.left + 12)}px`;
+    wrap.style.top = `${Math.round(r.top + r.height / 2)}px`;
+    let cur = PARTS[0][1];
+    for (const [el, name] of PARTS) {
+      const r = el.getBoundingClientRect();
+      if (!r.height) continue; // hidden, like the credits before End Credits
+      if (r.top <= innerHeight * 0.5) cur = name;
+    }
+    if (now.textContent !== cur) now.textContent = cur;
+    wrap.classList.toggle("is-hidden", document.documentElement.classList.contains("has-leader") || document.documentElement.classList.contains("is-screening"));
+  };
+  addEventListener("scroll", place, { passive: true });
+  addEventListener("resize", place);
+  setInterval(place, 1000);
+  place();
 })();

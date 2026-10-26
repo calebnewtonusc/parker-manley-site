@@ -40,9 +40,16 @@ is a slide. Written 2026-10-25 from every message Caleb sent that night.
 
 Phone: same order, simpler. The end card is its own section there, and the credits aren't locked.
 
+## From the 2026-10-26 call with Parker (built the same day)
+
+- ManleyFlix: A Moment is #9 in the Top 10 and Beneath the Surface is #10. "Made at USC" is now "USC Class Projects" without Beneath the Surface, which was his SCA application video. The music row is just "Music Videos" with the game show. "All Films" lists everything.
+- Hovering a film plays a short muted loop: ManleyFlix tiles that have one, and the hall screen, mapped into the render's screen quad. A click still opens the full film.
+- In a screening, a click anywhere around the film goes back.
+- A faint section name sits beside the sound button. Clicking it opens a menu that jumps to any section. End credits goes through the Dock app.
+
 ## Open, waiting on someone
 
-- Parker: the flight story beats (item 5), checking film titles, years and credits, and whether he likes the overall take.
+- Parker: his full audio feedback message, the 5 Boulder to LA answers (the flight: desk zooms out to a car through the Rockies, airport, plane, lands in LA, into the theater; movement below, text and photos up top), about 2 more table photos, his Letterboxd top 4, ideas for the funny Trash, the flight story beats (item 5), checking film titles, years and credits, and whether he likes the overall take.
 - Parker: click FormSubmit's activation email in prmanley@usc.edu (sent by Caleb's test on 2026-10-26). Until then contact messages don't reach him. FormSubmit answers in 17 to 26 s, so the slate waits up to 45 s.
 - Renders, after Parker signs off: the roll-in polish and the realistic street. Notes are in tools/nalana/PENDING-RENDERS.md and tools/nalana/SKYTILT-STREET-NOTES.md.
 
