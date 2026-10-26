@@ -3389,7 +3389,7 @@ html.has-leader body { overflow: hidden; }
    table and the end card, so the reel behind showed in strips on both edges
    during the flip-screen pull back (Caleb's screenshots, 2026-10-25). */
 @media (min-width: 900px) {
-  .knoll, #contact { padding-left: 0 !important; padding-right: 0 !important; }
+  .knoll, #contact { padding: 0 !important; }
 }
 
 /* Credits read in beats, the way a film's end crawl does: the title alone

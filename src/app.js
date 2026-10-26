@@ -1954,9 +1954,12 @@ if (knoll && openingEl) {
     const p = Math.max(0, Math.min(1, (scrollY - top) / span));
     pin.style.visibility =
       knoll.getBoundingClientRect().top > 0.5 ? "hidden" : "";
-    // A hair inside the flip screen's glass, so its bezel never shows at the cut.
+    // The flip screen covers the window exactly the way the reel video does
+    // (both 16:9, both cover), so the cut lands on the same pixels. The 0.2%
+    // keeps a subpixel of bezel from showing; the old 3% zoomed the frame 6%
+    // at the cut and read as a jump (2026-10-25).
     const lb = box(K.lcd);
-    const L = view({ x: lb.x + lb.w * 0.03, y: lb.y + lb.h * 0.03, w: lb.w * 0.94, h: lb.h * 0.94 }, true);
+    const L = view({ x: lb.x + lb.w * 0.002, y: lb.y + lb.h * 0.002, w: lb.w * 0.996, h: lb.h * 0.996 }, true);
     const A = view({ x: 0, y: 0, w: K.size[0], h: K.size[1] }, true);
     const pb = box(K.paper);
     const P = view(

@@ -21,6 +21,13 @@ with sync_playwright() as p:
             r = pg.evaluate(f"()=>{{const e=document.querySelector('{s}');if(!e)return null;const r=e.getBoundingClientRect();return [r.left,r.width]}}")
             if r and (abs(r[0]) > 0.5 or abs(r[1] - w) > 0.5):
                 bad.append(f"{w}x{h} {s} left={r[0]:.0f} width={r[1]:.0f}")
+        # A pinned scene's pin must sit at the top of its section, or the
+        # section's own padding shows the scene before it for that many px
+        # (the knoll's 90px top padding doubled the reel, 2026-10-25).
+        for sec, pin in [(".knoll", ".knoll__pin"), (".irisout", ".irisout__pin"), (".rollin", ".rollin__pin"), (".cam", ".cam__pin")]:
+            d = pg.evaluate(f"()=>{{const s=document.querySelector('{sec}'),p=document.querySelector('{pin}');if(!s||!p)return null;return p.getBoundingClientRect().top-s.getBoundingClientRect().top}}")
+            if d is not None and abs(d) > 0.5:
+                bad.append(f"{w}x{h} {pin} starts {d:.0f}px into {sec}")
         pg.close()
     b.close()
 print("\n".join(bad) or "all pinned scenes are full bleed")
