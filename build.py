@@ -484,7 +484,7 @@ def preview(home_html):
     h = home_html.replace('<body class="is-home"', '<body class="is-home is-preview"', 1)
     h = h.replace("<title>", '<meta name="robots" content="noindex"><title>DRAFT · ', 1)
     # Director: the premiere hall, the film playing on its screen.
-    h = h.replace('<div class="scene__pin">\n      <div class="scene__bg"',
+    h = h.replace('<div class="scene__pin">\n      <div class="scene__bg-unused"',
                   '<div class="scene__pin">\n      <img class="draft-hall" src="/media/draft/premiere.webp" alt=""><span class="draft-tag">Premiere hall, draft render</span>\n      <div class="scene__bg"', 1)
     # Cinematographer: the real monitor body around the live feed.
     h = h.replace('<div class="cam__screen">',
@@ -630,11 +630,10 @@ def home(films):
 <section class="reels" id="films" aria-label="Featured films">
   <div class="scene scene--films">
     <div class="scene__pin">
+      <img class="hall__img" src="/media/hall/hall.webp" alt="" aria-hidden="true">
+      <div class="hall__banner" aria-hidden="true"><span></span></div>
       <div class="scene__bg" aria-hidden="true">
 {layers}
-      </div>
-      <div class="marquee" aria-hidden="true">
-        <img class="marquee__img" src="/media/titles/marquee-{featured[0]["slug"]}-900.webp" alt="" data-slugs="{" ".join(f["slug"] for f in featured)}">
       </div>
       <div class="scene__copy">
 {cards}
@@ -643,6 +642,7 @@ def home(films):
     </div>
   </div>
 </section>
+<section class="rollin" aria-hidden="true" data-screen="/media/posters/{featured[-1]["slug"]}.jpg" data-title="{e(featured[-1]["title"])}" data-year="{featured[-1]["year"]}" data-monitor="/media/stills/{LENS[0][0]}-{LENS[0][1]}.jpg"><div class="rollin__pin"><canvas class="rollin__c"></canvas></div></section>
 {lens_scene(films)}
 <section class="reels" aria-label="Every film">
   <div class="lobby" id="all-films">

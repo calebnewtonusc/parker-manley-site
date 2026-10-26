@@ -673,72 +673,62 @@
     const lastCam = document.querySelector(".cam__strip img:last-child");
     if (lastCam) hand.src = lastCam.getAttribute("src");
     screen.appendChild(hand);
-    // Hand-off in. Premiere opens the way an editor leaves it mid-review:
-    // the Program monitor dragged nearly full screen, every other panel
-    // squeezed skinny, the camera's last frame on it. A short pull back
-    // from full screen, then Parker's cursor grabs the panel edges and drags
-    // the layout back open: left edge, right edge, then the timeline up.
+    // Hand-off in. Nothing is scaled. Premiere opens with the Program
+    // monitor dragged edge to edge, every other panel collapsed to nothing,
+    // and the camera's last frame fit to it exactly as the camera left it.
+    // Then Parker's cursor drags the panels back in from the edges: the
+    // menus down from the top, the left panel, the right panel, the
+    // timeline up from the bottom. The picture shrinks with the viewer.
     const fcBottom = edit.querySelector(".fc__bottom");
-    const panes = (Lf, Rf, Bf) => {
-      fcTop.style.gridTemplateColumns = `minmax(0, ${Lf.toFixed(4)}fr) minmax(0, 1.6fr) minmax(0, ${Rf.toFixed(4)}fr)`;
-      pin.style.gridTemplateRows = `28px auto minmax(0, 1.05fr) minmax(0, ${Bf.toFixed(4)}fr)`;
+    const mon = screen.closest(".monitor");
+    const noteEl = edit.querySelector(".fc__note");
+    const panes = (t, l, r, bt) => {
+      pin.style.setProperty("--dt", t.toFixed(4));
+      fcTop.style.gridTemplateColumns = `minmax(0, ${(0.9 * l + 0.0001).toFixed(4)}fr) minmax(0, 1.6fr) minmax(0, ${(0.75 * r + 0.0001).toFixed(4)}fr)`;
+      const nh = noteEl ? noteEl.scrollHeight : 0;
+      pin.style.gridTemplateRows = `${(28 * t).toFixed(1)}px ${(nh * t).toFixed(1)}px minmax(0, 1.05fr) minmax(0, ${(bt + 0.0001).toFixed(4)}fr)`;
+      pin.style.gap = `${(3 * Math.min(l, r, t)).toFixed(2)}px`;
+      pin.style.paddingInline = `${(3 * Math.min(l, r)).toFixed(2)}px`;
+      fcTop.style.gap = `${(3 * Math.min(l, r)).toFixed(2)}px`;
     };
-    const SK = { L: 0.1, R: 0.08, B: 0.1 };
-    const FULL = { L: 0.9, R: 0.75, B: 1 };
-    let base = null;
-    const measure = () => {
-      panes(SK.L, SK.R, SK.B);
-      const prev = pin.style.transform;
-      pin.style.transform = "none";
-      const q = pin.getBoundingClientRect();
-      const r = screen.getBoundingClientRect();
-      pin.style.transform = prev;
-      base = { cx: r.left - q.left + r.width / 2, cy: r.top - q.top + r.height / 2, s: Math.max(q.width / r.width, q.height / r.height), w: q.width, h: q.height };
-    };
-    addEventListener("resize", () => { base = null; });
     const edgeAt = (which) => {
       const q = pin.getBoundingClientRect();
-      const r = screen.closest(".monitor").getBoundingClientRect();
-      const bt = fcBottom.getBoundingClientRect();
-      if (which === "L") return { x: r.left - q.left - 2, y: r.top - q.top + r.height * 0.45 };
-      if (which === "R") return { x: r.right - q.left + 2, y: r.top - q.top + r.height * 0.45 };
-      return { x: r.left - q.left + r.width * 0.55, y: bt.top - q.top - 2 };
+      const r = mon.getBoundingClientRect();
+      if (which === "T") return { x: r.left - q.left + r.width * 0.5, y: r.top - q.top + 2 };
+      if (which === "L") return { x: r.left - q.left + 2, y: r.top - q.top + r.height * 0.45 };
+      if (which === "R") return { x: r.right - q.left - 2, y: r.top - q.top + r.height * 0.45 };
+      return { x: r.left - q.left + r.width * 0.5, y: r.bottom - q.top - 2 };
     };
-    // Returns true while the hand-off owns the cursor.
     const grow = (T) => {
-      if (innerWidth < 900) { pin.style.transform = ""; hand.style.opacity = "0"; panes(FULL.L, FULL.R, FULL.B); return false; }
-      if (!base) measure();
-      // 1. Pull back from full screen onto the skinny layout.
-      const z = ease(Math.max(0, Math.min(1, T / 0.22)));
-      const k = 1 - z;
-      const S = 1 + (base.s - 1) * k;
-      pin.style.transformOrigin = "0 0";
-      pin.style.transform = z >= 1 ? "" : `translate(${((base.w / 2 - base.cx * S) * k).toFixed(1)}px, ${((base.h / 2 - base.cy * S) * k).toFixed(1)}px) scale(${S.toFixed(4)})`;
-      // 2. Three drags, one edge at a time.
+      pin.style.transform = "";
+      if (innerWidth < 900) { panes(1, 1, 1, 1); pin.classList.remove("is-handin"); hand.style.opacity = "0"; return false; }
       const d = (a2, b2) => ease(Math.max(0, Math.min(1, (T - a2) / (b2 - a2))));
-      const dl = d(0.34, 0.52);
-      const dr = d(0.6, 0.76);
+      const dt = d(0.1, 0.26);
+      const dl = d(0.34, 0.5);
+      const dr = d(0.58, 0.74);
       const db = d(0.82, 0.96);
-      panes(SK.L + (FULL.L - SK.L) * dl, SK.R + (FULL.R - SK.R) * dr, SK.B + (FULL.B - SK.B) * db);
-      hand.style.opacity = String(1 - Math.max(0, Math.min(1, (T - 0.94) / 0.06)));
-      // The cursor: travel to an edge, press, drag it, let go, next edge.
-      const segs = [["L", 0.26, 0.34, 0.52], ["R", 0.54, 0.6, 0.76], ["B", 0.78, 0.82, 0.96]];
-      let pos = { x: pin.clientWidth * 0.92, y: pin.clientHeight * 0.92 };
-      let down = false;
+      panes(dt, dl, dr, db);
+      pin.classList.toggle("is-handin", T < 1);
+      hand.style.opacity = String(1 - Math.max(0, Math.min(1, (T - 0.96) / 0.04)));
+      // The cursor: to an edge, press, drag, let go, next edge.
+      const segs = [["T", 0.04, 0.1, 0.26], ["L", 0.28, 0.34, 0.5], ["R", 0.52, 0.58, 0.74], ["B", 0.76, 0.82, 0.96]];
+      let pos = { x: pin.clientWidth * 0.62, y: pin.clientHeight * 0.66 };
       let prev = pos;
+      let down = false;
+      let axis = "y";
       for (const [w, t0, t1, t2] of segs) {
-        const e = edgeAt(w);
+        const e2 = edgeAt(w);
         if (T < t0) { pos = prev; break; }
-        if (T < t1) { const u = ease((T - t0) / (t1 - t0)); pos = { x: prev.x + (e.x - prev.x) * u, y: prev.y + (e.y - prev.y) * u }; break; }
-        pos = e;
-        down = T < t2;
-        if (T < t2) break;
-        prev = e;
+        if (T < t1) { const u = ease((T - t0) / (t1 - t0)); pos = { x: prev.x + (e2.x - prev.x) * u, y: prev.y + (e2.y - prev.y) * u }; break; }
+        pos = e2;
+        if (T < t2) { down = true; axis = w === "L" || w === "R" ? "x" : "y"; break; }
+        prev = e2;
       }
+      cursor.style.opacity = T < 0.03 ? "0" : "";
       cursor.style.transform = `translate(${pos.x.toFixed(1)}px, ${pos.y.toFixed(1)}px)`;
       cursor.classList.toggle("is-down", down);
-      cursor.classList.toggle("is-resize-x", down && T < 0.78);
-      cursor.classList.toggle("is-resize-y", down && T >= 0.78);
+      cursor.classList.toggle("is-resize-x", down && axis === "x");
+      cursor.classList.toggle("is-resize-y", down && axis === "y");
       return T < 1;
     };
     scrub = () => {
@@ -855,7 +845,7 @@
       scr.style.overflow = "visible";
       camFrame.style.transform = "";
       const r = camFrame.getBoundingClientRect();
-      const sc = Math.max(innerWidth / r.width, innerHeight / r.height);
+      const sc = Math.min(innerWidth / r.width, innerHeight / r.height);
       const dx = innerWidth / 2 - (r.left + r.width / 2);
       const dy = innerHeight / 2 - (r.top + r.height / 2);
       camFrame.style.transform = `translate(${(dx * z).toFixed(1)}px, ${(dy * z).toFixed(1)}px) scale(${(1 + (sc - 1) * z).toFixed(4)})`;
@@ -868,8 +858,9 @@
       // The shots play over the first 86%; the rest is the hand-off, where
       // the last frame on the monitor grows until it is the whole screen.
       const p = Math.min(0.9999, p0 / 0.86);
-      const zoom = reduced ? 0 : ease(clamp((p0 - 0.88) / 0.12));
-      handoff(zoom);
+      const zoomOut = reduced ? 0 : ease(clamp((p0 - 0.88) / 0.12));
+      const zoomIn = reduced || innerWidth < 900 ? 0 : 1 - ease(clamp(p0 / 0.07));
+      handoff(Math.max(zoomOut, zoomIn));
       const k = 1;
       const q = clamp((p - POV) / (1 - POV));
       const i = Math.min(shots.length - 1, Math.floor(q * shots.length));
@@ -1640,4 +1631,179 @@ if (
   addEventListener("scroll", irisShow, { passive: true });
   irisShow();
 }
+// Director: the premiere. His films play on the hall's screen behind the
+// director's chair, and the banner over the screen names each premiere.
+const hallBanner = document.querySelector(".hall__banner span");
+if (hallBanner) {
+  const scn = hallBanner.closest(".scene");
+  const lines = [...scn.querySelectorAll(".line")];
+  const say = (i) => {
+    const l = lines[i];
+    if (!l) return;
+    const t = l.querySelector(".card__title").textContent;
+    const y = (l.querySelector(".card__meta").textContent.match(/\d{4}/) || [
+      "",
+    ])[0];
+    hallBanner.textContent = `Premiere · ${t}${y ? ` · ${y}` : ""}`;
+  };
+  say(0);
+  scn.addEventListener("chapter", (e) => say(e.detail));
+}
+
+// Then a camera rolls up the aisle into the same hall and we push into its
+// monitor until the monitor is the screen. Drawn frame by frame from the
+// render; the film on the hall screen and the picture on the monitor are
+// mapped onto the quads the render exported for each frame.
+const rollin = document.querySelector(".rollin");
+if (rollin) {
+  const cv = rollin.querySelector(".rollin__c");
+  const cx = cv.getContext("2d");
+  const N = 36;
+  const frames = [];
+  let quads = null;
+  const load = (src) => {
+    const im = new Image();
+    im.decoding = "async";
+    im.src = src;
+    return im;
+  };
+  const filmImg = load(rollin.dataset.screen);
+  const monImg = load(rollin.dataset.monitor);
+  const banner = `PREMIERE · ${rollin.dataset.title.toUpperCase()} · ${rollin.dataset.year}`;
+  let started = false;
+  const start = () => {
+    if (started) return;
+    started = true;
+    for (let i = 1; i <= N; i++)
+      frames.push(
+        load(`/media/hall/rollin/${String(i).padStart(3, "0")}.webp`),
+      );
+    fetch("/media/hall/rollin.json")
+      .then((r) => r.json())
+      .then((j) => {
+        quads = j;
+        draw();
+      })
+      .catch(() => {});
+  };
+  new IntersectionObserver(
+    ([en]) => {
+      if (en.isIntersecting) start();
+    },
+    { rootMargin: "200% 0px" },
+  ).observe(rollin);
+  // Affine fit of an image onto a quad (tl, tr, bl), cover-cropped.
+  const fit = (img, q, s, ox, oy) => {
+    if (!img.complete || !img.naturalWidth) return;
+    const [tl, tr, br, bl] = q;
+    const P = (p) => [ox + p[0] * s, oy + p[1] * s];
+    const a = P(tl),
+      b = P(tr),
+      d = P(bl);
+    const qw = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const qh = Math.hypot(d[0] - a[0], d[1] - a[1]);
+    const ir = img.naturalWidth / img.naturalHeight;
+    let sw = img.naturalWidth,
+      sh = img.naturalHeight,
+      sx = 0,
+      sy = 0;
+    if (ir > qw / qh) {
+      sw = sh * (qw / qh);
+      sx = (img.naturalWidth - sw) / 2;
+    } else {
+      sh = sw / (qw / qh);
+      sy = (img.naturalHeight - sh) / 2;
+    }
+    cx.save();
+    cx.setTransform(
+      (b[0] - a[0]) / sw,
+      (b[1] - a[1]) / sw,
+      (d[0] - a[0]) / sh,
+      (d[1] - a[1]) / sh,
+      a[0],
+      a[1],
+    );
+    cx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+    cx.restore();
+  };
+  const order = (q) => {
+    // The render's last frames list the monitor's corners mirrored; sort
+    // them into tl, tr, br, bl by position so the picture is never flipped.
+    const pts = q.slice().sort((m, n) => m[1] - n[1]);
+    const top = pts.slice(0, 2).sort((m, n) => m[0] - n[0]);
+    const bot = pts.slice(2).sort((m, n) => m[0] - n[0]);
+    return [top[0], top[1], bot[1], bot[0]];
+  };
+  const draw = () => {
+    if (!started) return;
+    const top = rollin.getBoundingClientRect().top + scrollY;
+    const span = rollin.offsetHeight - innerHeight;
+    const p = Math.max(0, Math.min(1, (scrollY - top) / span));
+    const i = Math.min(N - 1, Math.floor(p * N));
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const W = innerWidth,
+      H = innerHeight;
+    if (cv.width !== Math.round(W * dpr)) {
+      cv.width = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+    }
+    if (cv.height !== Math.round(H * dpr)) cv.height = Math.round(H * dpr);
+    cx.setTransform(1, 0, 0, 1, 0, 0);
+    const f = frames[i];
+    if (!f || !f.complete || !f.naturalWidth) return;
+    const fw = 960,
+      fh = 540;
+    const s = Math.max(cv.width / fw, cv.height / fh);
+    const ox = (cv.width - fw * s) / 2,
+      oy = (cv.height - fh * s) / 2;
+    cx.drawImage(f, ox, oy, fw * s, fh * s);
+    if (quads) {
+      if (quads.corners[i]) fit(filmImg, quads.corners[i], s, ox, oy);
+      if (quads.monitor[i]) fit(monImg, order(quads.monitor[i]), s, ox, oy);
+      const bq = quads.banner[i];
+      if (bq) {
+        const xs = bq.map((v) => v[0]),
+          ys = bq.map((v) => v[1]);
+        const bx = ox + ((Math.min(...xs) + Math.max(...xs)) / 2) * s;
+        const by = oy + ((Math.min(...ys) + Math.max(...ys)) / 2) * s;
+        const bh = (Math.max(...ys) - Math.min(...ys)) * s;
+        cx.save();
+        cx.font = `600 ${Math.max(8, bh * 0.42)}px Oswald, sans-serif`;
+        cx.textAlign = "center";
+        cx.textBaseline = "middle";
+        cx.fillStyle = "#f3e6c4";
+        cx.shadowColor = "rgba(255,210,140,0.6)";
+        cx.shadowBlur = bh * 0.3;
+        cx.fillText(banner.split("").join(" "), bx, by);
+        cx.restore();
+      }
+    }
+  };
+  addEventListener("scroll", draw, { passive: true });
+  addEventListener("resize", draw);
+  setInterval(() => {
+    if (
+      started &&
+      rollin.getBoundingClientRect().top < innerHeight &&
+      rollin.getBoundingClientRect().bottom > 0
+    )
+      draw();
+  }, 400);
+}
+
+  // The camera section slides in under the roll-in's last screenful and
+  // shows itself once pinned, starting on the monitor's picture full screen.
+  const camSec = document.querySelector(".cam");
+  if (rollin && camSec) {
+    const camPinEl = camSec.querySelector(".cam__pin");
+    const layC = () => overlapUnder(rollin, camSec);
+    const showC = () => {
+      if (innerWidth < 900) { camPinEl.style.visibility = ""; return; }
+      camPinEl.style.visibility = camSec.getBoundingClientRect().top > 0.5 ? "hidden" : "";
+    };
+    addEventListener("scroll", showC, { passive: true });
+    addEventListener("resize", () => { layC(); showC(); });
+    requestAnimationFrame(() => requestAnimationFrame(() => { layC(); showC(); if (camUpdate) camUpdate(); }));
+    setTimeout(() => { layC(); showC(); }, 700);
+  }
 })();

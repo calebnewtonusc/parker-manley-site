@@ -3234,3 +3234,27 @@ body:not(.is-home) .foot__pin { position: relative; height: 60svh; opacity: 1; }
   section.contact { background: transparent !important; position: relative; z-index: 4; }
   .irisout { position: relative; z-index: 4; }
 }
+
+/* v22: the premiere hall is the Director scene, and the camera rolls in. */
+.scene--films .scene__pin { --W: max(100vw, 177.78vh); --H: max(56.25vw, 100vh); }
+.hall__img { position: absolute; left: 50%; top: 50%; width: var(--W); height: var(--H); transform: translate(-50%, -50%); object-fit: fill; z-index: 0; }
+.scene--films .scene__bg { position: absolute !important; inset: auto !important; z-index: 1; left: calc(50% - var(--W) / 2 + var(--W) * 0.3004) !important; top: calc(50% - var(--H) / 2 + var(--H) * 0.2305) !important; width: calc(var(--W) * 0.3993) !important; height: calc(var(--H) * 0.3885) !important; transform: none !important; }
+.scene--films .scene__bg::before, .scene--films .scene__bg::after { display: none !important; }
+.hall__banner { display: grid; place-items: center; position: absolute; z-index: 1; left: calc(50% - var(--W) / 2 + var(--W) * 0.378); top: calc(50% - var(--H) / 2 + var(--H) * 0.1181); width: calc(var(--W) * 0.2441); height: calc(var(--H) * 0.0628); }
+.hall__banner span { font: 600 clamp(9px, 1.05vw, 17px)/1 "Oswald", sans-serif; letter-spacing: 0.18em; text-transform: uppercase; color: #f3e6c4; text-shadow: 0 0 6px rgba(255, 210, 140, 0.55); white-space: nowrap; }
+.scene--films .scene__copy { z-index: 2; }
+.scene--films .marquee { display: none !important; }
+.rollin { position: relative; height: 340vh; background: var(--ground); }
+.rollin__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.rollin__c { display: block; width: 100%; height: 100%; }
+.cam { position: relative; z-index: 2; }
+@media (max-width: 899px) { .rollin { height: 220vh; } }
+
+/* Hand-in: the Program monitor is the whole screen; its tabs and transport
+   rows open with the top drag, and the frame is fit, letterboxed in black. */
+.fc { --dt: 1; }
+.fc .monitor > .fc__tabs, .fc .monitor > .pm__row, .fc .monitor > .pm__transport, .fc .monitor > .pm__marks { max-height: calc(var(--dt) * 80px); overflow: hidden; }
+.fc.is-handin .monitor__screen { margin: 0 calc(var(--dt) * 6px); }
+.fc.is-handin { background: #000 !important; }
+.fc__handoff { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; object-fit: contain !important; background: #000; z-index: 6 !important; }
+.cam__pin { background: #000 !important; }
