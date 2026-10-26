@@ -1632,23 +1632,15 @@ if (
   addEventListener("scroll", irisShow, { passive: true });
   irisShow();
 }
-// Director: the premiere. His films play on the hall's screen behind the
-// director's chair, and the banner over the screen names each premiere.
-const hallBanner = document.querySelector(".hall__banner span");
-if (hallBanner) {
-  const scn = hallBanner.closest(".scene");
-  const lines = [...scn.querySelectorAll(".line")];
-  const say = (i) => {
-    const l = lines[i];
-    if (!l) return;
-    const t = l.querySelector(".card__title").textContent;
-    const y = (l.querySelector(".card__meta").textContent.match(/\d{4}/) || [
-      "",
-    ])[0];
-    hallBanner.textContent = `Premiere · ${t}${y ? ` · ${y}` : ""}`;
-  };
-  say(0);
-  scn.addEventListener("chapter", (e) => say(e.detail));
+// Director: the premiere. Each film is its own render of the hall with
+// that film projected and its title on the letterboard; changing film is a
+// projector change, a quick dip through the dark.
+const hallStack = document.querySelector(".hall__stack");
+if (hallStack) {
+  const fs = [...hallStack.querySelectorAll(".hall__f")];
+  hallStack.closest(".scene").addEventListener("chapter", (e) => {
+    fs.forEach((f, k) => f.classList.toggle("is-on", k === e.detail));
+  });
 }
 
 // Then a camera rolls up the aisle into the same hall and we push into its
@@ -1818,7 +1810,7 @@ if (rollin) {
     [".opening__pin", "In progress", "The reel will shrink down into the flip screen of Parker's camera, sitting on his production table."],
     [".about", "In progress", "Becomes one top-down 3D shot of Parker's kit on a production table, with this call sheet clipped to a real clipboard and the polaroids loose beside it."],
     [".flight-todo", "Needs Parker", "Answer these and this becomes one unbroken flight from Boulder to LA, through the films you made along the way."],
-    [".scene--films .scene__pin", "In progress", "Being re-rendered in 3D: each film projected on the theater screen, the P. MANLEY chair you can read, and the title on a real letterboard."],
+    [".scene--films .scene__pin", "In progress", "Draft-quality render. The final render sharpens the room, and the camera rolls in from here."],
     [".rollin__pin", "In progress", "Re-rendering: the camera rolls up in front of the chair, its monitor turns on, and we push into it."],
     [".cam__pin", "In progress", "This whole scene moves onto that same 3D camera, playing on its real monitor and buttons."],
     [".foot__pin", "In progress", "The credits will roll over the night sky above Hollywood Blvd, then tilt down to this star."],

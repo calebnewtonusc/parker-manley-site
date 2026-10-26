@@ -3290,3 +3290,18 @@ html.has-leader body { overflow: hidden; }
 .wip__tag { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); display: flex; gap: 12px; align-items: baseline; width: max-content; max-width: min(760px, calc(100% - 32px)); margin: 0; padding: 10px 16px; background: #e3262b; color: #fff; font: 500 14px/1.4 "Inter", var(--font); border-radius: 3px; box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
 .wip__tag b { flex: none; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
 @media (max-width: 700px) { .wip__tag { flex-direction: column; gap: 4px; font-size: 12px; top: 10px; } }
+
+/* v23 hall: whole-frame renders, one per film. */
+.hall__stack { position: absolute; left: 50%; top: 50%; width: var(--W); height: var(--H); transform: translate(-50%, -50%); z-index: 0; background: #000; }
+.hall__f { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 260ms ease-in-out; }
+.hall__f.is-on { opacity: 1; }
+.scene--films .scene__bg, .hall__banner, .hall__img { display: none !important; }
+.scene--films .scene__copy { background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0)); padding-top: 60px; }
+/* The film's card sits to the side so the P. MANLEY chair stays clear. */
+@media (min-width: 900px) {
+  .scene--films .scene__copy { left: 4vw !important; right: auto !important; width: min(380px, 30vw) !important; text-align: left !important; background: none !important; padding-top: 0 !important; bottom: 8vh !important; }
+  .scene--films .scene__copy .line { text-align: left !important; align-items: flex-start !important; }
+  .scene--films .scene__copy .card__syn, .scene--films .scene__copy p { text-shadow: 0 1px 10px rgba(0,0,0,0.9); margin-left: 0 !important; }
+}
+@media (min-width: 900px) { .scene--films .scene__copy { transform: none !important; } }
+@media (min-width: 900px) { .scene--films .card__laurels, .scene--films .card__fest { justify-content: flex-start !important; text-align: left !important; } }

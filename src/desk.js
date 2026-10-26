@@ -187,15 +187,6 @@
     tabBtns.forEach((x) => x.classList.toggle("is-on", x === b));
     gram.querySelectorAll("[data-grid]").forEach((g) => { g.hidden = g.dataset.grid !== b.dataset.tab; });
   }));
-  // Reels play on hover, the way the grid previews them.
-  gram.querySelectorAll(".ig-reel").forEach((r) => {
-    const v = r.querySelector("video");
-    r.addEventListener("pointerenter", () => {
-      if (!v.src) v.src = v.dataset.src;
-      v.play().then(() => r.classList.add("is-playing")).catch(() => {});
-    });
-    r.addEventListener("pointerleave", () => { v.pause(); r.classList.remove("is-playing"); });
-  });
   viewer.querySelector(".igv__x").addEventListener("click", closeViewer);
   viewer.querySelector(".igv__back").addEventListener("click", closeViewer);
   viewer

@@ -505,10 +505,15 @@ def preview(home_html):
     return h
 
 
+HALL = ["scar-tissue", "abundance", "beneath-the-surface", "somnambulist", "the-five-stages-of-wasabi"]
+
+
 def home(films):
     from site_desk import desk_section
 
-    featured = [f for f in films if f["featured"]]
+    # The premiere hall shows five films, picked with Caleb on 2026-10-25.
+    by_slug = {f["slug"]: f for f in films}
+    featured = [by_slug[s] for s in HALL if s in by_slug]
     archive = [f for f in films if not f["featured"]]
 
     showing = [
@@ -529,6 +534,10 @@ def home(films):
         for i, f in enumerate(featured)
     )
     n = len(featured)
+    hall_stills = "".join(
+        f'<img class="hall__f{" is-on" if i == 0 else ""}" src="/media/hall/{f["slug"] if exists(f"media/hall/{f['slug']}.webp") else "hall"}.webp" alt="" loading="{"eager" if i == 0 else "lazy"}">'
+        for i, f in enumerate(featured)
+    )
     cards = "\n".join(
         f'<div class="line{" is-on" if i == 0 else ""}"{"" if i == 0 else " aria-hidden=\"true\""}>'
         f'<p class="card__no">No. {i + 1} of {n}</p>'
@@ -631,8 +640,7 @@ def home(films):
 <section class="reels" id="films" aria-label="Featured films">
   <div class="scene scene--films">
     <div class="scene__pin">
-      <img class="hall__img" src="/media/hall/hall.webp" alt="" aria-hidden="true">
-      <div class="hall__banner" aria-hidden="true"><span></span></div>
+      <div class="hall__stack" aria-hidden="true">{hall_stills}</div>
       <div class="scene__bg" aria-hidden="true">
 {layers}
       </div>

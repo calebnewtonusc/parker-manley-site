@@ -229,12 +229,10 @@ def _gram(photos, films=()):
         tagged.append({"thumb": f"/media/desk/tagged/{k}-t.jpg", "full": f"/media/desk/tagged/{k}.jpg", "w": w, "h": h})
     tagged_html = "".join(tile(p, i, len(tagged), "Tagged photo") for i, p in enumerate(tagged))
     feat = [f for f in films if f.get("featured")]
-    reels = "".join(
-        f'<a class="ig-reel" href="/films/{f["slug"]}/" aria-label="{e(f["title"])}">'
-        f'<img src="/media/posters/{f["slug"]}.jpg" alt="" loading="lazy">'
-        f'<video muted loop playsinline preload="none" data-src="/media/loops/{f["slug"]}-720.mp4"></video>'
-        f'<span class="ig-reel__t">{igi("reels")}{e(f["title"])}</span></a>'
-        for f in feat
+    reels = (
+        f'<button type="button" class="ig-reel ig-reel--mfx" data-go="flix" aria-label="Watch Parker\'s films on ManleyFlix">'
+        f'<span class="ig-reel__m">{M_ICON}</span><span class="ig-reel__w">MANLEYFLIX</span>'
+        f'<span class="ig-reel__c">All my films are streaming on ManleyFlix. Tap to watch.</span></button>'
     )
     av = '<img src="/media/desk/avatar.jpg" alt="">'
     rail = "".join(f'<span class="ig-rail__i">{igi(k)}</span>' for k in ("home", "search", "explore", "reels", "direct", "heart", "create"))
