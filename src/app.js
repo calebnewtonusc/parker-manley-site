@@ -1081,7 +1081,8 @@
       }
       if (!raf) raf = requestAnimationFrame(tick);
     };
-    const end = [roll, document.querySelector(".foot")].filter(Boolean);
+    // The whole outro: the roll, the palm-tree night after it, and the star.
+    const end = [roll, document.querySelector(".sky__pin"), document.querySelector(".sky"), document.querySelector(".foot")].filter(Boolean);
     const seen = new Set();
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => (en.isIntersecting ? seen.add(en.target) : seen.delete(en.target)));
