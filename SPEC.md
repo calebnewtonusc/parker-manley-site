@@ -56,6 +56,7 @@ Phone: same order, simpler. The end card is its own section there, and the credi
 ## Checks to run after any change
 
 - `python3 tools/check_build_no_pil.py`. Railway's image has no Pillow.
+- `python3 tools/check_phone_loads.py <url>`. The page loads on iPhone-size WebKit. On 2026-10-26 a layout loop froze iPhone Safari while Chromium was fine.
 - `python3 tools/check_full_bleed.py <url>`. Every pinned scene fills the window and sits flush at the top of its section.
 - `python3 tools/walk_seams.py <url>`. Shoots a frame either side of every hand-off at 1000x506 (Caleb's window). Look at the sheet.
 - Any z-index or overlap change: rerun the walk. On 2026-10-25, raising the Mac above the credits put it above the edit bay too.
