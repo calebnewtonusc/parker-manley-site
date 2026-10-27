@@ -1712,3 +1712,11 @@
   .desk .mfx-row__arrow:hover svg { transform: scale(1.25); }
   .desk .mfx-row__arrow:active svg { transform: scale(1.1); transition-duration: 100ms; }
 }
+
+/* Phone: the site's sound button and section label are fixed to the bottom
+   right, and on the Mac they sat on the Dock's Trash (audit, 2026-10-26).
+   Lift the Dock clear of them and shorten the window to match. */
+@media (max-width: 760px) {
+  .desk .dock { bottom: 58px; }
+  .desk .cw { bottom: calc(var(--dock-i) + 26px + 52px) !important; }
+}
