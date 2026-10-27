@@ -1687,7 +1687,9 @@
    off. Room above, paid back with a negative margin so rows don't move. */
 .desk .mfx-row__track { padding-top: 6cqw; margin-top: -5cqw; padding-bottom: 11cqw; margin-bottom: -10cqw; }
 /* The row being hovered sits over the row below, so its card isn't covered. */
-.desk .mfx-row { position: relative; z-index: 0; }
+/* Above the hero's shade (its ::after is z 1): at 0 the shade dimmed the Top 10
+   heading and numbers to near black at 1440x900 (audit, 2026-10-26). */
+.desk .mfx-row { position: relative; z-index: 2; }
 .desk .mfx-row:hover { z-index: 5; }
 
 /* Parker, 2026-10-26: "The scrolling seems just a little off" on ManleyFlix.
