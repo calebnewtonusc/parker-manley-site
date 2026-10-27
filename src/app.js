@@ -461,8 +461,11 @@
     let half = 40;
     let video = null;
     let cur = -1;
-    // The cut the session drops a Cross Dissolve on, a little before the middle.
-    const K = Math.floor(clips.length * 0.45);
+    // The cut the session drops a Cross Dissolve on. The session opens on
+    // the clip before it, so K = 1 opens on the first clip, Wonderland.
+    // At 0.45 of six it opened on the second, which Parker read as the wrong
+    // clip being selected (his notes, 2026-10-26).
+    const K = Math.min(1, clips.length - 1);
     let cutline = null;
     let session = false;
     const layout = () => {
@@ -615,7 +618,8 @@
       const XA = cutKm1 + half + 24;
       const XR = cK.offsetLeft + cK.offsetWidth * 0.5;
       const XB = cutK + half + 30;
-      const XEND = clips[Math.min(clips.length - 1, K + 3)].offsetLeft + 40;
+      // Run on to the last clip so all six of Parker's picks pass the playhead.
+      const XEND = clips[clips.length - 1].offsetLeft + 40;
       let xh = X0;
       if (T >= 0.06) xh = lerp(X0, XA, seg(T, 0.06, 0.22));
       if (T >= 0.28) xh = lerp(XA, XR, ease(seg(T, 0.28, 0.36)));
@@ -624,7 +628,7 @@
       dropped = T >= 0.58;
       // Keep the playhead in view the way Premiere pages the timeline.
       const W = win.clientWidth;
-      const off = Math.max(c0.offsetLeft - W * 0.08, xh - W * 0.78);
+      const off = Math.max(0, c0.offsetLeft - W * 0.08, xh - W * 0.78);
       strip.style.transform = `translateX(${-off}px)`;
       playhead.style.left = `${xh - off}px`;
       cutline.style.left = `${XR}px`;
