@@ -2337,6 +2337,11 @@ if (knoll && openingEl) {
       if (tab && tab !== page) continue; // on the Mac, the open tab names where you are
       if (r.top <= innerHeight * 0.5) cur = name;
     }
+    // Past the Mac the label still said "All Films" through the credits and
+    // the star (audit, 2026-10-26). End Credits isn't a jump in the list, it
+    // opens from the Dock, but the label names where you are.
+    const sky = document.querySelector(".sky");
+    if (sky && sky.offsetHeight && !document.documentElement.classList.contains("credits-locked") && sky.getBoundingClientRect().top <= innerHeight * 0.5) cur = "End Credits";
     if (now.textContent !== cur) now.textContent = cur;
     wrap.classList.toggle("is-hidden", document.documentElement.classList.contains("has-leader") || document.documentElement.classList.contains("is-screening"));
   };

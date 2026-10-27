@@ -3587,5 +3587,8 @@ html.has-leader body { overflow: hidden; }
 @media (min-width: 900px) {
   .journey { padding: 0 !important; }
   .journey__pin .wip__tag { top: auto !important; bottom: 14px; }
+  /* Bottom tags stay clear of the section label and sound button at the
+     bottom right; at 1000 wide a 760px tag ran under them. */
+  .journey__pin .wip__tag, .sky__pin .wip__tag { max-width: max(300px, calc(100% - 460px)); }
 }
 @media (min-width: 900px) { .journey { z-index: 2; } }
