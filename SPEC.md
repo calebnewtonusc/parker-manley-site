@@ -42,7 +42,7 @@ Phone: same order, simpler. The end card is its own section there, and the credi
 
 ## From the 2026-10-26 call with Parker (built the same day)
 
-- ManleyFlix: A Moment is #9 in the Top 10 and Beneath the Surface is #10. "Made at USC" is now "USC Class Projects" without Beneath the Surface, which was his SCA application video. The music row is just "Music Videos" with the game show. "All Films" lists everything.
+- ManleyFlix rows follow Parker's doc of 2026-10-26 (research/parker-notes-2026-10-26.md), which replaced the call's version: his exact Top 10 (Wonderland at #10), USC Class Projects second without Beneath the Surface, Music Videos and More with the game show and Emergency Contact 1 and 3, the genre rows, and All Films Chronologically last in his order. Every row has Netflix's edge arrows for a mouse.
 - Hovering a film plays a short muted loop: ManleyFlix tiles that have one, and the hall screen, mapped into the render's screen quad. A click still opens the full film.
 - In a screening, a click anywhere around the film goes back.
 - A faint section name sits beside the sound button. Clicking it opens a menu that jumps to any section. End credits goes through the Dock app.
