@@ -682,8 +682,8 @@ def home(films):
 
 <section class="journey" aria-label="My journey, Lafayette to Los Angeles" data-frames="48">
   <div class="journey__pin"><canvas class="journey__c"></canvas>
-    <p class="jy__h">Lafayette &rarr; Los Angeles</p>
-    <ol class="jy__beats"><li class="jy__beat" data-i="0"><p>I&rsquo;ve always loved storytelling, from making animal documentaries to LEGO stop-motion films as a kid.</p><img src="/media/journey/journey-kid.jpg" alt="" loading="lazy"></li><li class="jy__beat" data-i="1"><p>At Peak to Peak High School, I led the Student Council Publicity Department, producing and filming biweekly video announcements.</p><img src="/media/journey/journey-3.jpg" alt="" loading="lazy"></li><li class="jy__beat" data-i="2"><p>A summer filmmaking program at LMU showed me that filmmaking could be a real career path.</p></li><li class="jy__beat" data-i="3"><p>Since then, I&rsquo;ve made short films with theater friends, shooting on my iPhone and editing in CapCut, and making my way up to Sonys and DaVinci.</p><img src="/media/journey/journey-1.jpg" alt="" loading="lazy"></li><li class="jy__beat" data-i="4"><p>I was accepted into USC&rsquo;s film school, where I&rsquo;ve been refining my craft, developing technical skills and meeting amazing creative people.</p><img src="/media/journey/journey-4.jpg" alt="" loading="lazy"></li></ol>
+    <div class="jy__card"><p class="jy__h">Lafayette &rarr; Los Angeles</p>
+    <ol class="jy__beats"><li class="jy__beat" data-i="0"><p>I&rsquo;ve always loved storytelling, from making animal documentaries to LEGO stop-motion films as a kid.</p><img src="/media/journey/journey-kid.jpg" alt="" loading="lazy"></li><li class="jy__beat" data-i="1"><p>At Peak to Peak High School, I led the Student Council Publicity Department, producing and filming biweekly video announcements.</p><img src="/media/journey/journey-3.jpg" alt="" loading="lazy"></li><li class="jy__beat" data-i="2"><p>A summer filmmaking program at LMU showed me that filmmaking could be a real career path.</p><img src="/media/journey/journey-2.jpg" alt="" loading="lazy"></li><li class="jy__beat" data-i="3"><p>Since then, I&rsquo;ve made short films with theater friends, shooting on my iPhone and editing in CapCut, and making my way up to Sony cameras and DaVinci.</p><img src="/media/journey/journey-1.jpg" alt="" loading="lazy"></li><li class="jy__beat" data-i="4"><p>I was accepted into USC&rsquo;s film school, where I&rsquo;ve been refining my craft, developing technical skills and meeting amazing creative people.</p><img src="/media/journey/journey-4.jpg" alt="" loading="lazy"></li></ol></div>
   </div>
 </section>
 <section class="flight-todo" aria-label="My journey, Lafayette to Los Angeles">
@@ -693,7 +693,7 @@ def home(films):
       <li>I&rsquo;ve always loved storytelling, from making animal documentaries to LEGO stop-motion films as a kid.</li>
       <li>At Peak to Peak High School, I led the Student Council Publicity Department, producing and filming biweekly video announcements.</li>
       <li>A summer filmmaking program at LMU showed me that filmmaking could be a real career path.</li>
-      <li>Since then, I&rsquo;ve made short films with theater friends, shooting on my iPhone and editing in CapCut, and making my way up to Sonys and DaVinci.</li>
+      <li>Since then, I&rsquo;ve made short films with theater friends, shooting on my iPhone and editing in CapCut, and making my way up to Sony cameras and DaVinci.</li>
       <li>I was accepted into USC&rsquo;s film school, where I&rsquo;ve been refining my craft, developing technical skills and meeting amazing creative people.</li>
     </ol>
     <div class="ft__photos"><img src="/media/journey/journey-kid.jpg" alt="" loading="lazy">{"".join(f'<img src="/media/journey/journey-{k}.jpg" alt="" loading="lazy">' for k in range(1, 5))}</div>

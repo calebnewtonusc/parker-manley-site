@@ -2353,6 +2353,7 @@ if (knoll && openingEl) {
   const cv = jy.querySelector(".journey__c"), cx = cv.getContext("2d");
   const pin = jy.querySelector(".journey__pin");
   const beats = [...jy.querySelectorAll(".jy__beat")];
+  const card = jy.querySelector(".jy__card");
   // frame where each line takes over: start, Colorado, mid-Colorado, airport and LA, USC
   const AT = [1, 7, 13, 19, 33];
   const fr = [];
@@ -2384,7 +2385,9 @@ if (knoll && openingEl) {
     const i = Math.min(N - 1, Math.floor(p * N));
     const f = fr[i];
     const beat = AT.reduce((b, at, k) => (i + 1 >= at ? k : b), 0);
-    beats.forEach((b, k) => b.classList.toggle("is-on", k === beat && i < N - 3));
+    beats.forEach((b, k) => b.classList.toggle("is-on", k === beat));
+    // Through the SCA doorway the card goes too, so the dark arch hands off clean.
+    if (card) card.classList.toggle("is-off", i >= N - 3);
     if (!f || !f.complete || !f.naturalWidth) return;
     const dpr = Math.min(2, devicePixelRatio || 1);
     const W = Math.round(innerWidth * dpr), H = Math.round(innerHeight * dpr);

@@ -3565,15 +3565,21 @@ html.has-leader body { overflow: hidden; }
 /* My Journey (computer): a pinned frame sequence with his lines up top. */
 .journey { display: none; }
 @media (min-width: 900px) {
-  .journey { display: block; position: relative; height: 520vh; background: #0b0b0a; }
-  .journey__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+  .journey { display: block; position: relative; height: 520vh; background: transparent; }
+  .journey__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; background: #1c120d; }
   .journey__c { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .jy__h { position: absolute; top: 5vh; left: 0; right: 0; margin: 0; text-align: center; font: 600 clamp(26px, 2.6vw, 40px)/1 "Caveat", cursive; color: #f4efe4; text-shadow: 0 2px 14px rgba(0,0,0,0.6); z-index: 2; }
-  .jy__beats { list-style: none; margin: 0; padding: 0; position: absolute; top: 12vh; left: 50%; transform: translateX(-50%); width: min(760px, 80vw); z-index: 2; }
-  .jy__beat { position: absolute; inset: 0 auto auto 0; width: 100%; display: flex; gap: 18px; align-items: flex-start; opacity: 0; transform: translateY(14px); transition: opacity 360ms ease-out, transform 360ms ease-out; }
+  /* His lines sit on a lined card like the phone version, so they read on
+     wood and on the pale paper mountains alike. White text with a shadow
+     disappeared over the Rockies (audit, 2026-10-26). */
+  .jy__card { position: absolute; top: 3.5vh; left: 50%; z-index: 2; width: min(680px, 74vw); padding: 14px 22px 16px 40px; color: #232220; transform: translateX(-50%) rotate(-0.8deg); background-color: #f3efe6; background-image: repeating-linear-gradient(transparent 0 25px, rgba(70,110,170,0.24) 25px 26px), url("/media/paper/printer.jpg"); background-position: 0 44px, center; background-size: auto, 520px; background-blend-mode: multiply; box-shadow: 0 1px 1px rgba(0,0,0,0.3), 0 14px 30px rgba(0,0,0,0.45); transition: opacity 360ms ease-out; }
+  .jy__card::before { content: ""; position: absolute; top: 0; bottom: 0; left: 26px; width: 1px; background: rgba(200,60,70,0.45); }
+  .jy__card.is-off { opacity: 0; }
+  .jy__h { margin: 0 0 6px; font: 700 clamp(22px, 2.2vw, 32px)/1 "Caveat", cursive; color: #232220; }
+  .jy__beats { list-style: none; margin: 0; padding: 0; display: grid; }
+  .jy__beat { grid-area: 1 / 1; display: flex; gap: 16px; align-items: flex-start; opacity: 0; transform: translateY(8px); transition: opacity 320ms ease-out, transform 320ms ease-out; }
   .jy__beat.is-on { opacity: 1; transform: none; }
-  .jy__beat p { margin: 0; flex: 1; font: 500 clamp(16px, 1.35vw, 21px)/1.5 var(--font); color: #f4efe4; text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 22px rgba(0,0,0,0.6); }
-  .jy__beat img { width: 108px; height: 140px; object-fit: cover; border: 5px solid #f4f1ea; box-shadow: 0 10px 24px rgba(0,0,0,0.45); transform: rotate(3deg); flex: none; }
+  .jy__beat p { margin: 0; flex: 1; font: 500 clamp(14px, 1.25vw, 19px)/1.45 var(--font); color: #232220; }
+  .jy__beat img { width: clamp(64px, 7vw, 96px); aspect-ratio: 3 / 4; height: auto; object-fit: cover; border: 4px solid #fbfaf6; box-shadow: 0 6px 14px rgba(0,0,0,0.35); transform: rotate(3deg); flex: none; margin: -2px 0 -6px; }
   .flight-todo { display: none; }
 }
 @media (min-width: 900px) {

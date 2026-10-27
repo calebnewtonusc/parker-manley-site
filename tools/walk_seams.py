@@ -12,7 +12,7 @@ from PIL import Image
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "https://parker-manley.up.railway.app/"
 OUT = sys.argv[2] if len(sys.argv) > 2 else "seams.png"
-SEAMS = [(".knoll", 0.0), (".knoll", 0.5), (".scene--films", 0.0), (".rollin", 0.0), (".rollin", 0.99),
+SEAMS = [(".knoll", 0.0), (".knoll", 0.5), (".knoll", 0.99), (".journey", 0.0), (".journey", 0.5), (".journey", 0.99), (".scene--films", 0.0), (".rollin", 0.0), (".rollin", 0.99),
          (".cam", 0.0), (".cam", 0.999), (".edit", 0.0), (".desk-run", 0.0), (".desk-run", 0.5), (".desk-run", 0.97)]
 with sync_playwright() as p:
     b = p.chromium.launch()
