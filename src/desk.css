@@ -1695,3 +1695,18 @@
    leaked out and moved the Mac scene behind it, which changes nothing you can
    see. A page in Chrome keeps its own scroll, like a real browser. */
 .desk .cw__page { overscroll-behavior: contain; scroll-behavior: auto; }
+
+/* Netflix's row arrows: a dark band the width of the row gutter, the chevron
+   grows on hover. Only for a mouse; touch swipes the row. */
+.desk .mfx-row__arrow { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .desk .mfx-row__arrow { display: grid; place-items: center; position: absolute; z-index: 6; width: 4cqw; padding: 0; border: 0; color: #fff; background: rgba(20, 20, 20, 0.5); cursor: pointer; opacity: 0; transition: opacity 120ms ease-out, background-color 120ms ease-out; }
+  .desk .mfx-row__arrow--prev { left: 0; border-radius: 0 4px 4px 0; }
+  .desk .mfx-row__arrow--next { right: 0; border-radius: 4px 0 0 4px; }
+  .desk .mfx-row__arrow[hidden] { display: none; }
+  .desk .mfx-row:hover .mfx-row__arrow { opacity: 1; }
+  .desk .mfx-row__arrow:hover { background: rgba(20, 20, 20, 0.7); }
+  .desk .mfx-row__arrow svg { width: 60%; max-width: 26px; transition: transform 120ms ease-out; }
+  .desk .mfx-row__arrow:hover svg { transform: scale(1.25); }
+  .desk .mfx-row__arrow:active svg { transform: scale(1.1); transition-duration: 100ms; }
+}

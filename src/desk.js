@@ -234,6 +234,42 @@
     if (Math.abs(dx) > 40) paint(cur + (dx < 0 ? 1 : -1));
   });
 
+  // Netflix's edge arrows. With the scrollbar hidden, a mouse wheel had no
+  // way sideways: 26 of the 32 films in All Films were out of reach without
+  // a trackpad (audit, 2026-10-26). Each press pages one screenful of tiles.
+  flix.querySelectorAll(".mfx-row").forEach((row) => {
+    const track = row.querySelector(".mfx-row__track");
+    if (!track) return;
+    const mk = (dir) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = `mfx-row__arrow mfx-row__arrow--${dir}`;
+      b.setAttribute("aria-label", dir === "prev" ? "Previous titles" : "Next titles");
+      b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + (dir === "prev" ? "M15 4 7 12l8 8" : "M9 4l8 8-8 8") + '" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>';
+      b.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+        track.scrollBy({ left: (dir === "prev" ? -1 : 1) * (track.clientWidth - pad * 2), behavior: "smooth" });
+      });
+      row.append(b);
+      return b;
+    };
+    const prev = mk("prev"), next = mk("next");
+    const fit = () => {
+      const t = track.querySelector(".mfx-tile, .mfx-top");
+      if (t) {
+        const top = t.getBoundingClientRect().top - row.getBoundingClientRect().top;
+        [prev, next].forEach((b) => { b.style.top = `${top}px`; b.style.height = `${t.offsetHeight}px`; });
+      }
+      prev.hidden = track.scrollLeft < 4;
+      next.hidden = track.scrollLeft + track.clientWidth > track.scrollWidth - 4;
+    };
+    track.addEventListener("scroll", fit, { passive: true });
+    row.addEventListener("pointerenter", fit);
+    addEventListener("resize", fit);
+    fit();
+  });
+
   show("flix");
 
   window.desk = {
