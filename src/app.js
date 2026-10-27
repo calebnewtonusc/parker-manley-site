@@ -2290,15 +2290,15 @@ if (knoll && openingEl) {
   // Parker's own menu, 2026-10-26: Home, About Me, Featured Films, All Films,
   // Photography, Contact me. The last three are tabs on his Mac.
   const PARTS = [
-    [".opening", "Home"], [".knoll", "About Me"], [".scene--films", "Featured Films"],
+    [".opening", "Home"], [".knoll", "About Me", null, 0.7], [".scene--films", "Featured Films"],
     [".desk-run", "All Films", "flix"], [".desk-run", "Photography", "gram"], [".desk-run", "Contact me", "contact"],
-  ].map(([sel, name, tab]) => [document.querySelector(sel), name, tab]).filter(([el]) => el);
+  ].map(([sel, name, tab, at]) => [document.querySelector(sel), name, tab, at]).filter(([el]) => el);
   const wrap = document.createElement("div");
   wrap.className = "where";
   wrap.innerHTML = '<button class="where__now" type="button" aria-expanded="false" aria-haspopup="true"></button><ol class="where__list" hidden></ol>';
   const now = wrap.querySelector(".where__now");
   const list = wrap.querySelector(".where__list");
-  PARTS.forEach(([el, name, tab]) => {
+  PARTS.forEach(([el, name, tab, at]) => {
     const li = document.createElement("li");
     const b = document.createElement("button");
     b.type = "button";
@@ -2306,7 +2306,10 @@ if (knoll && openingEl) {
     b.addEventListener("click", () => {
       close();
       // Tabs on the Mac: land in the middle of the Mac and bring that tab up.
-      const y = tab ? el.getBoundingClientRect().top + scrollY + (el.offsetHeight - innerHeight) * 0.5 : el.getBoundingClientRect().top + scrollY + 2;
+      // About Me lands on the call sheet, not the top of the table scene,
+      // where the reel still fills the window on his camera's flip screen.
+      const frac = tab ? 0.5 : at;
+      const y = frac != null ? el.getBoundingClientRect().top + scrollY + (el.offsetHeight - innerHeight) * frac : el.getBoundingClientRect().top + scrollY + 2;
       scrollTo({ top: y, behavior: reduced ? "auto" : "smooth" });
       if (tab && window.desk) setTimeout(() => window.desk.open(tab), reduced ? 0 : 700);
     });

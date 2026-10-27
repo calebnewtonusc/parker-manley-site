@@ -15,7 +15,10 @@ DIST = ROOT / "dist"
 EMAIL = "prmanley@usc.edu"
 YOUTUBE = "https://www.youtube.com/@rekrapyelnam6777"
 INSTAGRAM = "https://www.instagram.com/parkertheman677/"
-SITE = "https://parkermanley.com"
+# Link previews need a host that answers. parkermanley.com has no DNS record
+# yet (audit, 2026-10-26), so every shared link showed no image. Switch this
+# back the day the domain points here.
+SITE = "https://parker-manley.up.railway.app"
 
 e = html.escape
 
@@ -356,7 +359,7 @@ def end_credits(films):
       {pair("Filmed in", "Lafayette, Colorado<br>Los Angeles, California")}
     </dl>
     <dl class="roll__pairs roll__pairs--alone roll__reach">
-      {pair("Get in touch", f'<a href="mailto:{EMAIL}">{EMAIL}</a><br><a href="{YOUTUBE}" rel="noopener">YouTube</a> &middot; <a href="{INSTAGRAM}" rel="noopener">Instagram</a>')}
+      {pair("Get in touch", f'<a href="mailto:{EMAIL}">{EMAIL}</a><br><a href="{YOUTUBE}" target="_blank" rel="noopener">YouTube</a> &middot; <a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a>')}
     </dl>
   </div>
 """
@@ -747,7 +750,7 @@ def home(films):
           </form>
         </div>
         <p class="end__sent" aria-hidden="true"><b>Cut. Print it.</b><span>Your take is in. I'll write back soon.</span></p>
-        <p class="end__links"><a href="mailto:{EMAIL}">{EMAIL}</a><a href="{YOUTUBE}" rel="noopener">YouTube</a><a href="{INSTAGRAM}" rel="noopener">Instagram</a></p>
+        <p class="end__links"><a href="mailto:{EMAIL}">{EMAIL}</a><a href="{YOUTUBE}" target="_blank" rel="noopener">YouTube</a><a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></p>
       </div>
     </div>
   </div>

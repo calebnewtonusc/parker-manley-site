@@ -3522,11 +3522,13 @@ html.has-leader body { overflow: hidden; }
    "Can you include link to my youtube". The sticks themselves nudge open
    every few seconds until the slate is clapped, and the hint is bigger. */
 @media (min-width: 900px) {
-  .cpm--end .draft-slate::after { font-size: clamp(22px, 2.8cqw, 34px) !important; color: #fff6e6 !important; bottom: -52px !important; }
+  .cpm--end .draft-slate::after { font-size: clamp(26px, 3.4cqw, 40px) !important; font-weight: 700 !important; color: #fff6e6 !important; bottom: -56px !important; }
   .cpm--end .draft-slate:not(.is-clap):not(.is-pulled) .sl__stick { animation: stick-nudge 4.2s ease-in-out 2.4s infinite; }
   .cpm--end .irisout__card .end__links { display: flex !important; justify-content: flex-end; gap: 0; margin: 64px 0 0 !important; }
   .cpm--end .irisout__card .end__links a:not([href*="youtube"]) { display: none; }
-  .cpm--end .irisout__card .end__links a { font-size: clamp(13px, 1.4cqw, 16px); }
+  .cpm--end .irisout__card .end__links a { display: inline-flex; align-items: center; gap: 7px; font-size: clamp(14px, 1.7cqw, 19px); font-weight: 600; border-bottom: 0; }
+  /* The YouTube mark itself, so the link reads at a glance on the forest. */
+  .cpm--end .irisout__card .end__links a[href*="youtube"]::before { content: ""; width: 1.45em; height: 1em; flex: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 20'%3E%3Crect width='29' height='20' rx='5.5' fill='%23ff0033'/%3E%3Cpath d='M11.6 5.7v8.6l7.5-4.3z' fill='%23fff'/%3E%3C/svg%3E") center / contain no-repeat; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.6)); }
 }
 @keyframes stick-nudge { 0%, 70%, 100% { transform: rotate(0deg); } 78% { transform: rotate(-9deg); } 86% { transform: rotate(0deg); } 91% { transform: rotate(-4deg); } }
 @media (prefers-reduced-motion: reduce) { .cpm--end .draft-slate .sl__stick { animation: none !important; } }
