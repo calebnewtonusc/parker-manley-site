@@ -3607,3 +3607,27 @@ html.has-leader body { overflow: hidden; }
 @media (max-width: 899px) {
   .where__now { min-height: 36px; padding: 8px 12px; border-radius: 999px; background: rgba(11,11,10,0.62); color: rgba(236,228,210,0.82); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 }
+
+/* Phone: the star is a 5:3 frame, and covering a portrait screen cut his
+   name to "ARKER MANLE" (audit, 2026-10-26). Size it so the name spans the
+   width, center it, and let its top and bottom melt into the black so no
+   hard edge shows. The line under it clears the label and sound button. */
+@media (max-width: 899px) {
+  .is-home .foot__pin { background: #0b0b0a; }
+  .is-home .foot__star { position: absolute; left: 50%; top: 46%; width: 236vw; height: auto; max-width: none; transform: translate(-50%, -50%); object-fit: initial; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%); }
+  .is-home .foot__pin .foot__line { bottom: 76px; padding: 0 24px; line-height: 1.7; }
+}
+
+/* Phone: the end card is a plain section (its pin isn't sticky), but a later
+   unconditional 300vh gave it three screens of scroll room, leaving about two
+   screens of black between the links and the credits (audit, 2026-10-26). */
+@media (max-width: 899px) {
+  .irisout { height: auto !important; }
+}
+
+/* Phone camera scene: the pin was #000 on the #0b0b09 page, so every take
+   sat in a visible black box, and the monitor hung at the top with half the
+   screen empty under it (audit, 2026-10-26). Same ground, centered. */
+@media (max-width: 899px) {
+  .cam__pin { background: var(--ground, #0b0b09) !important; align-content: center; padding-top: 0 !important; }
+}
