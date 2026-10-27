@@ -501,7 +501,11 @@
         }
       });
       // Ruler timecodes every 5 minutes of Parker's runtime.
-      for (let m = 0; m * px < strip.scrollWidth; m += 5) {
+      // Measure once. Each label can be wider than the 5 minutes it marks
+      // (80px on a phone), so re-reading scrollWidth as labels are added
+      // grew it forever and froze iPhone Safari on load (audit, 2026-10-26).
+      const rulerEnd = strip.scrollWidth;
+      for (let m = 0; m * px < rulerEnd; m += 5) {
         const t = document.createElement("span");
         t.className = "ruler__tc";
         t.textContent = `00:${String(m).padStart(2, "0")}:00:00`;
@@ -788,6 +792,10 @@
           }
         }
       } else {
+        // No session (phone, reduced motion): no hand-off plays, so the
+        // camera's last still must not sit over the Program monitor. It hid
+        // every clip behind Hooked on a Feeling on phones (audit, 2026-10-26).
+        hand.style.display = "none";
         xh = p * (total - 1);
         strip.style.transform = `translateX(${win.clientWidth / 2 - xh}px)`;
         playhead.style.left = "";
@@ -2299,9 +2307,13 @@ if (knoll && openingEl) {
   if (!sound) return;
   // Parker's own menu, 2026-10-26: Home, About Me, Featured Films, All Films,
   // Photography, Contact me. The last three are tabs on his Mac.
+  // On a phone the table scene is hidden and the end card is its own
+  // section, so About Me and Contact me point there instead. Aimed at the
+  // hidden .knoll, About Me jumped to the top of the page (audit, 2026-10-26).
+  const phone = innerWidth < 900;
   const PARTS = [
-    [".opening", "Home"], [".knoll", "About Me", null, 0.7], [".scene--films", "Featured Films"],
-    [".desk-run", "All Films", "flix"], [".desk-run", "Photography", "gram"], [".desk-run", "Contact me", "contact"],
+    [".opening", "Home"], phone ? ["#about", "About Me"] : [".knoll", "About Me", null, 0.7], [".scene--films", "Featured Films"],
+    [".desk-run", "All Films", "flix"], [".desk-run", "Photography", "gram"], phone ? ["#contact", "Contact me"] : [".desk-run", "Contact me", "contact"],
   ].map(([sel, name, tab, at]) => [document.querySelector(sel), name, tab, at]).filter(([el]) => el);
   const wrap = document.createElement("div");
   wrap.className = "where";
