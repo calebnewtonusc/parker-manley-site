@@ -968,6 +968,12 @@
       // view of the hall screen, then the first take comes up over it.
       const live = cam.querySelector(".cam__live");
       if (live) live.style.opacity = String(1 - clamp((p0 - 0.015) / 0.05));
+      // The caption names the first take, so it comes up with that take. Over
+      // the live view it read "Anthropocene" under the Wasabi frame (audit,
+      // 2026-10-26).
+      const capEl = cam.querySelector(".pan__cap");
+      if (capEl && p0 < 0.07) capEl.style.opacity = String(clamp((p0 - 0.015) / 0.05));
+      else if (capEl && p0 < 0.88 && capEl.style.opacity !== "") capEl.style.opacity = "";
       // While the monitor still shows the roll-in's picture, the hall screen
       // keeps the film the roll-in left on it, so the cut doesn't swap it.
       const rl = document.querySelector(".rollin");
