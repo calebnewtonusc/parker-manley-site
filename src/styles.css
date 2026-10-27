@@ -3592,3 +3592,18 @@ html.has-leader body { overflow: hidden; }
   .journey__pin .wip__tag, .sky__pin .wip__tag { max-width: max(300px, calc(100% - 460px)); }
 }
 @media (min-width: 900px) { .journey { z-index: 2; } }
+
+/* Phone: Parker's six desk photos, which on a computer sit on the table
+   render. Below 900px the table is hidden and they never showed (audit,
+   2026-10-26). Scattered prints, each opens big on a tap. */
+.about__prints { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; margin-top: 34px; }
+.about__prints img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border: 5px solid #fbf8f0; box-shadow: 0 8px 18px rgba(0,0,0,0.45); }
+.about__prints img:nth-child(3n+1) { rotate: -2.5deg; }
+.about__prints img:nth-child(3n+2) { rotate: 1.5deg; translate: 0 6px; }
+.about__prints img:nth-child(3n) { rotate: -1deg; }
+.polaroid img, .about__prints img, .ft__photos img, .jy__beat img { cursor: zoom-in; }
+/* The section label gets a backing on a phone, where it sits over call
+   sheet text and credit names, and a tap target big enough for a thumb. */
+@media (max-width: 899px) {
+  .where__now { min-height: 36px; padding: 8px 12px; border-radius: 999px; background: rgba(11,11,10,0.62); color: rgba(236,228,210,0.82); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+}

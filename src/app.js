@@ -2432,3 +2432,24 @@ if (knoll && openingEl) {
   addEventListener("resize", draw);
   setInterval(draw, 400);
 })();
+
+// Every small photo of Parker's opens big on a click or tap (his notes,
+// 2026-10-26). The table render has its own buttons; these are the phone
+// prints, the call-sheet polaroids and the journey photos.
+(() => {
+  const open = (src) => {
+    const box = document.createElement("div");
+    box.className = "photo-open";
+    box.innerHTML = `<img src="${src}" alt="">`;
+    const shut = () => { box.classList.remove("is-on"); setTimeout(() => box.remove(), 220); removeEventListener("keydown", esc); };
+    const esc = (ev) => { if (ev.key === "Escape") shut(); };
+    box.addEventListener("click", shut);
+    addEventListener("keydown", esc);
+    document.body.append(box);
+    requestAnimationFrame(() => box.classList.add("is-on"));
+  };
+  document.addEventListener("click", (ev) => {
+    const im = ev.target.closest && ev.target.closest(".polaroid img, .about__prints img, .ft__photos img, .jy__beat img");
+    if (im) open(im.currentSrc || im.src);
+  });
+})();

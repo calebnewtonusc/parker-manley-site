@@ -650,6 +650,7 @@ def home(films):
       <figure class="polaroid"><img src="/media/portraits/bigbear.jpg" alt="Parker outdoors" loading="lazy"><figcaption>Sc. 2 &middot; outdoors</figcaption></figure>
       <figure class="polaroid"><img src="/media/portraits/faith.jpg" alt="A crucifix against a castle tower" loading="lazy"><figcaption>Sc. 3 &middot; faith</figcaption></figure>
     </div>
+    <div class="about__prints">{"".join(f'<img src="/media/desk/parker/desk-{k}.jpg" alt="" loading="lazy">' for k in range(1, 7))}</div>
   </div>
 </section>
 <section class="knoll" aria-label="Parker's production table">
