@@ -563,19 +563,22 @@ def home(films):
         + (' class="is-on"' if i == 0 else "") + "></video>"
         for i, f in enumerate(featured)
     )
+    # A bare Mac's /usr/bin/python3 is 3.9, which refuses quotes and backslashes
+    # reused inside an f-string (2026-11-06, build.py died before Parker's handoff).
+    aria_hidden, tab_off, is_on = ' aria-hidden="true"', ' tabindex="-1"', ' class="is-on"'
     n = len(featured)
     hall_stills = "".join(
-        f'<img class="hall__f{" is-on" if i == 0 else ""}" src="/media/hall/{f["slug"] if exists(f"media/hall/{f['slug']}.webp") else HALL[0]}.webp" alt="" loading="{"eager" if i == 0 else "lazy"}">'
+        f'<img class="hall__f{" is-on" if i == 0 else ""}" src="/media/hall/{f["slug"] if exists("media/hall/" + f["slug"] + ".webp") else HALL[0]}.webp" alt="" loading="{"eager" if i == 0 else "lazy"}">'
         for i, f in enumerate(featured)
     )
     cards = "\n".join(
-        f'<div class="line{" is-on" if i == 0 else ""}"{"" if i == 0 else " aria-hidden=\"true\""}>'
+        f'<div class="line{" is-on" if i == 0 else ""}"{"" if i == 0 else aria_hidden}>'
         f'<p class="card__no">No. {i + 1} of {n}</p>'
         f'<h3 class="card__title">{e(s["title"])}</h3>'
         f'<p class="card__meta">{e(s["meta"])}</p>'
         f'<p class="card__syn">{e(s["synopsis"])}</p>'
         + (f'<p class="card__laurels">' + "".join(f'<span>{LAUREL}{e(x)}{LAUREL}</span>' for x in s["laurels"]) + '</p>' if s["laurels"] else (f'<p class="card__fest">{e(s["festivals"])}</p>' if s["festivals"] else ""))
-        + f'<a class="btn btn--ticket" href="{s["href"]}"{"" if i == 0 else " tabindex=\"-1\""}>Watch the film</a></div>'
+        + f'<a class="btn btn--ticket" href="{s["href"]}"{"" if i == 0 else tab_off}>Watch the film</a></div>'
         for i, s in enumerate(showing)
     )
     tickets = "\n".join(
@@ -583,7 +586,7 @@ def home(films):
         f'<span class="n">{i + 1:02d}</span><span class="t">{e(s["title"])}</span></a></li>'
         for i, s in enumerate(showing)
     )
-    ticks = "".join(f'<i{" class=\"is-on\"" if i == 0 else ""}></i>' for i in range(n))
+    ticks = "".join(f'<i{is_on if i == 0 else ""}></i>' for i in range(n))
     program = festival_program(films)
     arch = "\n".join(
         f'<li><a href="/films/{f["slug"]}/"><span class="y">{f.get("years") or f["year"] or ""}</span>'
