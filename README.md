@@ -8,7 +8,7 @@ Parker Manley's film portfolio. Static site built by `build.py` from `data/films
 2. Add `media/posters/<slug>.jpg`. Featured films also need `media/loops/<slug>.mp4` and `<slug>-720.mp4` (6 to 8 second muted loop).
 3. Push to main. Railway rebuilds and deploys.
 
-Run `python3 build.py` to preview locally in `dist/`.
+Run `/usr/bin/python3 build.py` to build into `dist/`, then `/usr/bin/python3 -m http.server 8000 -d dist` to preview it. `CLAUDE.md` has the full guide.
 
 All glory to God! ✝️❤️
 
