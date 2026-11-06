@@ -72,7 +72,6 @@ def page(title, body, *, current="", description="", image="/media/portraits/roc
 <link rel="stylesheet" href="/desk.css">
 </head>
 <body class="{'is-home' if path == '/' else ''}">
-<div style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:1000;padding:4px 10px;background:#1b1914;color:#e8dcc2;border:1px solid #e8dcc2;font:13px/1.4 sans-serif;white-space:nowrap;pointer-events:none">test test 1233</div>
 <a class="skip" href="#main">Skip to content</a>
 <header class="mast">
   <a class="mast__name" href="/">Parker Manley</a>
