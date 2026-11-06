@@ -17,7 +17,16 @@ Use the Mac's own Python. It's 3.9, so keep `build.py` free of newer syntax, and
 
 Then open http://localhost:8000. The film pages are at `/films/<slug>/`. `dist/` is never committed.
 
+## The commands he uses
+
+- `/add-film <youtube link>` adds a film, shows it, and waits
+- `/change <what he wants>` changes anything, shows it, and waits
+- `/live` puts it on the real site
+- `/take-back` undoes the last thing that went live
+
 ## Add a film
+
+Use `tools/add_film.py`, which fills the title, saves the poster, places the film and builds. By hand it goes like this:
 
 1. Add an entry to `data/films.json`, placed where he ranks it. The order is his ranking. Use `youtube` for the 11 character video ID.
 2. Ask him for his role. A blank `role` tells the site he wrote, directed, shot and edited it, so never leave it blank unless that's true. Copy the wording of other entries, like "Co-directed & written".
