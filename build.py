@@ -394,7 +394,7 @@ def tv_rows(films):
     funny = [f for f in films if "Comedy" in f["genre"]]
     drama = [f for f in films if any(k in f["genre"] for k in ("Drama", "Romance", "Coming of Age")) and f not in scary]
     mv = [f for f in films if f["genre"] in ("Music Video", "Game Show")]
-    every = pick(["scar-tissue", "hot-tempered", "anthropocene", "everybody", "the-runaround",
+    every = pick(["plagiarism-or-prophecy", "scar-tissue", "hot-tempered", "anthropocene", "everybody", "the-runaround",
                   "emergency-contact-1", "emergency-contact-3", "reflect", "as-we-are-you-shall-be",
                   "the-best-worst-day-of-my-life", "a-moment", "the-teeth-deal", "dogme-oner",
                   "the-ultimate-trojan", "the-bend", "wither-and-bloom", "the-brawn-identity", "the-pills",

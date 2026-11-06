@@ -83,6 +83,28 @@
       "music": []
     },
     {
+      "slug": "plagiarism-or-prophecy",
+      "title": "Plagiarism or Prophecy",
+      "year": 2026,
+      "genre": "Comedy",
+      "minutes": 7,
+      "youtube": "cnAuKyJheQc",
+      "featured": false,
+      "synopsis": "A high school student accused of being a time traveler must hide her use of ChatGPT on her test.",
+      "role": "",
+      "cast": [
+        "Morgan Mecklenburg",
+        "Eli Buettner",
+        "Alex Webber"
+      ],
+      "crew": [],
+      "made_for": "USC CTPR 290",
+      "festivals": [],
+      "music": [
+        "Pink Floyd"
+      ]
+    },
+    {
       "slug": "reflect",
       "title": "Reflect",
       "year": 2026,
