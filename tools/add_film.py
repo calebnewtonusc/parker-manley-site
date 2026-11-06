@@ -14,10 +14,12 @@ which a dry run of Plagiarism or Prophecy nearly claimed on 2026-11-06.
 import argparse
 import datetime
 import json
+import os
 import re
 import subprocess
 import sys
 import urllib.parse
+import unicodedata
 import urllib.request
 
 FILMS = "data/films.json"
@@ -49,7 +51,8 @@ def youtube_title(vid):
 
 
 def slugify(title):
-    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+    plain = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", "-", plain.replace("'", "").lower()).strip("-")
 
 
 def split(text):
@@ -58,7 +61,12 @@ def split(text):
 
 def save_poster(path_out, vid, given):
     if given:
-        subprocess.run(["sips", "-s", "format", "jpeg", given, "--out", path_out], check=True, capture_output=True)
+        # sips exits 0 on a file it can't read, so check the result (2026-11-06: a missing poster passed).
+        if not os.path.isfile(given):
+            sys.exit(f"Can't find that poster: {given}")
+        subprocess.run(["sips", "-s", "format", "jpeg", given, "--out", path_out], capture_output=True)
+        if not os.path.isfile(path_out) or os.path.getsize(path_out) == 0:
+            sys.exit(f"Couldn't read that poster: {given}. Try a .jpg or .png.")
         return "your file"
     for name in ("maxresdefault", "hqdefault"):
         try:
@@ -91,6 +99,8 @@ def main():
     if not a.role.strip():
         sys.exit("Say what his role was: a blank role means he wrote, directed, shot and edited it.")
 
+    a.poster = os.path.abspath(os.path.expanduser(a.poster)) if a.poster else None
+    os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # works from any folder
     vid = video_id(a.link)
     with open(FILMS, encoding="utf-8") as f:
         raw = f.read()
@@ -101,7 +111,9 @@ def main():
             sys.exit(f"That video is already on the site as {film['title']}.")
     title = a.title or youtube_title(vid)
     slug = slugify(title)
-    if not slug or any(film["slug"] == slug for film in films):
+    if not slug:
+        sys.exit(f"The title {title} needs some letters or numbers. Pass a different --title.")
+    if any(film["slug"] == slug for film in films):
         sys.exit(f"There's already a film called {title}. Pass a different --title.")
 
     poster = save_poster(f"media/posters/{slug}.jpg", vid, a.poster)
